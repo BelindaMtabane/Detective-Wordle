@@ -4,224 +4,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiny Detective</title>
+    <title>Memory Mayhem - The Royal Debt</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header class="topbar">
-        <div class="logo">🔎 Tiny Detective</div>
-        <div class="topbar-right">
-            <span id="headerPoints">⭐ 0 Points</span>
-            <span id="headerLives">❤️ 3 Lives</span>
-        </div>
-    </header>
+    <div class="game-container">
 
-    <main class="game-container">
+        <header>
+            <h1>👑 MEMORY MAYHEM</h1>
+            <p>THE ROYAL DEBT</p>
+        </header>
 
-        <!-- HOME -->
-        <section id="homeScreen" class="screen active">
-            <div class="hero">
-                <div class="hero-icon">🕵️</div>
-                <p class="eyebrow">WELCOME, DETECTIVE!</p>
-                <h1>Every mystery has a secret.</h1>
-                <p class="hero-description">
-                    Read the clues, solve sentence puzzles, question suspects,
-                    and uncover the truth.
-                </p>
-                <button class="btn primary" id="playButton">Start Investigating →</button>
-                <button class="btn secondary" id="continueButton">Continue Cases</button>
-            </div>
+        <section id="startScreen" class="screen">
+            <h2>The King has your money!</h2>
+            <p>Defeat King Reginald in a memory battle to escape your debt.</p>
+            <button id="startButton">START BATTLE</button>
         </section>
 
-        <!-- CASE ARCHIVE -->
-        <section id="casesScreen" class="screen">
-            <div class="section-heading">
-                <p class="eyebrow">YOUR DETECTIVE JOURNEY</p>
-                <h1>Case Archive</h1>
-                <p>Complete a case to unlock the next mystery.</p>
-            </div>
-            <div id="caseGrid" class="case-grid"></div>
-            <button class="btn secondary" id="backHomeButton">← Home</button>
-        </section>
+        <section id="gameScreen" class="screen hidden">
 
-        <!-- STORY BRIEFING -->
-        <section id="briefingScreen" class="screen">
-            <div class="section-heading">
-                <p class="eyebrow">CASE BRIEFING</p>
-                <h1 id="briefingTitle">The Missing Necklace</h1>
-            </div>
-
-            <div class="paper-card">
-                <div class="case-icon" id="briefingIcon">💎</div>
-                <h2 id="briefingSubtitle">A mysterious disappearance</h2>
-                <p id="briefingStory"></p>
-
-                <div class="facts-box">
-                    <h3>🔍 Known Evidence</h3>
-                    <ul id="briefingFacts"></ul>
+            <div class="battle-info">
+                <div class="fighter">
+                    <h3>👑 KING REGINALD</h3>
+                    <p>Pairs: <span id="kingScore">0</span></p>
                 </div>
-            </div>
 
-            <button class="btn primary" id="enterPuzzleButton">
-                Start Sentence Challenge →
-            </button>
-            <button class="btn secondary" id="backCasesButton">← Case Archive</button>
-        </section>
-
-        <!-- SENTENCE PUZZLES -->
-        <section id="puzzleScreen" class="screen">
-            <div class="section-heading">
-                <p class="eyebrow">STAGE 1 · EVIDENCE CHALLENGE</p>
-                <h1>Build the Sentence!</h1>
-                <p>Put the shuffled words in the correct order to uncover evidence.</p>
+                <div class="fighter player">
+                    <h3>🧑 YOU</h3>
+                    <p>Pairs: <span id="playerScore">0</span></p>
+                </div>
             </div>
 
             <div class="game-status">
-                <span id="puzzleProgress">Puzzle 1 / 5</span>
-                <span id="puzzleTimer">⏱ 45s</span>
-                <span id="puzzleLives">❤️ 3</span>
+                <span id="turnDisplay">YOUR TURN</span>
+                <span id="message">Find matching cards!</span>
             </div>
 
-            <div class="timer-track">
-                <div id="puzzleTimerBar" class="timer-fill"></div>
-            </div>
+            <div id="cardBoard" class="card-board"></div>
 
-            <div class="paper-card puzzle-card">
-                <p class="eyebrow">YOUR CHALLENGE</p>
-                <h2 id="puzzlePrompt">Arrange the words into a sentence.</h2>
+            <section class="abilities">
+                <h3>YOUR SPECIAL CARDS</h3>
 
-                <div id="answerArea" class="answer-area">
-                    <span class="answer-placeholder">Your sentence will appear here...</span>
+                <div class="ability-buttons">
+                    <button data-ability="hint">🔮 Lucky Hint</button>
+                    <button data-ability="swap">🪄 Switcheroo</button>
+                    <button data-ability="shuffle">🌀 Royal Shuffle</button>
+                    <button data-ability="chaos">💥 Chaos Card</button>
+                    <button data-ability="shield">🛡️ Royal Shield</button>
                 </div>
+            </section>
 
-                <h3 class="tile-heading">SHUFFLED WORDS</h3>
-                <div id="wordTiles" class="word-tiles"></div>
-
-                <div id="puzzleFeedback" class="feedback"></div>
-
-                <div class="puzzle-actions">
-                    <button class="btn secondary" id="undoWordButton">↶ Undo</button>
-                    <button class="btn secondary" id="clearWordsButton">Clear</button>
-                    <button class="btn primary" id="checkSentenceButton">Check Sentence ✓</button>
-                </div>
-            </div>
-
-            <p class="small-note">
-                Correct sentence: +10 points. Incorrect answer: -5 points and one life.
-                Time running out costs one life.
-            </p>
         </section>
 
-        <!-- INTERROGATION -->
-        <section id="interviewScreen" class="screen">
-            <div class="section-heading">
-                <p class="eyebrow">STAGE 2 · INTERROGATION</p>
-                <h1>Question the Suspects</h1>
-                <p>Listen carefully. Is the suspect telling the truth or lying?</p>
-            </div>
-
-            <div class="game-status">
-                <span id="interviewProgress">Suspect 1 / 3</span>
-                <span id="interviewTimer">⏱ 45s</span>
-                <span id="interviewLives">❤️ 3</span>
-            </div>
-
-            <div class="timer-track">
-                <div id="interviewTimerBar" class="timer-fill"></div>
-            </div>
-
-            <div class="paper-card interview-card">
-                <div class="suspect-avatar" id="suspectAvatar">👩</div>
-                <h2 id="suspectName">Maya Rose</h2>
-                <p id="suspectDescription" class="muted"></p>
-
-                <div class="question-number" id="questionNumber">Question 1 of 5</div>
-
-                <div class="statement-box">
-                    <p id="suspectStatement"></p>
-                </div>
-
-                <div class="decision-buttons">
-                    <button class="btn truth-button" id="truthButton">✓ Truth</button>
-                    <button class="btn lie-button" id="lieButton">✕ Lie</button>
-                </div>
-
-                <div id="interviewFeedback" class="feedback"></div>
-            </div>
+        <section id="endScreen" class="screen hidden">
+            <h2 id="resultTitle">Battle Complete!</h2>
+            <p id="resultMessage"></p>
+            <button id="restartButton">PLAY AGAIN</button>
         </section>
 
-        <!-- ACCUSATION -->
-        <section id="accusationScreen" class="screen">
-            <div class="section-heading">
-                <p class="eyebrow">STAGE 3 · FINAL DECISION</p>
-                <h1>Who Did It?</h1>
-                <p>You have examined the evidence. Now make your accusation.</p>
-            </div>
-
-            <div class="paper-card">
-                <div class="case-icon">⚖️</div>
-                <h2>Choose the culprit</h2>
-                <div id="accusationChoices" class="accusation-choices"></div>
-                <div id="accusationFeedback" class="feedback"></div>
-                <button class="btn primary" id="accuseButton">Confirm Accusation</button>
-            </div>
-        </section>
-
-        <!-- REPORT -->
-        <section id="reportScreen" class="screen">
-            <div class="report-card">
-                <div class="case-icon" id="reportIcon">🏆</div>
-                <p class="eyebrow">INVESTIGATION COMPLETE</p>
-                <h1 id="reportTitle">Case Solved!</h1>
-                <p id="reportMessage"></p>
-
-                <div class="score-grid">
-                    <div class="score-item">
-                        <strong id="finalPoints">0</strong>
-                        <span>Points</span>
-                    </div>
-                    <div class="score-item">
-                        <strong id="finalCorrect">0</strong>
-                        <span>Correct</span>
-                    </div>
-                    <div class="score-item">
-                        <strong id="finalMistakes">0</strong>
-                        <span>Mistakes</span>
-                    </div>
-                    <div class="score-item">
-                        <strong id="finalLives">0</strong>
-                        <span>Lives Left</span>
-                    </div>
-                </div>
-
-                <div class="paper-card">
-                    <h3>📝 Detective's Findings</h3>
-                    <p id="reportExplanation"></p>
-                </div>
-
-                <button class="btn primary" id="nextCaseButton">Next Case →</button>
-                <button class="btn secondary" id="reportHomeButton">Return Home</button>
-            </div>
-        </section>
-
-        <!-- FAILED -->
-        <section id="failedScreen" class="screen">
-            <div class="hero">
-                <div class="hero-icon">😵</div>
-                <p class="eyebrow">INVESTIGATION FAILED</p>
-                <h1>Oh no, Detective!</h1>
-                <p>You ran out of lives. This mystery is still waiting to be solved.</p>
-                <button class="btn primary" id="retryButton">Try Again ↻</button>
-                <button class="btn secondary" id="failedHomeButton">Return Home</button>
-            </div>
-        </section>
-
-    </main>
-
-    <footer>
-        <p>🔎 Tiny Detective · Think carefully. Trust the evidence.</p>
-    </footer>
+    </div>
 
     <script src="script.js"></script>
 </body>
