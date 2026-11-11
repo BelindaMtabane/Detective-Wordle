@@ -1,49 +1,44 @@
 
-/* =========================================================
+/* ==========================================
    TINY DETECTIVE
    COMIC CYBERPUNK EDITION
-   Visual redesign — gameplay structure preserved
-========================================================= */
+   Complete Style Sheet
+   ========================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&family=Bangers&display=swap');
+/* 1. GOOGLE FONTS */
 
-/* =========================
-   ROOT VARIABLES
-========================= */
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+
+/* 2. ROOT VARIABLES */
 
 :root {
-    --background: #09091a;
-    --background-light: #15152c;
+    --bg: #09091a;
+    --bg-light: #12122b;
     --panel: #191932;
-    --panel-light: #222244;
+    --panel-light: #242444;
 
     --cyan: #00f5ff;
-    --cyan-soft: #83ffff;
+    --cyan-dark: #00b8cc;
     --purple: #a855f7;
     --pink: #ff3cac;
-    --gold: #ffe066;
+    --gold: #ffdb58;
 
-    --text: #ffffff;
-    --muted: #b8b8d4;
+    --green: #42f5a1;
+    --red: #ff5268;
 
-    --success: #36e6a0;
-    --danger: #ff5577;
-    --warning: #ffbf47;
+    --text: #f5f3ff;
+    --muted: #aaa9c5;
 
-    --border: rgba(0, 245, 255, 0.5);
+    --border: rgba(168, 85, 247, 0.55);
 
-    --glow-cyan: 0 0 14px rgba(0, 245, 255, 0.4);
-    --glow-purple: 0 0 14px rgba(168, 85, 247, 0.4);
-    --glow-pink: 0 0 14px rgba(255, 60, 172, 0.4);
-
-    --radius: 14px;
-    --comic-border: 3px solid #080817;
-    --comic-shadow: 5px 5px 0 #080817;
+    --comic-shadow: 5px 5px 0 #050510;
+    --glow-cyan: 0 0 18px rgba(0, 245, 255, 0.35);
+    --glow-purple: 0 0 18px rgba(168, 85, 247, 0.35);
 }
 
-/* =========================
-   GLOBAL RESET
-========================= */
+
+/* 3. GLOBAL RESET */
 
 * {
     box-sizing: border-box;
@@ -58,153 +53,92 @@ html {
 body {
     min-height: 100vh;
     background:
-        radial-gradient(circle at 10% 15%, rgba(0,245,255,0.12), transparent 28%),
-        radial-gradient(circle at 90% 30%, rgba(255,60,172,0.12), transparent 30%),
-        radial-gradient(circle at 50% 100%, rgba(168,85,247,0.12), transparent 35%),
-        var(--background);
+        radial-gradient(circle at 20% 20%, #21133f 0%, transparent 35%),
+        radial-gradient(circle at 80% 80%, #102b42 0%, transparent 35%),
+        var(--bg);
 
     color: var(--text);
     font-family: 'Rajdhani', sans-serif;
-    font-size: 18px;
+    font-size: 17px;
     overflow-x: hidden;
 }
 
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: -1;
-
-    background-image: radial-gradient(
-        rgba(255,255,255,0.09) 1px,
-        transparent 1px
-    );
-
-    background-size: 5px 5px;
-    opacity: 0.25;
-}
-
 button {
-    font-family: inherit;
+    font-family: 'Orbitron', sans-serif;
     cursor: pointer;
 }
 
-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.45;
+img {
+    max-width: 100%;
 }
 
-button:focus-visible {
-    outline: 3px solid var(--gold);
-    outline-offset: 4px;
-}
 
-.hidden,
-[hidden] {
-    display: none !important;
-}
-
-/* =========================
-   APP SHELL
-========================= */
+/* 4. APP SHELL */
 
 .app-shell {
+    width: 100%;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
-
-/* =========================
-   TOP BAR
-========================= */
 
 .topbar {
     width: 100%;
-    min-height: 78px;
-    padding: 14px 5%;
-
+    min-height: 72px;
+    padding: 12px 5%;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     gap: 20px;
 
-    background: rgba(12, 12, 30, 0.96);
+    background: rgba(9, 9, 26, 0.94);
+    border-bottom: 2px solid var(--purple);
 
-    border-bottom: 3px solid var(--pink);
-
-    box-shadow:
-        0 5px 0 rgba(0,0,0,0.4),
-        0 0 20px rgba(255,60,172,0.15);
+    box-shadow: var(--glow-purple);
+    position: relative;
+    z-index: 10;
 }
 
 .logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.logo-icon {
-    color: var(--gold);
-    font-size: 38px;
-    text-shadow: var(--glow-pink);
-}
-
-.logo h1 {
     font-family: 'Bangers', cursive;
-    font-size: 30px;
+    font-size: 32px;
     letter-spacing: 2px;
     color: var(--cyan);
     text-shadow: 3px 3px 0 var(--purple);
 }
 
-.logo small {
-    display: block;
-    margin-top: 4px;
-    color: var(--pink);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 9px;
-    letter-spacing: 2px;
-}
-
 .topbar-right {
     display: flex;
-    gap: 25px;
     align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .hud-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-}
-
-.hud-item span {
-    color: var(--muted);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 9px;
-    letter-spacing: 1.5px;
-}
-
-.hud-item strong {
+    background: var(--panel);
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
     color: var(--gold);
     font-family: 'Orbitron', sans-serif;
-    font-size: 16px;
+    font-size: 12px;
 }
 
-/* =========================
-   MAIN CONTAINER
-========================= */
+
+/* 5. GAME CONTAINER */
 
 .game-container {
-    width: min(1100px, 92%);
-    margin: 35px auto;
+    width: 100%;
+    max-width: 1400px;
+    padding: 35px 5%;
+    margin: 0 auto;
     flex: 1;
 }
 
 .screen {
     display: none;
+    width: 100%;
     animation: screenFade 0.35s ease;
 }
 
@@ -215,7 +149,7 @@ button:focus-visible {
 @keyframes screenFade {
     from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(10px);
     }
 
     to {
@@ -224,223 +158,146 @@ button:focus-visible {
     }
 }
 
-/* =========================
-   HERO SECTION
-========================= */
 
-.hero {
-    min-height: 390px;
-    padding: 55px 30px;
+/* 6. GENERAL HEADINGS */
 
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-
-    position: relative;
-    overflow: hidden;
-
-    border: 3px solid var(--cyan);
-    border-radius: 18px;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(9,9,26,0.97),
-            rgba(9,9,26,0.75)
-        ),
-        radial-gradient(
-            circle at 80% 50%,
-            rgba(0,245,255,0.3),
-            transparent 45%
-        );
-
-    box-shadow:
-        6px 6px 0 #050510,
-        var(--glow-cyan);
+h1,
+h2,
+h3 {
+    font-family: 'Orbitron', sans-serif;
 }
 
-/* Decorative comic-book burst */
-
-.hero::after {
-    content: "";
-    position: absolute;
-    width: 250px;
-    height: 250px;
-    right: -70px;
-    top: -70px;
-
-    border-radius: 50%;
-
-    background: repeating-conic-gradient(
-        rgba(255,60,172,0.15) 0deg 8deg,
-        transparent 8deg 16deg
-    );
-
-    pointer-events: none;
+.hero h1 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(48px, 8vw, 90px);
+    letter-spacing: 4px;
+    color: var(--cyan);
+    text-shadow:
+        4px 4px 0 var(--purple),
+        7px 7px 0 #050510;
 }
 
 .eyebrow {
     color: var(--pink);
     font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     letter-spacing: 3px;
-    margin-bottom: 16px;
-    position: relative;
-    z-index: 1;
+    text-transform: uppercase;
+    margin-bottom: 12px;
 }
 
-.hero h2 {
-    font-family: 'Bangers', cursive;
-    font-size: clamp(48px, 8vw, 82px);
-    line-height: 1.1;
-    letter-spacing: 3px;
-    margin-bottom: 20px;
-    text-shadow: 4px 4px 0 var(--purple);
+
+/* 7. HOME HERO */
+
+.hero {
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 35px;
+    padding: 45px;
     position: relative;
-    z-index: 1;
+    overflow: hidden;
+
+    background: linear-gradient(
+        120deg,
+        rgba(18, 18, 43, 0.96),
+        rgba(34, 17, 65, 0.88)
+    );
+
+    border: 2px solid var(--purple);
+    border-radius: 20px;
+    box-shadow: var(--comic-shadow);
 }
 
-.hero h2 span {
-    color: var(--cyan);
-    text-shadow:
-        3px 3px 0 var(--pink),
-        var(--glow-cyan);
-}
-
-.hero p {
-    max-width: 540px;
-    color: var(--muted);
-    font-size: 20px;
-    line-height: 1.5;
-    margin-bottom: 28px;
+.hero-content {
+    flex: 1;
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .hero-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    position: relative;
-    z-index: 1;
+    gap: 15px;
+    margin-top: 25px;
 }
 
-/* =========================
-   BUTTONS
-========================= */
+.hero-image {
+    flex: 0 1 340px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* 8. BUTTONS */
 
 .btn {
-    border: 2px solid #080817;
+    border: 2px solid var(--cyan);
+    padding: 13px 23px;
     border-radius: 8px;
-    padding: 12px 22px;
 
-    font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
-    font-weight: 800;
+    color: var(--text);
+    background: var(--panel);
+
+    font-size: 13px;
+    font-weight: 700;
     letter-spacing: 1px;
 
-    box-shadow: 4px 4px 0 #080817;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
+    box-shadow: 3px 3px 0 #050510;
+    transition: 0.2s ease;
 }
 
-.btn:hover:not(:disabled) {
+.btn:hover {
     transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #080817;
+    box-shadow: 5px 5px 0 #050510;
 }
 
-.btn:active:not(:disabled) {
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 #080817;
-}
-
-.primary {
-    color: #080817;
+.btn.primary {
     background: var(--cyan);
+    color: #09091a;
+    border-color: var(--cyan);
 }
 
-.primary:hover:not(:disabled) {
-    background: var(--cyan-soft);
-    box-shadow: 0 0 20px rgba(0,245,255,0.5);
-}
-
-.secondary {
-    color: white;
+.btn.secondary {
     background: var(--purple);
-}
-
-.secondary:hover:not(:disabled) {
-    background: var(--pink);
+    color: white;
+    border-color: var(--purple);
 }
 
 .truth-button {
-    color: #061a13;
-    background: var(--success);
+    background: rgba(66, 245, 161, 0.15);
+    border-color: var(--green);
+    color: var(--green);
 }
 
 .lie-button {
-    color: white;
-    background: var(--danger);
+    background: rgba(255, 82, 104, 0.15);
+    border-color: var(--red);
+    color: var(--red);
 }
 
-.truth-button:hover:not(:disabled),
-.lie-button:hover:not(:disabled) {
-    filter: brightness(1.15);
-}
 
-/* =========================
-   HOME STATISTICS
-========================= */
+/* 9. HOME STATS */
 
 .home-stats {
-    margin-top: 25px;
-
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 25px;
 }
 
 .paper-card {
-    background: linear-gradient(
-        145deg,
-        var(--panel),
-        var(--background-light)
-    );
-
-    border: var(--comic-border);
-    border-radius: var(--radius);
-    padding: 22px;
-
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
     box-shadow: var(--comic-shadow);
 }
 
-.home-stats .paper-card {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
 
-.home-stats span {
-    color: var(--muted);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 9px;
-    letter-spacing: 1px;
-}
-
-.home-stats strong {
-    color: var(--gold);
-    font-family: 'Bangers', cursive;
-    font-size: 30px;
-    letter-spacing: 1px;
-}
-
-/* =========================
-   SECTION HEADINGS
-========================= */
+/* 10. SECTION HEADINGS */
 
 .section-heading {
     margin-bottom: 25px;
@@ -448,840 +305,371 @@ button:focus-visible {
 
 .section-heading h2 {
     color: var(--cyan);
-    font-family: 'Bangers', cursive;
-    font-size: clamp(30px, 5vw, 45px);
-    letter-spacing: 2px;
-    margin-bottom: 10px;
+    font-size: clamp(22px, 4vw, 32px);
     text-shadow: 2px 2px 0 var(--purple);
 }
 
 .section-heading p {
     color: var(--muted);
-    font-size: 18px;
+    margin-top: 8px;
 }
 
-/* =========================
-   CASE ARCHIVE
-========================= */
+
+/* 11. CASE GRID */
 
 .case-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-    margin-bottom: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
 }
 
 .case-card {
-    padding: 22px;
     background: var(--panel);
-
-    border: 2px solid var(--purple);
-    border-radius: 12px;
-
-    box-shadow: 4px 4px 0 #080817;
-
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--comic-shadow);
     transition: 0.2s ease;
 }
 
-.case-card:hover:not(.locked) {
+.case-card:hover {
+    transform: translateY(-5px);
     border-color: var(--cyan);
-    box-shadow: 5px 5px 0 #080817, var(--glow-cyan);
-    transform: translate(-2px, -2px);
-}
-
-.case-card h3 {
-    color: var(--gold);
-    font-family: 'Bangers', cursive;
-    font-size: 25px;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-}
-
-.case-card p {
-    color: var(--muted);
-    line-height: 1.5;
-    margin-bottom: 14px;
-}
-
-.case-card.locked {
-    opacity: 0.45;
-    filter: grayscale(0.8);
-}
-
-.case-card .btn {
-    margin-top: 12px;
+    box-shadow: var(--glow-cyan);
 }
 
 .case-icon {
-    display: inline-block;
-    color: var(--pink);
-    font-size: 36px;
-    margin-bottom: 10px;
+    font-size: 38px;
+    margin-bottom: 12px;
 }
 
-/* =========================
-   BRIEFING
-========================= */
+
+/* 12. BRIEFING */
 
 .briefing-card {
-    padding: 28px;
+    background: var(--panel);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: var(--comic-shadow);
 }
 
 .briefing-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 18px;
-    padding-bottom: 20px;
-    border-bottom: 2px dashed var(--purple);
-}
-
-.briefing-header .case-icon {
-    font-size: 45px;
-    margin: 0;
-}
-
-.briefing-header p {
-    color: var(--cyan);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 15px;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .briefing-details {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px 30px;
-    padding: 20px 0;
-    color: var(--muted);
-}
-
-.briefing-details strong {
+    gap: 15px;
+    margin: 18px 0;
     color: var(--gold);
 }
 
-.briefing-story,
-.evidence-section {
-    margin: 18px 0;
-}
-
-.briefing-story h3,
-.evidence-section h3,
-.report-explanation h3 {
-    color: var(--pink);
-    font-family: 'Bangers', cursive;
-    font-size: 23px;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-}
-
-.briefing-story p {
-    color: var(--text);
+.briefing-story {
     line-height: 1.7;
+    color: var(--text);
+    margin: 20px 0;
 }
 
 .facts-list,
 .evidence-list {
-    display: grid;
-    gap: 10px;
-    margin-top: 12px;
+    padding-left: 22px;
+    line-height: 1.8;
 }
 
-.facts-list > *,
-.evidence-list > * {
-    padding: 12px 15px;
-    background: rgba(0,245,255,0.07);
-    border-left: 4px solid var(--cyan);
-    border-radius: 5px;
-    color: var(--text);
+.facts-list li,
+.evidence-list li {
+    margin-bottom: 8px;
 }
 
-.briefing-card > .btn {
-    margin: 12px 8px 0 0;
-}
 
-/* =========================
-   GAME STATUS AND TIMER
-========================= */
+/* 13. GAME STATUS */
 
 .game-status {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 10px;
-
-    color: var(--gold);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
-    letter-spacing: 1px;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 .timer-track {
     width: 100%;
     height: 12px;
+    background: #080817;
+    border: 1px solid var(--purple);
+    border-radius: 20px;
     overflow: hidden;
-    border: 2px solid #080817;
-    border-radius: 10px;
-    background: #202b43;
-    margin-bottom: 22px;
 }
 
 .timer-fill {
-    width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        var(--success),
-        var(--cyan),
-        var(--purple)
-    );
-    border-radius: inherit;
-    transition: width 0.4s linear;
+    width: 100%;
+    background: linear-gradient(90deg, var(--cyan), var(--pink));
+    transition: width 0.3s ease;
 }
 
-/* =========================
-   PUZZLE SCREEN
-========================= */
+
+/* 14. PUZZLE CARD */
 
 .puzzle-card {
-    padding: 28px;
-}
-
-.puzzle-card h3 {
-    color: var(--cyan);
-    font-family: 'Bangers', cursive;
-    font-size: 29px;
-    letter-spacing: 1px;
-    line-height: 1.4;
-    margin-bottom: 20px;
+    background: var(--panel);
+    border: 2px solid var(--cyan);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: var(--comic-shadow);
 }
 
 .answer-area {
-    min-height: 75px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 9px;
+    min-height: 60px;
     padding: 15px;
-    margin-bottom: 25px;
-
-    border: 2px dashed var(--cyan);
+    margin: 20px 0;
+    background: var(--bg);
+    border: 1px dashed var(--cyan);
     border-radius: 10px;
-    background: rgba(0,245,255,0.07);
 }
 
 .word-tiles {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 25px;
 }
 
 .word-tile {
+    background: var(--purple);
+    border: 2px solid var(--cyan);
+    border-radius: 8px;
     padding: 10px 15px;
-    border: 2px solid var(--purple);
-    border-radius: 7px;
-    color: var(--text);
-    background: rgba(168,85,247,0.2);
+    color: white;
     font-weight: 700;
-    font-size: 16px;
-    transition: 0.2s ease;
-    box-shadow: 3px 3px 0 #080817;
-}
-
-.word-tile:hover:not(:disabled) {
-    background: rgba(168,85,247,0.4);
-    box-shadow: var(--glow-purple);
-}
-
-.word-tile.selected {
-    border-color: var(--cyan);
-    color: var(--cyan);
+    cursor: pointer;
 }
 
 .puzzle-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
+    margin-top: 20px;
 }
 
-/* =========================
-   INTERVIEW SCREEN
-========================= */
+
+/* 15. INTERVIEW */
 
 .interview-card {
-    padding: 28px;
+    background: var(--panel);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: var(--comic-shadow);
 }
 
 .suspect-profile {
     display: flex;
     align-items: center;
-    gap: 18px;
-    padding-bottom: 22px;
-    border-bottom: 2px dashed var(--purple);
+    gap: 20px;
+    margin-bottom: 25px;
 }
 
 .suspect-avatar {
-    width: 75px;
-    height: 75px;
-    flex-shrink: 0;
-    display: grid;
-    place-items: center;
-
-    border: 3px solid var(--pink);
+    width: 85px;
+    height: 85px;
     border-radius: 50%;
-    background: rgba(168,85,247,0.2);
-
-    color: var(--cyan);
-    font-family: 'Bangers', cursive;
-    font-size: 30px;
-    box-shadow: var(--glow-purple);
-}
-
-.suspect-profile h3 {
-    color: var(--cyan);
-    font-family: 'Bangers', cursive;
-    font-size: 28px;
-    margin-bottom: 5px;
-}
-
-.suspect-profile p,
-#suspectRole {
-    color: var(--muted);
+    background: var(--panel-light);
+    border: 3px solid var(--pink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 35px;
+    flex-shrink: 0;
 }
 
 .question-heading {
-    margin: 22px 0 12px;
-}
-
-.question-heading span {
-    color: var(--gold);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
-    letter-spacing: 1px;
+    color: var(--cyan);
+    margin: 20px 0;
 }
 
 .statement-box {
-    padding: 25px;
-    min-height: 100px;
-    display: flex;
-    align-items: center;
-
-    background: rgba(0,245,255,0.07);
-    border: 2px solid var(--cyan);
-    border-radius: 12px;
-
-    font-size: 20px;
-    line-height: 1.5;
-
-    box-shadow: 4px 4px 0 #080817;
+    background: var(--bg);
+    border-left: 4px solid var(--pink);
+    padding: 18px;
+    border-radius: 8px;
+    line-height: 1.7;
 }
 
 .decision-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-wrap: wrap;
     gap: 15px;
     margin-top: 20px;
 }
 
-.decision-buttons .btn {
-    padding: 16px;
-    font-size: 14px;
-}
 
-.interview-card > .btn {
-    margin-top: 14px;
-}
-
-/* =========================
-   FEEDBACK
-========================= */
+/* 16. FEEDBACK */
 
 .feedback {
-    min-height: 25px;
-    margin: 15px 0;
-    font-weight: 700;
-    line-height: 1.5;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 10px;
+    background: var(--panel-light);
+    border: 1px solid var(--cyan);
 }
 
-.feedback.correct {
-    color: var(--success);
-}
 
-.feedback.incorrect {
-    color: var(--danger);
-}
+/* 17. ACCUSATION SCREEN */
 
-.feedback.info {
-    color: var(--gold);
-}
-
-/* =========================
-   ACCUSATION
-========================= */
-
-#accusationScreen .paper-card {
-    padding: 28px;
+#accusationScreen {
+    width: 100%;
 }
 
 #accusationChoices {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
 }
 
 .accusation-choice {
-    padding: 20px 12px;
+    background: var(--panel);
     border: 2px solid var(--purple);
-    border-radius: 10px;
-    background: var(--background-light);
+    border-radius: 12px;
+    padding: 18px;
     color: var(--text);
-    text-align: center;
+    cursor: pointer;
     transition: 0.2s ease;
 }
 
 .accusation-choice:hover {
     border-color: var(--cyan);
-    box-shadow: var(--glow-cyan);
+    transform: translateY(-3px);
 }
 
-.accusation-choice.selected {
-    border-color: var(--pink);
-    background: rgba(255,60,172,0.15);
-    box-shadow: var(--glow-pink);
-}
 
-.accusation-choice strong {
-    display: block;
-    color: var(--cyan);
-    margin-top: 10px;
-}
-
-.accusation-choice p {
-    color: var(--muted);
-    margin-top: 5px;
-}
-
-/* =========================
-   REPORT SCREEN
-========================= */
+/* 18. REPORT CARD */
 
 .report-card {
+    max-width: 850px;
+    margin: 0 auto;
+    background: var(--panel);
+    border: 2px solid var(--gold);
+    border-radius: 18px;
     padding: 30px;
+    box-shadow: var(--comic-shadow);
     text-align: center;
 }
 
 .report-icon {
     font-size: 55px;
-    color: var(--gold);
     margin-bottom: 15px;
-    text-shadow: var(--glow-cyan);
-}
-
-.report-card h3 {
-    font-family: 'Bangers', cursive;
-    font-size: 32px;
-    color: var(--cyan);
-    margin-bottom: 22px;
 }
 
 .score-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 15px;
     margin: 25px 0;
 }
 
 .score-item {
-    padding: 18px 10px;
-    background: rgba(0,245,255,0.07);
-    border: 2px solid var(--purple);
-    border-radius: 8px;
-}
-
-.score-item span {
-    display: block;
-    color: var(--muted);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 9px;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-}
-
-.score-item strong {
-    color: var(--gold);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 22px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 15px;
 }
 
 .report-explanation {
-    margin: 25px 0;
-    padding: 20px;
-    text-align: left;
-    background: rgba(168,85,247,0.1);
-    border-left: 4px solid var(--pink);
-    border-radius: 8px;
-}
-
-.report-explanation p {
-    color: var(--muted);
     line-height: 1.7;
+    color: var(--muted);
+    margin: 20px 0;
 }
 
 .report-actions {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 15px;
+    margin-top: 25px;
 }
 
-/* =========================
-   FAILED SCREEN
-========================= */
 
-#failedScreen .paper-card {
-    max-width: 600px;
-    margin: auto;
-    text-align: center;
-    padding: 35px;
+/* 19. FAILED SCREEN */
+
+#failedScreen {
+    width: 100%;
 }
 
-#failedScreen h3 {
-    color: var(--danger);
-    font-family: 'Bangers', cursive;
-    font-size: 35px;
-    margin-bottom: 15px;
-}
 
-#failedScreen p {
-    color: var(--muted);
-    margin-bottom: 25px;
-    line-height: 1.6;
-}
-
-#failedScreen .btn {
-    margin: 5px;
-}
-
-/* =========================
-   FOOTER
-========================= */
+/* 20. FOOTER */
 
 .footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 20px 5%;
-
-    border-top: 2px solid var(--pink);
+    padding: 20px;
+    text-align: center;
     color: var(--muted);
-
-    font-family: 'Orbitron', sans-serif;
-    font-size: 9px;
-    letter-spacing: 1.5px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
 }
 
-/* =========================
-   OPTIONAL NAVIGATION
-========================= */
+
+/* 21. OPTIONAL NAVIGATION */
 
 .activity-nav {
     display: flex;
-    gap: 10px;
     flex-wrap: wrap;
+    gap: 10px;
 }
 
 .nav-action {
-    padding: 9px 14px;
-    color: var(--cyan);
-    border: 2px solid var(--purple);
-    background: transparent;
-    border-radius: 7px;
-}
-
-.nav-action:hover {
-    border-color: var(--cyan);
-    background: rgba(0,245,255,0.08);
-}
-
-/* =========================
-   OPTIONAL EVIDENCE CHOICES
-========================= */
-
-.evidence-choice {
-    padding: 15px;
-    border: 2px solid var(--purple);
+    padding: 10px 15px;
     border-radius: 8px;
+    border: 1px solid var(--border);
     background: var(--panel);
     color: var(--text);
     cursor: pointer;
 }
 
-.evidence-choice.selected {
-    border-color: var(--cyan);
-    box-shadow: var(--glow-cyan);
-}
-
-/* =========================
-   OPTIONAL SUSPECT CHOICES
-========================= */
-
+.evidence-choice,
 .suspect-choice {
-    padding: 18px;
-    border: 2px solid var(--purple);
-    border-radius: 9px;
     background: var(--panel);
+    border: 1px solid var(--purple);
+    padding: 15px;
+    border-radius: 10px;
     color: var(--text);
     cursor: pointer;
-    text-align: left;
-}
-
-.suspect-choice:hover,
-.suspect-choice.selected {
-    border-color: var(--pink);
-    box-shadow: var(--glow-pink);
 }
 
 #accusationSuspects,
 #accusationOptions,
 #suspectChoices {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px;
 }
 
-/* =========================
-   PERMANENT MENU BUTTON
-   Only styles the button if it exists.
-========================= */
 
-.menu-button {
-    border-color: var(--purple);
-    color: var(--cyan);
-    white-space: nowrap;
-}
+/* ==========================================
+   22. TINY DETECTIVE IMAGE SYSTEM
+   All images stored in assets/images/
+   ========================================== */
 
-.menu-button:hover {
-    background: rgba(168,85,247,0.2);
-    box-shadow: var(--glow-purple);
-}
 
-/* =========================
-   IMAGE PLACEHOLDER SUPPORT
-   Optional classes for future artwork.
-========================= */
-
-.character-image,
-.case-image,
-.evidence-image,
-.home-background-image {
-    max-width: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.character-image {
-    width: 100%;
-    aspect-ratio: 1;
-    border: 3px solid var(--pink);
-    border-radius: 12px;
-    box-shadow: var(--glow-purple);
-}
-
-.case-image {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border: 3px solid var(--cyan);
-    border-radius: 10px;
-}
-
-.evidence-image {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    border: 2px solid var(--purple);
-    border-radius: 8px;
-}
-
-.home-background-image {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-}
-
-/* =========================
-   RESPONSIVE DESIGN
-========================= */
-
-@media (max-width: 750px) {
-
-    .topbar {
-        padding: 12px 4%;
-    }
-
-    .logo h1 {
-        font-size: 23px;
-    }
-
-    .logo small {
-        font-size: 8px;
-    }
-
-    .topbar-right {
-        gap: 12px;
-    }
-
-    .game-container {
-        width: 94%;
-        margin: 22px auto;
-    }
-
-    .hero {
-        min-height: 340px;
-        padding: 35px 22px;
-    }
-
-    .hero p {
-        font-size: 17px;
-    }
-
-    .home-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .case-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .score-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    #accusationChoices,
-    #accusationSuspects,
-    #accusationOptions,
-    #suspectChoices {
-        grid-template-columns: 1fr;
-    }
-
-    .briefing-card,
-    .puzzle-card,
-    .interview-card {
-        padding: 20px;
-    }
-}
-
-/* =========================
-   SMALL MOBILE SCREENS
-========================= */
-
-@media (max-width: 480px) {
-
-    body {
-        font-size: 15px;
-    }
-
-    .topbar {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .topbar-right {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .hero {
-        padding: 28px 18px;
-    }
-
-    .hero h2 {
-        font-size: 42px;
-    }
-
-    .hero-actions {
-        width: 100%;
-    }
-
-    .hero-actions .btn {
-        width: 100%;
-    }
-
-    .game-status {
-        flex-wrap: wrap;
-        font-size: 9px;
-    }
-
-    .decision-buttons {
-        gap: 8px;
-    }
-
-    .decision-buttons .btn {
-        padding: 13px 8px;
-        font-size: 11px;
-    }
-
-    .footer {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .briefing-details {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .suspect-profile {
-        align-items: flex-start;
-    }
-
-    .statement-box {
-        font-size: 17px;
-    }
-
-    .score-item strong {
-        font-size: 19px;
-    }
-
-    .btn {
-        max-width: 100%;
-    }
-}
-
-/* =========================
-   ACCESSIBILITY
-========================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-        scroll-behavior: auto !important;
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* =========================================================
-   TINY DETECTIVE — PERMANENT ARTWORK SLOTS
-========================================================= */
-
-/* Shared image container */
+/* General image container */
 
 .art-slot {
     position: relative;
     display: block;
     width: 100%;
     overflow: hidden;
-    background: #191932;
-    border: 2px solid #a855f7;
-    border-radius: 12px;
-    box-shadow: 4px 4px 0 #080817;
-}
 
-/* Images always fill their containers */
+    background: #191932;
+    border: 2px solid var(--purple);
+    border-radius: 14px;
+
+    box-shadow: var(--comic-shadow);
+}
 
 .art-slot img {
     display: block;
@@ -1291,52 +679,228 @@ button:focus-visible {
     object-position: center;
 }
 
-/* Portraits */
 
-.art-portrait {
+/* Main menu background */
+
+.screen-home-art {
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(9, 9, 26, 0.88),
+            rgba(9, 9, 26, 0.30)
+        ),
+        url("assets/images/main-menu.jpg");
+}
+
+
+/* Investigation room background */
+
+.screen-investigation-art {
+    background-image:
+        linear-gradient(
+            rgba(9, 9, 26, 0.65),
+            rgba(9, 9, 26, 0.75)
+        ),
+        url("assets/images/investigation-room.jpg");
+}
+
+
+/* Interrogation room background */
+
+.screen-interrogation-art {
+    background-image:
+        linear-gradient(
+            rgba(9, 9, 26, 0.68),
+            rgba(9, 9, 26, 0.78)
+        ),
+        url("assets/images/interrogation-room.jpg");
+}
+
+
+/* Background positioning */
+
+.screen-home-art,
+.screen-investigation-art,
+.screen-interrogation-art {
+    background-color: var(--bg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+/* Detective portrait */
+
+.art-detective {
+    width: 100%;
+    max-width: 340px;
     aspect-ratio: 3 / 4;
+    margin: 0 auto;
+
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
-/* Character profile */
+.art-detective img {
+    object-fit: contain;
+    object-position: center bottom;
+}
 
-.art-character {
+
+/* Clue note image */
+
+.art-clue {
+    width: 100%;
+    max-width: 220px;
     aspect-ratio: 1 / 1;
+    margin: 12px auto;
 }
 
-/* Background scenes */
-
-.art-scene {
-    aspect-ratio: 16 / 9;
+.art-clue img {
+    object-fit: contain;
+    padding: 8px;
 }
 
-/* Case covers */
 
-.art-case {
+/* Successful report image */
+
+.art-success-report {
+    width: 100%;
+    max-width: 520px;
     aspect-ratio: 4 / 3;
+    margin: 16px auto;
 }
 
-/* Evidence */
-
-.art-evidence {
-    aspect-ratio: 1 / 1;
+.art-success-report img {
+    object-fit: cover;
 }
 
-/* Optional character portrait framing */
 
-.art-portrait img {
-    object-position: center top;
+/* Failed report image */
+
+.art-failed-report {
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: 4 / 3;
+    margin: 16px auto;
 }
 
-/* Optional scene overlay */
+.art-failed-report img {
+    object-fit: cover;
+}
 
-.art-scene::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(
-        0deg,
-        rgba(9,9,26,0.35),
-        transparent 55%
-    );
+
+/* Image hover effects */
+
+.art-slot img {
+    transition: transform 0.35s ease;
+}
+
+.art-slot:hover img {
+    transform: scale(1.035);
+}
+
+
+/* ==========================================
+   23. RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 750px) {
+
+    .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .topbar-right {
+        width: 100%;
+    }
+
+    .game-container {
+        padding: 25px 4%;
+    }
+
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 25px;
+    }
+
+    .hero-actions {
+        justify-content: center;
+    }
+
+    .hero-image {
+        width: 100%;
+    }
+
+    .art-detective {
+        max-width: 240px;
+    }
+
+    .art-success-report,
+    .art-failed-report {
+        max-width: 100%;
+    }
+
+    .screen-home-art,
+    .screen-investigation-art,
+    .screen-interrogation-art {
+        background-position: center;
+    }
+}
+
+
+@media (max-width: 480px) {
+
+    .logo {
+        font-size: 26px;
+    }
+
+    .hero h1 {
+        font-size: 48px;
+    }
+
+    .hero {
+        padding: 20px;
+    }
+
+    .case-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .suspect-profile {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .art-clue {
+        max-width: 160px;
+    }
+
+    .art-detective {
+        max-width: 190px;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+
+/* ==========================================
+   24. ACCESSIBILITY
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
