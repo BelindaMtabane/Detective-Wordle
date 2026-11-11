@@ -3,841 +3,57 @@
 
 /* =========================================================
    TINY DETECTIVE
-   Cyberpunk Detective Noir Edition
+   CYBERPUNK DETECTIVE NOIR EDITION
    Complete investigation engine
-
-   Gameplay:
-   - 10 sequential cases
-   - Easy / Medium / Hard
-   - 3 suspects per case
-   - 5 interrogation questions per suspect
-   - Story-based evidence investigation
-   - Truth / lie detection
-   - Final accusations
-   - Investigation reports
-   - Saved completed cases and points
-   - Safe activity navigation
 ========================================================= */
 
-/* ===================== CONFIGURATION ===================== */
+/* =========================
+   CONFIGURATION
+========================= */
 
 const CONFIG = {
     TOTAL_CASES: 10,
-    QUESTIONS_PER_SUSPECT: 5,
     SUSPECTS_PER_CASE: 3,
+    QUESTIONS_PER_SUSPECT: 5,
+
     STORAGE_KEY: "tinyDetectiveProgress_v2",
-    TIMER_BY_DIFFICULTY: {
-        Easy: 45,
-        Medium: 30,
-        Hard: 20
+
+    TIMER: {
+        easy: 45,
+        medium: 30,
+        hard: 20
     },
+
+    STARTING_LIVES: 3,
+
     POINTS: {
         correct: 100,
         incorrect: -20,
         hint: -10,
         accusation: 200,
-        completed: 150
+        completed: 150,
+        puzzle: 100
     }
 };
 
-/* ===================== GAME STATE ===================== */
-
-let gameState = {
-    currentScreen: "homeScreen",
-    currentCase: 0,
-    difficulty: "Medium",
-
-    currentSuspect: 0,
-    currentQuestion: 0,
-
-    selectedSuspect: null,
-    selectedEvidence: [],
-
-    score: 0,
-    correctAnswers: 0,
-    incorrectAnswers: 0,
-    hintsUsed: 0,
-
-    timeRemaining: 30,
-    timerInterval: null,
-
-    answers: {},
-    suspectResults: {},
-
-    caseStarted: false,
-    caseCompleted: false
-};
-
-/* ===================== SAVED PROGRESS ===================== */
-
-function createDefaultProgress() {
-    return {
-        points: 0,
-        reputation: 0,
-        completedCases: [],
-        unlockedCases: [0],
-        bestScores: {},
-        completedInvestigations: 0
-    };
-}
-
-function loadProgress() {
-    try {
-        const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
-
-        if (!saved) {
-            return createDefaultProgress();
-        }
-
-        const parsed = JSON.parse(saved);
-
-        return {
-            ...createDefaultProgress(),
-            ...parsed
-        };
-    } catch (error) {
-        console.error("Could not load saved progress:", error);
-        return createDefaultProgress();
-    }
-}
-
-let playerProgress = loadProgress();
-
-function saveProgress() {
-    try {
-        localStorage.setItem(
-            CONFIG.STORAGE_KEY,
-            JSON.stringify(playerProgress)
-        );
-    } catch (error) {
-        console.error("Could not save progress:", error);
-    }
-}
-
-/* ===================== CASE DATABASE =====================
-
-   Each case has:
-   - A story
-   - Evidence
-   - Three suspects
-   - Exactly five questions per suspect
-   - One correct culprit
-
-   Question truth values are used by the lie detector.
-========================================================= */
-
-const caseData = [
-
-{
-    id: 1,
-    title: "The Missing Necklace",
-    classification: "CONFIDENTIAL",
-    icon: "💎",
-    location: "The Blackwood Mansion",
-
-    story: `A valuable diamond necklace disappeared during a private
-    dinner at Blackwood Mansion.
-
-    Three guests had access to the upstairs bedroom where the necklace
-    was kept.
-
-    The owner insists the necklace was locked away before dinner.
-
-    However, a security camera stopped recording for exactly four
-    minutes. Someone knew when that would happen.
-
-    Your task is to discover who took the necklace and how they did it.`,
-
-    evidence: [
-        {
-            name: "Broken Window",
-            description: "The bedroom window was broken from the inside.",
-            clue: "The breakage may have been staged."
-        },
-        {
-            name: "Security Log",
-            description: "The camera was manually disabled at 20:14.",
-            clue: "Someone had access to the security controls."
-        },
-        {
-            name: "Blue Fabric",
-            description: "A piece of blue fabric was found near the safe.",
-            clue: "It matches an item of clothing worn by one guest."
-        },
-        {
-            name: "Dinner Receipt",
-            description: "The kitchen recorded a delivery at 20:12.",
-            clue: "The delivery provides an opportunity to move unnoticed."
-        }
-    ],
-
-    culprit: 1,
-
-    suspects: [
-        {
-            name: "Maya",
-            role: "The Personal Assistant",
-            icon: "👩🏻",
-            description: "She had access to the mansion's daily schedule.",
-
-            questions: [
-                {
-                    question: "Where were you when the camera stopped recording?",
-                    statement: "I was in the dining room.",
-                    truth: true,
-                    explanation: "The dining room guest list confirms her presence."
-                },
-                {
-                    question: "Did you have access to the bedroom?",
-                    statement: "I never had access to that bedroom.",
-                    truth: false,
-                    explanation: "The household access register lists her key."
-                },
-                {
-                    question: "Did you notice anything unusual?",
-                    statement: "I heard a loud noise upstairs.",
-                    truth: true,
-                    explanation: "Another guest also reported hearing the noise."
-                },
-                {
-                    question: "Did you touch the security system?",
-                    statement: "I do not know how the security system works.",
-                    truth: false,
-                    explanation: "Training records show she helped manage it."
-                },
-                {
-                    question: "Did you see the necklace that evening?",
-                    statement: "I saw it before dinner.",
-                    truth: true,
-                    explanation: "Her statement matches the owner's account."
-                }
-            ]
-        },
-
-        {
-            name: "Daniel",
-            role: "The Family Accountant",
-            icon: "🕵🏻",
-            description: "He had financial problems and access to the safe.",
-
-            questions: [
-                {
-                    question: "Where were you at 20:14?",
-                    statement: "I was outside making a phone call.",
-                    truth: true,
-                    explanation: "A phone record confirms a call outside."
-                },
-                {
-                    question: "Did you know about the camera system?",
-                    statement: "I had never seen the security room.",
-                    truth: false,
-                    explanation: "His access card was recorded there."
-                },
-                {
-                    question: "Did you enter the bedroom?",
-                    statement: "I entered earlier to deliver documents.",
-                    truth: true,
-                    explanation: "The household staff confirm this."
-                },
-                {
-                    question: "Were you having financial difficulties?",
-                    statement: "My finances were completely fine.",
-                    truth: false,
-                    explanation: "Recent bank records show significant debt."
-                },
-                {
-                    question: "Did you take the necklace?",
-                    statement: "I did not take it.",
-                    truth: true,
-                    explanation: "The available evidence does not connect him to the theft."
-                }
-            ]
-        },
-
-        {
-            name: "Victor",
-            role: "The Private Security Guard",
-            icon: "👨🏻",
-            description: "He was responsible for the security cameras.",
-
-            questions: [
-                {
-                    question: "Were you responsible for the cameras?",
-                    statement: "I managed the security equipment.",
-                    truth: true,
-                    explanation: "His employment records confirm this."
-                },
-                {
-                    question: "Did anyone ask you to disable a camera?",
-                    statement: "Nobody asked me to do that.",
-                    truth: false,
-                    explanation: "A message requesting the shutdown was found."
-                },
-                {
-                    question: "Did you enter the bedroom?",
-                    statement: "I never went near the bedroom.",
-                    truth: false,
-                    explanation: "A fingerprint was recovered near the safe."
-                },
-                {
-                    question: "Were you wearing a blue jacket?",
-                    statement: "I wore my usual blue security jacket.",
-                    truth: true,
-                    explanation: "The fabric matches his uniform."
-                },
-                {
-                    question: "Did you know the necklace was valuable?",
-                    statement: "I knew it was worth a lot of money.",
-                    truth: true,
-                    explanation: "He had been briefed about the valuable items."
-                }
-            ]
-        }
-    ]
-},
-
-{
-    id: 2,
-    title: "The Midnight Museum Theft",
-    classification: "RESTRICTED",
-    icon: "🏛️",
-    location: "Neon City Museum",
-    story: `An ancient golden artefact disappeared from a museum display
-    shortly before midnight.
-
-    The building was locked, but three people remained inside.
-
-    A motion sensor was triggered near the east gallery.
-
-    The display case was not broken. Whoever removed the artefact
-    used a legitimate access method.`,
-    evidence: [
-        { name: "Motion Sensor", description: "Movement detected in the east gallery.", clue: "Someone visited the display." },
-        { name: "Access Card", description: "A staff card opened the gallery.", clue: "The theft required authorised access." },
-        { name: "Dust Pattern", description: "A clean outline remained in the display.", clue: "The artefact was removed carefully." },
-        { name: "Taxi Record", description: "A taxi arrived at 23:48.", clue: "Someone may have planned a quick escape." }
-    ],
-    culprit: 0,
-    suspects: [
-        {
-            name: "Elena", role: "Museum Curator", icon: "👩🏽",
-            description: "She supervised the museum collection.",
-            questions: [
-                { question: "Did you close the east gallery?", statement: "I checked it before closing.", truth: true, explanation: "The closing checklist confirms this." },
-                { question: "Did you use your access card after closing?", statement: "I did not use it again.", truth: false, explanation: "The access log records another entry." },
-                { question: "Did you know the artefact's value?", statement: "I knew its estimated value.", truth: true, explanation: "She prepared its insurance paperwork." },
-                { question: "Did you leave through the front entrance?", statement: "I left through the staff exit.", truth: true, explanation: "The exit log confirms this." },
-                { question: "Did you remove the artefact?", statement: "I never touched the display.", truth: false, explanation: "Her fingerprints were found on the inner case." }
-            ]
-        },
-        {
-            name: "Marcus", role: "Night Guard", icon: "👨🏾",
-            description: "He patrolled the museum after hours.",
-            questions: [
-                { question: "Were you on duty?", statement: "I worked the entire night.", truth: true, explanation: "His shift record confirms this." },
-                { question: "Did you notice the sensor?", statement: "I saw the warning light.", truth: true, explanation: "The control room log supports this." },
-                { question: "Did you open the display?", statement: "I never opened it.", truth: true, explanation: "No guard access was recorded." },
-                { question: "Did you see Elena?", statement: "I saw her near the east gallery.", truth: true, explanation: "His patrol log confirms the encounter." },
-                { question: "Did you disable the alarm?", statement: "I had no reason to disable it.", truth: true, explanation: "The alarm was never disabled." }
-            ]
-        },
-        {
-            name: "Theo", role: "Visiting Researcher", icon: "🧑🏻",
-            description: "He was studying the museum's ancient collection.",
-            questions: [
-                { question: "Were you studying the artefact?", statement: "I examined it earlier.", truth: true, explanation: "His research appointment confirms this." },
-                { question: "Did you have a staff access card?", statement: "I borrowed one for research.", truth: true, explanation: "A temporary card was issued." },
-                { question: "Did you leave at midnight?", statement: "I left before midnight.", truth: false, explanation: "The exit camera shows him leaving later." },
-                { question: "Did you order a taxi?", statement: "I did not order a taxi.", truth: false, explanation: "A booking was made under his number." },
-                { question: "Did you steal the artefact?", statement: "I did not steal it.", truth: true, explanation: "No evidence connects him to its removal." }
-            ]
-        }
-    ]
-},
-
-{
-    id: 3,
-    title: "The Vanishing Scientist",
-    classification: "TOP SECRET",
-    icon: "🧪",
-    location: "Nova Research Laboratory",
-    story: `Dr. Adrian Vale disappeared from a locked laboratory.
-
-    His research notebook was missing, but his personal belongings
-    remained untouched.
-
-    Three colleagues had been working late.
-
-    The laboratory door recorded no forced entry, and the final
-    computer login happened shortly before the disappearance.`,
-    evidence: [
-        { name: "Computer Login", description: "A late login was recorded.", clue: "Someone used the laboratory computer." },
-        { name: "Coffee Cup", description: "Two different fingerprints were found.", clue: "Another person visited the laboratory." },
-        { name: "Research Notes", description: "A page about experimental energy was missing.", clue: "The notebook was deliberately targeted." },
-        { name: "Door Record", description: "The laboratory was opened with a staff code.", clue: "An authorised person entered." }
-    ],
-    culprit: 2,
-    suspects: [
-        {
-            name: "Nina", role: "Laboratory Assistant", icon: "👩🏼",
-            description: "She prepared equipment for Dr. Vale.",
-            questions: [
-                { question: "Did you work late?", statement: "I left before the evening shift ended.", truth: true, explanation: "Her exit record supports this." },
-                { question: "Did you prepare coffee?", statement: "I prepared coffee earlier.", truth: true, explanation: "The kitchen log confirms this." },
-                { question: "Did you use Dr. Vale's computer?", statement: "I never used his computer.", truth: true, explanation: "No login matches her account." },
-                { question: "Did you know about the missing notes?", statement: "I noticed a page was missing.", truth: true, explanation: "She reported it to management." },
-                { question: "Did you help him disappear?", statement: "I had nothing to do with it.", truth: true, explanation: "No evidence links her to the disappearance." }
-            ]
-        },
-        {
-            name: "Oliver", role: "Security Technician", icon: "👨🏼",
-            description: "He maintained the laboratory access system.",
-            questions: [
-                { question: "Did you repair the door system?", statement: "I worked on it that afternoon.", truth: true, explanation: "A maintenance report exists." },
-                { question: "Did you share your access code?", statement: "I never shared my code.", truth: true, explanation: "No unusual code usage was detected." },
-                { question: "Did you see Dr. Vale?", statement: "I spoke to him in the morning.", truth: true, explanation: "Their meeting was documented." },
-                { question: "Did you enter the laboratory late?", statement: "I did not enter after my shift.", truth: true, explanation: "The access log supports this." },
-                { question: "Did you take the notebook?", statement: "I did not take it.", truth: true, explanation: "No physical evidence links him to it." }
-            ]
-        },
-        {
-            name: "Dr. Cross", role: "Senior Researcher", icon: "🧑🏽",
-            description: "He competed with Dr. Vale for a major research grant.",
-            questions: [
-                { question: "Were you working on the same project?", statement: "We worked on related experiments.", truth: true, explanation: "The project records confirm this." },
-                { question: "Did you enter the laboratory?", statement: "I never entered that night.", truth: false, explanation: "His access code was used at 22:16." },
-                { question: "Did you want the research notebook?", statement: "I had no interest in those notes.", truth: false, explanation: "Messages show he requested the research." },
-                { question: "Did you speak to Dr. Vale?", statement: "We argued earlier that evening.", truth: true, explanation: "A colleague heard the disagreement." },
-                { question: "Do you know where he went?", statement: "I have no idea where he is.", truth: false, explanation: "A message on his device contains the destination." }
-            ]
-        }
-    ]
-},
-
-{
-    id: 4,
-    title: "The Poisoned Invitation",
-    classification: "CONFIDENTIAL",
-    icon: "🍷",
-    location: "The Royal Hotel",
-    story: `A guest collapsed during an exclusive dinner at the Royal Hotel.
-
-    Investigators discovered that the guest's drink had been tampered
-    with before it reached the table.
-
-    Three people had access to the serving area.
-
-    A handwritten invitation was found beside the victim.`,
-    evidence: [
-        { name: "Glass Sample", description: "The drink contained an unidentified substance.", clue: "The drink was deliberately altered." },
-        { name: "Kitchen Pass", description: "Three staff members entered the serving area.", clue: "The opportunity was shared." },
-        { name: "Invitation", description: "The victim received a private invitation.", clue: "The dinner may have been arranged." },
-        { name: "Napkin", description: "A fingerprint was found on the napkin.", clue: "Someone handled the table setting." }
-    ],
-    culprit: 1,
-    suspects: [
-        {
-            name: "Sophie", role: "Event Planner", icon: "👩🏻",
-            description: "She organised the private dinner.",
-            questions: [
-                { question: "Did you arrange the invitation?", statement: "I organised the guest list.", truth: true, explanation: "The event records confirm this." },
-                { question: "Did you enter the kitchen?", statement: "I checked the decorations there.", truth: true, explanation: "A staff member saw her." },
-                { question: "Did you know the victim?", statement: "We had met before.", truth: true, explanation: "They attended previous events." },
-                { question: "Did you touch the drink?", statement: "I never handled any drinks.", truth: true, explanation: "No evidence connects her to the glass." },
-                { question: "Did you plan the incident?", statement: "I planned a normal dinner.", truth: true, explanation: "The evidence supports her account." }
-            ]
-        },
-        {
-            name: "Rafael", role: "Head Chef", icon: "👨🏽",
-            description: "He controlled the food preparation area.",
-            questions: [
-                { question: "Did you prepare the dinner?", statement: "I supervised the kitchen.", truth: true, explanation: "The kitchen roster confirms this." },
-                { question: "Did you prepare the victim's drink?", statement: "I did not touch that drink.", truth: false, explanation: "His fingerprints were on the glass." },
-                { question: "Did you know the victim?", statement: "We had a disagreement about a contract.", truth: true, explanation: "The hotel manager confirms it." },
-                { question: "Were you near the serving area?", statement: "I stayed in the kitchen.", truth: false, explanation: "Footage places him at the serving station." },
-                { question: "Did you tamper with the drink?", statement: "I did nothing to the drink.", truth: false, explanation: "The substance was traced to his workstation." }
-            ]
-        },
-        {
-            name: "Lena", role: "Hotel Manager", icon: "👩🏽",
-            description: "She managed the hotel and its guests.",
-            questions: [
-                { question: "Did you know the victim?", statement: "The victim was a regular guest.", truth: true, explanation: "Hotel records confirm this." },
-                { question: "Did you approve the dinner?", statement: "I approved the event.", truth: true, explanation: "The booking is in her name." },
-                { question: "Did you enter the kitchen?", statement: "I did not enter the kitchen.", truth: true, explanation: "No record shows her entry." },
-                { question: "Did you see Rafael?", statement: "I saw him near the serving station.", truth: true, explanation: "The timeline supports this." },
-                { question: "Did you know about the substance?", statement: "I knew nothing about it.", truth: true, explanation: "No evidence connects her to the substance." }
-            ]
-        }
-    ]
-},
-
-{
-    id: 5,
-    title: "The Stolen Identity",
-    classification: "RESTRICTED",
-    icon: "🪪",
-    location: "Neon City Financial Tower",
-    story: `Someone accessed a private financial account using a stolen identity.
-
-    The transaction happened during a system maintenance window.
-
-    Three employees had access to the account management floor.
-
-    A suspicious login originated from inside the building.`,
-    evidence: [
-        { name: "Login Record", description: "The account was accessed internally.", clue: "The intruder was likely inside the building." },
-        { name: "Maintenance Schedule", description: "A system update created a short access window.", clue: "The timing was deliberate." },
-        { name: "Printer History", description: "A duplicate identity document was printed.", clue: "Someone prepared a fake identity." },
-        { name: "Badge Record", description: "A staff badge entered the server floor.", clue: "An employee had access." }
-    ],
-    culprit: 0,
-    suspects: [
-        {
-            name: "Jade", role: "Systems Administrator", icon: "👩🏾",
-            description: "She controlled account permissions.",
-            questions: [
-                { question: "Did you schedule maintenance?", statement: "I approved the maintenance window.", truth: true, explanation: "The schedule carries her approval." },
-                { question: "Did you access the account?", statement: "I never opened that account.", truth: false, explanation: "Her administrator credentials accessed it." },
-                { question: "Did you print a duplicate identity?", statement: "I did not use the printer.", truth: false, explanation: "The print queue records her login." },
-                { question: "Did you enter the server floor?", statement: "I entered to check the update.", truth: true, explanation: "The badge log confirms this." },
-                { question: "Did you steal the identity?", statement: "I had no involvement.", truth: false, explanation: "A draft identity file was found in her folder." }
-            ]
-        },
-        {
-            name: "Ben", role: "Financial Analyst", icon: "👨🏻",
-            description: "He reviewed suspicious financial transactions.",
-            questions: [
-                { question: "Did you review the transaction?", statement: "I flagged it the following morning.", truth: true, explanation: "His report confirms this." },
-                { question: "Did you have server access?", statement: "I only had standard account access.", truth: true, explanation: "His permissions were limited." },
-                { question: "Did you print a document?", statement: "I printed my monthly report.", truth: true, explanation: "The print history matches." },
-                { question: "Did you know Jade?", statement: "We worked on the same floor.", truth: true, explanation: "Their employment records confirm this." },
-                { question: "Did you steal the identity?", statement: "I did not steal it.", truth: true, explanation: "No evidence links him to the crime." }
-            ]
-        },
-        {
-            name: "Chris", role: "Building Technician", icon: "👨🏽",
-            description: "He maintained the building's network equipment.",
-            questions: [
-                { question: "Were you working during maintenance?", statement: "I checked the network room.", truth: true, explanation: "His work order confirms this." },
-                { question: "Did you use a staff badge?", statement: "I used my own badge.", truth: true, explanation: "The access record matches." },
-                { question: "Did you enter the financial floor?", statement: "I did not enter the account office.", truth: true, explanation: "No entry is recorded." },
-                { question: "Did you help create a fake identity?", statement: "I never created documents.", truth: true, explanation: "His workstation contains no such files." },
-                { question: "Did you know about the transaction?", statement: "I only heard about it later.", truth: true, explanation: "His account activity supports this." }
-            ]
-        }
-    ]
-},
-
-{
-    id: 6,
-    title: "The Ghost Train",
-    classification: "TOP SECRET",
-    icon: "🚆",
-    location: "Underground Metro",
-    story: `A sealed cargo container disappeared from a moving underground train.
-
-    The train never stopped at an unauthorised station.
-
-    Three workers had access to the cargo manifest.
-
-    A signal interruption occurred between two stations.`,
-    evidence: [
-        { name: "Cargo Manifest", description: "One container was listed twice.", clue: "The paperwork was altered." },
-        { name: "Signal Report", description: "A short interruption occurred.", clue: "Someone exploited the signal." },
-        { name: "Station Camera", description: "A worker carried an empty trolley.", clue: "The trolley may have been used." },
-        { name: "Control Key", description: "A control key was missing.", clue: "Someone accessed the train controls." }
-    ],
-    culprit: 2,
-    suspects: [
-        {
-            name: "Ari", role: "Train Operator", icon: "👨🏻",
-            description: "He operated the train during the incident.",
-            questions: [
-                { question: "Did you operate the train?", statement: "I drove the train that night.", truth: true, explanation: "The duty roster confirms this." },
-                { question: "Did you stop at an extra station?", statement: "The train followed its route.", truth: true, explanation: "The route log confirms this." },
-                { question: "Did you report the signal issue?", statement: "I reported it immediately.", truth: true, explanation: "The control centre received his report." },
-                { question: "Did you handle the missing key?", statement: "I returned my key after the shift.", truth: true, explanation: "His key was accounted for." },
-                { question: "Did you remove the container?", statement: "I did not touch the cargo.", truth: true, explanation: "No evidence connects him to the removal." }
-            ]
-        },
-        {
-            name: "Milo", role: "Cargo Supervisor", icon: "🧑🏽",
-            description: "He checked the containers before departure.",
-            questions: [
-                { question: "Did you prepare the manifest?", statement: "I checked the cargo list.", truth: true, explanation: "The manifest carries his initials." },
-                { question: "Was the container sealed?", statement: "It was sealed before departure.", truth: true, explanation: "The loading photograph confirms this." },
-                { question: "Did you notice duplicate entries?", statement: "I noticed a duplicate the next day.", truth: true, explanation: "He filed a report." },
-                { question: "Did you access the train controls?", statement: "I have no control-room access.", truth: true, explanation: "His permissions are restricted." },
-                { question: "Did you steal the container?", statement: "I did not take it.", truth: true, explanation: "No evidence links him to the theft." }
-            ]
-        },
-        {
-            name: "Rex", role: "Signal Technician", icon: "👨🏾",
-            description: "He maintained the underground signal network.",
-            questions: [
-                { question: "Did you work on the signal system?", statement: "I performed a routine check.", truth: true, explanation: "A maintenance order exists." },
-                { question: "Did you cause the interruption?", statement: "The interruption was accidental.", truth: false, explanation: "A manual override was recorded." },
-                { question: "Did you have the control key?", statement: "I never handled the key.", truth: false, explanation: "His fingerprints were found on it." },
-                { question: "Did you know about the container?", statement: "I knew which container was valuable.", truth: true, explanation: "He viewed the cargo manifest." },
-                { question: "Did you arrange the theft?", statement: "I had no part in it.", truth: false, explanation: "Messages reveal a planned transfer." }
-            ]
-        }
-    ]
-},
-
-{
-    id: 7,
-    title: "The Disappearing Diamond",
-    classification: "CONFIDENTIAL",
-    icon: "💠",
-    location: "Aurora Hotel",
-    story: `A rare blue diamond disappeared during a charity auction.
-
-    The auction continued while guests were distracted by a staged
-    interruption.
-
-    Three people were close to the display table.
-
-    The display sensor was reset before the auction ended.`,
-    evidence: [
-        { name: "Display Sensor", description: "The sensor was reset.", clue: "Someone knew the display system." },
-        { name: "Auction List", description: "One bidder was added manually.", clue: "A guest's identity may be false." },
-        { name: "Broken Clasp", description: "A jewellery clasp was found nearby.", clue: "The diamond may have been removed quickly." },
-        { name: "Stage Schedule", description: "The interruption was moved forward.", clue: "The distraction may have been planned." }
-    ],
-    culprit: 1,
-    suspects: [
-        {
-            name: "Ivy", role: "Auction Host", icon: "👩🏼",
-            description: "She controlled the auction schedule.",
-            questions: [
-                { question: "Did you change the schedule?", statement: "The performance was moved forward.", truth: true, explanation: "The updated schedule confirms this." },
-                { question: "Did you know about the diamond?", statement: "I knew its estimated value.", truth: true, explanation: "She introduced the item." },
-                { question: "Did you reset the sensor?", statement: "I never touched the display.", truth: true, explanation: "No host access was recorded." },
-                { question: "Did you add a bidder?", statement: "I approved a late registration.", truth: true, explanation: "The registration was authorised." },
-                { question: "Did you steal the diamond?", statement: "I did not steal it.", truth: true, explanation: "There is no evidence connecting her to the theft." }
-            ]
-        },
-        {
-            name: "Zane", role: "Jewellery Appraiser", icon: "🕴🏻",
-            description: "He inspected the diamond before the auction.",
-            questions: [
-                { question: "Did you inspect the diamond?", statement: "I examined it before the auction.", truth: true, explanation: "His inspection report confirms this." },
-                { question: "Did you know how to open the display?", statement: "I never learned the display code.", truth: false, explanation: "He previously serviced the lock." },
-                { question: "Did you approach the table?", statement: "I stayed beside the display.", truth: true, explanation: "Several guests saw him there." },
-                { question: "Did you reset the sensor?", statement: "I did not reset anything.", truth: false, explanation: "His credentials were used for the reset." },
-                { question: "Did you remove the diamond?", statement: "I never removed it.", truth: false, explanation: "A matching diamond case was found in his bag." }
-            ]
-        },
-        {
-            name: "Tara", role: "Charity Coordinator", icon: "👩🏽",
-            description: "She managed the guests and auction registrations.",
-            questions: [
-                { question: "Did you register the bidders?", statement: "I handled the registration desk.", truth: true, explanation: "Her roster confirms this." },
-                { question: "Did you know Zane?", statement: "He was a registered appraiser.", truth: true, explanation: "The event records confirm this." },
-                { question: "Did you move the performance?", statement: "I followed the host's instructions.", truth: true, explanation: "The host approved the change." },
-                { question: "Did you touch the display?", statement: "I never approached it.", truth: true, explanation: "The footage supports this." },
-                { question: "Did you take the diamond?", statement: "I did not take it.", truth: true, explanation: "No evidence links her to the theft." }
-            ]
-        }
-    ]
-},
-
-{
-    id: 8,
-    title: "The Hacker's Alibi",
-    classification: "TOP SECRET",
-    icon: "💻",
-    location: "Cyber Division Headquarters",
-    story: `A classified database was breached without triggering its normal alarms.
-
-    The attack used an internal computer terminal.
-
-    Three employees had access to the restricted floor.
-
-    A suspicious message was sent shortly before the breach.`,
-    evidence: [
-        { name: "Terminal Log", description: "An internal terminal initiated the breach.", clue: "The hacker was likely an employee." },
-        { name: "Deleted Message", description: "A message was deleted at 01:03.", clue: "Someone tried to hide communication." },
-        { name: "Firewall Record", description: "A security rule was changed.", clue: "The attack required technical knowledge." },
-        { name: "Coffee Receipt", description: "A late-night purchase was recorded.", clue: "Someone was still in the building." }
-    ],
-    culprit: 2,
-    suspects: [
-        {
-            name: "Mira", role: "Network Analyst", icon: "👩🏽",
-            description: "She monitored incoming network activity.",
-            questions: [
-                { question: "Were you monitoring the network?", statement: "I was on the monitoring shift.", truth: true, explanation: "The roster confirms this." },
-                { question: "Did you see the breach?", statement: "I noticed it after the alert.", truth: true, explanation: "Her report was submitted." },
-                { question: "Did you change the firewall?", statement: "I did not change any rules.", truth: true, explanation: "No changes came from her account." },
-                { question: "Did you send a message?", statement: "I sent a routine shift update.", truth: true, explanation: "The message was recovered." },
-                { question: "Did you steal the data?", statement: "I did not steal anything.", truth: true, explanation: "No evidence links her to the breach." }
-            ]
-        },
-        {
-            name: "Ethan", role: "Database Manager", icon: "👨🏻",
-            description: "He managed the classified records.",
-            questions: [
-                { question: "Did you have database access?", statement: "I managed the database.", truth: true, explanation: "His role required access." },
-                { question: "Did you work late?", statement: "I left at midnight.", truth: true, explanation: "The exit camera confirms this." },
-                { question: "Did you change the firewall?", statement: "I did not modify the firewall.", truth: true, explanation: "The change was made after his departure." },
-                { question: "Did you know about the breach?", statement: "I learned about it the next morning.", truth: true, explanation: "His activity supports this." },
-                { question: "Did you send the deleted message?", statement: "I did not send that message.", truth: true, explanation: "The message came from another account." }
-            ]
-        },
-        {
-            name: "Kai", role: "Cybersecurity Engineer", icon: "🧑🏻",
-            description: "He designed the building's internal security tools.",
-            questions: [
-                { question: "Did you design the firewall?", statement: "I helped design its rules.", truth: true, explanation: "Technical records confirm this." },
-                { question: "Were you at headquarters?", statement: "I left before midnight.", truth: false, explanation: "A late-night purchase was linked to his badge." },
-                { question: "Did you modify a security rule?", statement: "I never changed the firewall.", truth: false, explanation: "His account made the change." },
-                { question: "Did you send a message?", statement: "I sent no messages that night.", truth: false, explanation: "A deleted message was recovered." },
-                { question: "Did you access the database?", statement: "I had no reason to access it.", truth: false, explanation: "The breach originated from his terminal." }
-            ]
-        }
-    ]
-},
-
-{
-    id: 9,
-    title: "The Last Photograph",
-    classification: "RESTRICTED",
-    icon: "📸",
-    location: "Silverlight Studio",
-    story: `A famous photographer's final photograph disappeared from a locked studio.
-
-    The original negative was missing, but a copy remained.
-
-    Three people had visited the studio on the day of the incident.
-
-    A photograph of the room revealed an unusual reflection.`,
-    evidence: [
-        { name: "Camera Roll", description: "The final image was captured at 18:42.", clue: "The timeline can be reconstructed." },
-        { name: "Studio Key", description: "The key was returned late.", clue: "Someone had access after closing." },
-        { name: "Glass Reflection", description: "A figure appears in the reflection.", clue: "Someone else was in the room." },
-        { name: "Film Case", description: "An empty film case was recovered.", clue: "The negative may have been hidden inside." }
-    ],
-    culprit: 0,
-    suspects: [
-        {
-            name: "Noah", role: "Photography Assistant", icon: "👨🏻",
-            description: "He helped organise the photographer's work.",
-            questions: [
-                { question: "Did you handle the camera?", statement: "I prepared the equipment.", truth: true, explanation: "The equipment checklist confirms this." },
-                { question: "Did you return the key?", statement: "I returned it before closing.", truth: false, explanation: "The key was returned much later." },
-                { question: "Did you enter the studio again?", statement: "I never went back inside.", truth: false, explanation: "The reflection shows his jacket." },
-                { question: "Did you take the negative?", statement: "I did not remove the film.", truth: false, explanation: "The empty film case was found in his locker." },
-                { question: "Did you sell the photograph?", statement: "I have never sold an original.", truth: false, explanation: "A private sale agreement was recovered." }
-            ]
-        },
-        {
-            name: "Luca", role: "Gallery Owner", icon: "🧑🏽",
-            description: "He planned to exhibit the photographer's work.",
-            questions: [
-                { question: "Did you visit the studio?", statement: "I visited in the afternoon.", truth: true, explanation: "The visitor log confirms this." },
-                { question: "Did you want the photograph?", statement: "I wanted to exhibit it.", truth: true, explanation: "He requested permission." },
-                { question: "Did you have a studio key?", statement: "I never had a key.", truth: true, explanation: "His access was supervised." },
-                { question: "Did you enter after closing?", statement: "I left before closing.", truth: true, explanation: "The exit camera supports this." },
-                { question: "Did you remove the negative?", statement: "I did not take it.", truth: true, explanation: "No evidence connects him to the theft." }
-            ]
-        },
-        {
-            name: "Amara", role: "Art Collector", icon: "👩🏽",
-            description: "She had offered to purchase the photograph.",
-            questions: [
-                { question: "Did you offer to buy the photograph?", statement: "I made an offer.", truth: true, explanation: "The offer is documented." },
-                { question: "Did you visit the studio?", statement: "I visited with permission.", truth: true, explanation: "The visitor log confirms this." },
-                { question: "Did you see Noah?", statement: "I saw him preparing equipment.", truth: true, explanation: "Their accounts match." },
-                { question: "Did you return after closing?", statement: "I went home after the visit.", truth: true, explanation: "Transport records support this." },
-                { question: "Did you take the negative?", statement: "I did not take it.", truth: true, explanation: "There is no evidence linking her to the missing film." }
-            ]
-        }
-    ]
-},
-
-{
-    id: 10,
-    title: "The Final Protocol",
-    classification: "OMEGA CLASSIFIED",
-    icon: "🔐",
-    location: "The Central Intelligence Tower",
-    story: `A secret protocol capable of controlling the city's entire
-    security network has disappeared.
-
-    The system was accessed from inside the tower.
-
-    Three senior officers were present during the final security check.
-
-    The city is at risk until the protocol is recovered.
-
-    This is your final investigation.`,
-    evidence: [
-        { name: "Protocol Terminal", description: "The protocol was accessed at 03:17.", clue: "Someone used the central terminal." },
-        { name: "Override Code", description: "A restricted override was entered.", clue: "The culprit had senior-level access." },
-        { name: "Encrypted Message", description: "A message mentioned an external buyer.", clue: "The protocol may have been sold." },
-        { name: "Power Record", description: "A backup power circuit was interrupted.", clue: "The culprit planned around the security system." }
-    ],
-    culprit: 1,
-    suspects: [
-        {
-            name: "Director Vale", role: "Tower Director", icon: "🕴🏽",
-            description: "He supervised all security operations.",
-            questions: [
-                { question: "Did you authorise the security check?", statement: "I approved the check.", truth: true, explanation: "The authorisation record confirms this." },
-                { question: "Did you use the override?", statement: "I did not enter the override code.", truth: true, explanation: "The code came from another officer." },
-                { question: "Did you know about the protocol?", statement: "I knew its importance.", truth: true, explanation: "He supervised the project." },
-                { question: "Did you interrupt the backup power?", statement: "I never touched the power controls.", truth: true, explanation: "The maintenance log supports this." },
-                { question: "Did you sell the protocol?", statement: "I never contacted a buyer.", truth: true, explanation: "No communication links him to a buyer." }
-            ]
-        },
-        {
-            name: "Commander Rex", role: "Operations Commander", icon: "👨🏽",
-            description: "He controlled the tower's restricted operations.",
-            questions: [
-                { question: "Did you attend the security check?", statement: "I was present throughout.", truth: true, explanation: "The attendance record confirms this." },
-                { question: "Did you enter the override code?", statement: "I never used the code.", truth: false, explanation: "The terminal log identifies his credentials." },
-                { question: "Did you access the protocol?", statement: "I did not open the protocol.", truth: false, explanation: "The access record shows his account." },
-                { question: "Did you contact an external buyer?", statement: "I never contacted anyone.", truth: false, explanation: "The encrypted message was linked to his device." },
-                { question: "Did you interrupt the backup power?", statement: "I had no reason to touch it.", truth: false, explanation: "The power override was made using his access code." }
-            ]
-        },
-        {
-            name: "Agent Mira", role: "Intelligence Officer", icon: "👩🏽",
-            description: "She monitored external threats to the tower.",
-            questions: [
-                { question: "Did you monitor the tower?", statement: "I watched the external security feeds.", truth: true, explanation: "Her duty roster confirms this." },
-                { question: "Did you see the protocol access?", statement: "I noticed an unusual login.", truth: true, explanation: "She reported it." },
-                { question: "Did you know Commander Rex?", statement: "We worked together.", truth: true, explanation: "They were assigned to the same operation." },
-                { question: "Did you use the override code?", statement: "I did not use it.", truth: true, explanation: "Her credentials were not used." },
-                { question: "Did you contact an external buyer?", statement: "I did not contact anyone.", truth: true, explanation: "No communication links her to the buyer." }
-            ]
-        }
-    ]
-}
-
-];
-
-/* ===================== DOM HELPERS ===================== */
-
-function $(id) {
-    return document.getElementById(id);
-}
+/* =========================
+   DOM HELPERS
+========================= */
+
+const $ = (id) => document.getElementById(id);
 
 function setText(id, value) {
     const element = $(id);
-    if (element) element.textContent = value;
+    if (element) element.textContent = value ?? "";
 }
 
 function setHTML(id, value) {
     const element = $(id);
-    if (element) element.innerHTML = value;
+    if (element) element.innerHTML = value ?? "";
 }
 
 function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, character => ({
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
@@ -851,260 +67,1101 @@ function showScreen(screenId) {
         screen.classList.remove("active");
     });
 
-    const target = $(screenId);
+    const screen = $(screenId);
+    if (screen) screen.classList.add("active");
 
-    if (target) {
-        target.classList.add("active");
-        gameState.currentScreen = screenId;
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-        console.error("Screen not found:", screenId);
+    gameState.currentScreen = screenId;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* =========================
+   CASE DATABASE
+
+   Each case has:
+   - Four evidence items
+   - Three suspects
+   - Five interview statements per suspect
+   - One correct culprit
+========================= */
+
+function makeQuestions(suspect, caseInfo, isCulprit) {
+    const trueStatements = [
+        `You were present at ${suspect.location}.`,
+        `You knew about the incident before the investigation began.`,
+        `You had access to the area where the incident happened.`,
+        `You spoke to someone connected to this case.`,
+        `You have information that may help explain what happened.`
+    ];
+
+    const falseStatements = [
+        `You were nowhere near ${suspect.location} that evening.`,
+        `You had never heard about this incident before today.`,
+        `You had absolutely no access to the crime scene.`,
+        `You did not speak to anyone connected to this case.`,
+        `You have no information that could help this investigation.`
+    ];
+
+    return trueStatements.map((statement, index) => {
+        const isLie = isCulprit && index === 2;
+
+        return {
+            statement: isLie ? falseStatements[index] : statement,
+            answer: isLie ? "lie" : "truth",
+            explanation: isLie
+                ? `${suspect.name}'s statement contradicts the evidence collected at ${caseInfo.location}.`
+                : `The available evidence supports this statement from ${suspect.name}.`
+        };
+    });
+}
+
+function makeSuspect(name, role, description, location, isCulprit, caseInfo) {
+    const suspect = {
+        name,
+        role,
+        description,
+        location,
+        isCulprit
+    };
+
+    suspect.questions = makeQuestions(suspect, caseInfo, isCulprit);
+    return suspect;
+}
+
+function createCase(
+    id,
+    title,
+    location,
+    icon,
+    classification,
+    story,
+    evidence,
+    puzzle,
+    suspects,
+    culpritIndex,
+    explanation
+) {
+    const caseInfo = {
+        id,
+        title,
+        location,
+        icon,
+        classification,
+        story,
+        evidence,
+        puzzle,
+        culpritIndex,
+        explanation
+    };
+
+    caseInfo.suspects = suspects.map((suspect, index) =>
+        makeSuspect(
+            suspect.name,
+            suspect.role,
+            suspect.description,
+            suspect.location,
+            index === culpritIndex,
+            caseInfo
+        )
+    );
+
+    return caseInfo;
+}
+
+const caseData = [
+
+    /* CASE 1 */
+    createCase(
+        1,
+        "The Missing Necklace",
+        "Blackwood Mansion",
+        "💎",
+        "THEFT",
+        "A priceless necklace disappeared during an exclusive gathering at Blackwood Mansion. The doors were locked, the guests were inside, and someone in the mansion knows exactly what happened.",
+        [
+            "A broken display lock was found beside the empty jewellery case.",
+            "A guest reported hearing footsteps near the gallery.",
+            "A security camera stopped recording shortly before the theft.",
+            "A small piece of dark fabric was discovered near the display."
+        ],
+        "The display lock was damaged before the necklace disappeared.",
+        [
+            {
+                name: "Maya",
+                role: "Mansion Guest",
+                description: "A frequent guest who knows the mansion well.",
+                location: "the dining room"
+            },
+            {
+                name: "Daniel",
+                role: "Personal Assistant",
+                description: "An employee with access to private areas.",
+                location: "the gallery"
+            },
+            {
+                name: "Victor",
+                role: "Security Officer",
+                description: "Responsible for the mansion's security system.",
+                location: "the security office"
+            }
+        ],
+        1,
+        "Daniel had access to the gallery and the opportunity to interfere with the display. The damaged lock and missing security footage are important clues."
+    ),
+
+    /* CASE 2 */
+    createCase(
+        2,
+        "The Midnight Museum Theft",
+        "Neon City Museum",
+        "🏛️",
+        "ART THEFT",
+        "A rare historical artefact vanished from a secured museum exhibition after midnight. The alarm system was active, but no intruder was recorded entering the building.",
+        [
+            "The display case was opened using an authorised access code.",
+            "A museum employee reported an unusual power interruption.",
+            "Dust near the display showed evidence of recent movement.",
+            "A visitor badge was discovered inside a restricted corridor."
+        ],
+        "The museum display was opened using an authorised access code.",
+        [
+            {
+                name: "Elena",
+                role: "Museum Curator",
+                description: "Responsible for the exhibition and its artefacts.",
+                location: "the exhibition hall"
+            },
+            {
+                name: "Marcus",
+                role: "Night Guard",
+                description: "Patrols the museum after closing time.",
+                location: "the security entrance"
+            },
+            {
+                name: "Sofia",
+                role: "Researcher",
+                description: "Was studying the stolen artefact.",
+                location: "the research archive"
+            }
+        ],
+        0,
+        "Elena had authorised access to the exhibition and could use the museum's access system. The display case was not forced open."
+    ),
+
+    /* CASE 3 */
+    createCase(
+        3,
+        "The Vanishing Scientist",
+        "Nova Research Laboratory",
+        "🧪",
+        "DISAPPEARANCE",
+        "A leading scientist disappeared from a restricted laboratory. Their workstation was left running, and a confidential research file was missing.",
+        [
+            "The laboratory access log recorded a late-night entry.",
+            "A research file was copied shortly before the disappearance.",
+            "A laboratory coat was found near the emergency exit.",
+            "The security system recorded an unexplained shutdown."
+        ],
+        "A confidential research file was copied before the scientist disappeared.",
+        [
+            {
+                name: "Dr. Cross",
+                role: "Lead Researcher",
+                description: "Worked closely with the missing scientist.",
+                location: "the main laboratory"
+            },
+            {
+                name: "Lena",
+                role: "Laboratory Assistant",
+                description: "Maintained the laboratory equipment.",
+                location: "the equipment room"
+            },
+            {
+                name: "Adrian",
+                role: "Security Technician",
+                description: "Maintained the laboratory security system.",
+                location: "the control room"
+            }
+        ],
+        2,
+        "Dr. Cross had the technical knowledge to interfere with the laboratory security system and access the confidential research."
+    ),
+
+    /* CASE 4 */
+    createCase(
+        4,
+        "The Poisoned Invitation",
+        "Royal Hotel",
+        "🥂",
+        "ATTEMPTED MURDER",
+        "A prominent guest collapsed after attending a private hotel dinner. Investigators discovered that the invitation list had been changed shortly before the event.",
+        [
+            "A glass was recovered from the guest's table.",
+            "The dinner seating arrangement had been altered.",
+            "A hotel employee noticed a suspicious package.",
+            "The guest received an anonymous message before dinner."
+        ],
+        "The dinner seating arrangement was changed shortly before the incident.",
+        [
+            {
+                name: "Isabelle",
+                role: "Event Planner",
+                description: "Organised the private dinner.",
+                location: "the ballroom"
+            },
+            {
+                name: "Rafael",
+                role: "Hotel Manager",
+                description: "Had authority over hotel arrangements.",
+                location: "the reception office"
+            },
+            {
+                name: "Thomas",
+                role: "Private Guest",
+                description: "Attended the dinner as an invited guest.",
+                location: "the dining room"
+            }
+        ],
+        1,
+        "Rafael could change the seating arrangement and had access to the hotel's private event records."
+    ),
+
+    /* CASE 5 */
+    createCase(
+        5,
+        "The Stolen Identity",
+        "Neon City Financial Tower",
+        "🪪",
+        "IDENTITY FRAUD",
+        "A senior executive discovered that someone had accessed their private accounts using a stolen identity. Financial records show suspicious transactions.",
+        [
+            "A duplicate access card was used at the tower.",
+            "An unusual transaction was recorded overnight.",
+            "The executive's login details were changed.",
+            "A printer produced an unauthorised identity document."
+        ],
+        "A duplicate access card was used to enter the financial tower.",
+        [
+            {
+                name: "Jade",
+                role: "Systems Administrator",
+                description: "Managed employee access credentials.",
+                location: "the server room"
+            },
+            {
+                name: "Oliver",
+                role: "Financial Analyst",
+                description: "Worked with the executive's financial records.",
+                location: "the finance department"
+            },
+            {
+                name: "Nina",
+                role: "Executive Assistant",
+                description: "Had access to the executive's office.",
+                location: "the executive office"
+            }
+        ],
+        0,
+        "Jade's administrative access made it possible to duplicate credentials and manipulate account information."
+    ),
+
+    /* CASE 6 */
+    createCase(
+        6,
+        "The Ghost Train",
+        "Underground Metro",
+        "🚇",
+        "SABOTAGE",
+        "A driverless metro train stopped unexpectedly between stations. The control system showed no authorised shutdown, and a passenger reported seeing someone near the maintenance entrance.",
+        [
+            "The train's control signal was interrupted.",
+            "A maintenance panel was left open.",
+            "A restricted maintenance key was missing.",
+            "A station camera recorded movement near the tunnel."
+        ],
+        "The train control signal was deliberately interrupted.",
+        [
+            {
+                name: "Mira",
+                role: "Train Operator",
+                description: "Responsible for monitoring train operations.",
+                location: "the control station"
+            },
+            {
+                name: "Leon",
+                role: "Station Manager",
+                description: "Managed daily station operations.",
+                location: "the station office"
+            },
+            {
+                name: "Rex",
+                role: "Maintenance Engineer",
+                description: "Had access to the underground maintenance panels.",
+                location: "the maintenance tunnel"
+            }
+        ],
+        2,
+        "Rex had access to the maintenance tunnel and the equipment needed to interrupt the train's control signal."
+    ),
+
+    /* CASE 7 */
+    createCase(
+        7,
+        "The Disappearing Diamond",
+        "Aurora Hotel",
+        "💠",
+        "JEWELLERY THEFT",
+        "A rare diamond disappeared during a luxury hotel auction. Several guests were present, but the diamond was missing before the auction ended.",
+        [
+            "A display sensor was disabled.",
+            "A service lift stopped on the auction floor.",
+            "A staff access card was used after closing.",
+            "A glove was found behind the display platform."
+        ],
+        "The display sensor was disabled before the diamond was taken.",
+        [
+            {
+                name: "Amara",
+                role: "Auction Host",
+                description: "Presented the diamond during the auction.",
+                location: "the auction hall"
+            },
+            {
+                name: "Zane",
+                role: "Hotel Technician",
+                description: "Maintained the hotel's display equipment.",
+                location: "the service corridor"
+            },
+            {
+                name: "Elliot",
+                role: "Private Collector",
+                description: "Had placed a bid on the diamond.",
+                location: "the guest lounge"
+            }
+        ],
+        1,
+        "Zane could access the display sensor and the service areas without attracting attention."
+    ),
+
+    /* CASE 8 */
+    createCase(
+        8,
+        "The Hacker's Alibi",
+        "Cyber Division Headquarters",
+        "💻",
+        "CYBERCRIME",
+        "A protected government database was accessed without authorisation. The hacker left a message claiming to have an impossible alibi.",
+        [
+            "The database recorded a local access attempt.",
+            "A firewall rule was changed.",
+            "An encrypted file was copied.",
+            "A terminal was left running in a restricted room."
+        ],
+        "A firewall rule was changed before the database was accessed.",
+        [
+            {
+                name: "Morgan",
+                role: "Cyber Investigator",
+                description: "Investigated digital security breaches.",
+                location: "the investigation office"
+            },
+            {
+                name: "Tara",
+                role: "Network Specialist",
+                description: "Maintained the division's network.",
+                location: "the network centre"
+            },
+            {
+                name: "Kai",
+                role: "Systems Analyst",
+                description: "Had access to the protected database.",
+                location: "the restricted terminal room"
+            }
+        ],
+        2,
+        "Kai had access to the restricted terminal and the technical permissions required to alter the firewall rule."
+    ),
+
+    /* CASE 9 */
+    createCase(
+        9,
+        "The Last Photograph",
+        "Silverlight Studio",
+        "📷",
+        "MISSING EVIDENCE",
+        "A photographer's final image disappeared from a secure studio archive. The photograph may contain evidence connected to an unsolved crime.",
+        [
+            "The archive's access history was edited.",
+            "A camera memory card was missing.",
+            "The studio door was opened after closing.",
+            "A photograph was found in a waste bin."
+        ],
+        "The studio archive access history was edited after closing time.",
+        [
+            {
+                name: "Noah",
+                role: "Studio Photographer",
+                description: "Created the missing photograph.",
+                location: "the photography studio"
+            },
+            {
+                name: "Chloe",
+                role: "Archive Assistant",
+                description: "Organised the studio's digital archive.",
+                location: "the archive room"
+            },
+            {
+                name: "Ethan",
+                role: "Studio Manager",
+                description: "Managed the studio and its employees.",
+                location: "the management office"
+            }
+        ],
+        0,
+        "Noah had direct knowledge of the missing photograph and the opportunity to remove the original image."
+    ),
+
+    /* CASE 10 */
+    createCase(
+        10,
+        "The Final Protocol",
+        "Central Intelligence Tower",
+        "🛰️",
+        "CLASSIFIED",
+        "A classified security protocol was activated without authorisation. The tower has entered lockdown, and the investigation may reveal a betrayal within the organisation.",
+        [
+            "The protocol was activated using an internal command.",
+            "A senior access credential was used.",
+            "A restricted server was accessed.",
+            "A security recording was deleted."
+        ],
+        "The final protocol was activated using an internal command.",
+        [
+            {
+                name: "Agent Vale",
+                role: "Intelligence Officer",
+                description: "Responsible for internal intelligence reports.",
+                location: "the intelligence floor"
+            },
+            {
+                name: "Commander Rex",
+                role: "Division Commander",
+                description: "Had senior authority within the tower.",
+                location: "the command centre"
+            },
+            {
+                name: "Agent Nova",
+                role: "Security Specialist",
+                description: "Managed the tower's security systems.",
+                location: "the security server room"
+            }
+        ],
+        1,
+        "Commander Rex had the senior authority and access needed to activate the classified protocol."
+    )
+];
+
+/* =========================
+   PLAYER PROGRESS
+========================= */
+
+function loadProgress() {
+    const defaultProgress = {
+        points: 0,
+        reputation: 0,
+        completedCases: [],
+        unlockedCases: [1],
+        bestScores: {},
+        completedInvestigations: []
+    };
+
+    try {
+        const saved = JSON.parse(
+            localStorage.getItem(CONFIG.STORAGE_KEY)
+        );
+
+        if (!saved || typeof saved !== "object") {
+            return defaultProgress;
+        }
+
+        return {
+            ...defaultProgress,
+            ...saved,
+            completedCases: Array.isArray(saved.completedCases)
+                ? saved.completedCases
+                : [],
+            unlockedCases: Array.isArray(saved.unlockedCases)
+                ? saved.unlockedCases
+                : [1],
+            bestScores: saved.bestScores || {},
+            completedInvestigations: saved.completedInvestigations || []
+        };
+    } catch (error) {
+        console.warn("Could not load saved progress:", error);
+        return defaultProgress;
+    }
+}
+
+let playerProgress = loadProgress();
+
+function saveProgress() {
+    try {
+        localStorage.setItem(
+            CONFIG.STORAGE_KEY,
+            JSON.stringify(playerProgress)
+        );
+    } catch (error) {
+        console.warn("Could not save progress:", error);
     }
 
     updateHUD();
 }
 
-function updateHUD() {
-    setText("playerPoints", playerProgress.points);
-    setText("totalPoints", playerProgress.points);
-    setText("playerReputation", playerProgress.reputation);
-    setText("completedCases", playerProgress.completedCases.length);
+function resetProgress() {
+    playerProgress = {
+        points: 0,
+        reputation: 0,
+        completedCases: [],
+        unlockedCases: [1],
+        bestScores: {},
+        completedInvestigations: []
+    };
+
+    saveProgress();
 }
 
-/* ===================== CASE ARCHIVE ===================== */
+/* =========================
+   GAME STATE
+========================= */
 
-function renderCases() {
-    const container =
-        $("caseGrid") ||
-        $("casesGrid") ||
-        $("caseList");
+const gameState = {
+    currentScreen: "homeScreen",
 
-    if (!container) {
-        console.error("Case archive container not found.");
+    currentCase: null,
+    difficulty: "medium",
+
+    currentSuspect: 0,
+    currentQuestion: 0,
+
+    selectedSuspect: null,
+
+    selectedWords: [],
+    availableWords: [],
+
+    score: 0,
+    correctAnswers: 0,
+    incorrectAnswers: 0,
+    hintsUsed: 0,
+
+    lives: CONFIG.STARTING_LIVES,
+
+    timeRemaining: 0,
+    timerInterval: null,
+    timeoutHandle: null,
+
+    puzzleCompleted: false,
+    interviewCompleted: false,
+    accusationCompleted: false,
+
+    caseStarted: false,
+    caseCompleted: false,
+
+    answers: [],
+    suspectResults: {},
+
+    answeredCurrentQuestion: false,
+    selectedWordIds: []
+};
+
+/* =========================
+   HUD
+========================= */
+
+function updateHUD() {
+    setText("headerPoints", playerProgress.points);
+    setText("playerPoints", playerProgress.points);
+    setText("playerReputation", playerProgress.reputation);
+
+    setText(
+        "completedCases",
+        playerProgress.completedCases.length
+    );
+
+    setText("totalCases", CONFIG.TOTAL_CASES);
+
+    const hearts = Array.from(
+        { length: CONFIG.STARTING_LIVES },
+        (_, index) => index < gameState.lives ? "♥" : "♡"
+    ).join(" ");
+
+    setText("headerLives", hearts);
+    setText("puzzleLives", hearts);
+    setText("interviewLives", hearts);
+    setText("finalLives", hearts);
+}
+
+/* =========================
+   TIMER
+========================= */
+
+function stopTimer() {
+    if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = null;
+    }
+
+    if (gameState.timeoutHandle) {
+        clearTimeout(gameState.timeoutHandle);
+        gameState.timeoutHandle = null;
+    }
+}
+
+function startTimer(stage) {
+    stopTimer();
+
+    const duration = CONFIG.TIMER[gameState.difficulty] || 30;
+    gameState.timeRemaining = duration;
+
+    updateTimerDisplay(stage, duration);
+
+    gameState.timerInterval = setInterval(() => {
+        gameState.timeRemaining--;
+
+        updateTimerDisplay(stage, duration);
+
+        if (gameState.timeRemaining <= 0) {
+            stopTimer();
+            handleTimeout(stage);
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay(stage, duration) {
+    const minutes = Math.floor(gameState.timeRemaining / 60);
+    const seconds = gameState.timeRemaining % 60;
+
+    const formatted =
+        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+    if (stage === "puzzle") {
+        setText("puzzleTimer", `TIME: ${formatted}`);
+
+        const bar = $("puzzleTimerBar");
+        if (bar) {
+            bar.style.width =
+                `${Math.max(0, gameState.timeRemaining / duration * 100)}%`;
+        }
+    }
+
+    if (stage === "interview") {
+        setText("interviewTimer", `TIME: ${formatted}`);
+
+        const bar = $("interviewTimerBar");
+        if (bar) {
+            bar.style.width =
+                `${Math.max(0, gameState.timeRemaining / duration * 100)}%`;
+        }
+    }
+}
+
+function handleTimeout(stage) {
+    if (!gameState.caseStarted || gameState.caseCompleted) return;
+
+    gameState.lives--;
+    gameState.incorrectAnswers++;
+
+    updateHUD();
+
+    if (gameState.lives <= 0) {
+        failCase("You ran out of lives.");
         return;
     }
 
+    if (stage === "puzzle") {
+        setText("puzzleFeedback", "Time expired! Try the puzzle again.");
+        const feedback = $("puzzleFeedback");
+        if (feedback) feedback.className = "feedback incorrect";
+
+        gameState.timeoutHandle = setTimeout(() => {
+            if (gameState.currentScreen === "puzzleScreen") {
+                startTimer("puzzle");
+            }
+        }, 1200);
+    } else {
+        setText("interviewFeedback", "Time expired! You lost one life.");
+        const feedback = $("interviewFeedback");
+        if (feedback) feedback.className = "feedback incorrect";
+
+        gameState.timeoutHandle = setTimeout(() => {
+            if (gameState.currentScreen === "interviewScreen") {
+                advanceAfterQuestion();
+            }
+        }, 1200);
+    }
+}
+
+/* =========================
+   CASE ARCHIVE
+========================= */
+
+function renderCaseArchive() {
+    const container = $("caseGrid");
+    if (!container) return;
+
     container.innerHTML = "";
 
-    caseData.forEach((investigation, index) => {
-        const unlocked = playerProgress.unlockedCases.includes(index);
-        const completed = playerProgress.completedCases.includes(index);
+    caseData.forEach(caseInfo => {
+        const unlocked =
+            playerProgress.unlockedCases.includes(caseInfo.id);
+
+        const completed =
+            playerProgress.completedCases.includes(caseInfo.id);
 
         const card = document.createElement("article");
-
         card.className = `case-card ${unlocked ? "" : "locked"}`;
 
         card.innerHTML = `
-            <div class="case-icon">${investigation.icon}</div>
-            <p class="eyebrow">CASE FILE ${String(index + 1).padStart(3, "0")}</p>
-            <h3>${escapeHTML(investigation.title)}</h3>
-            <p>${escapeHTML(investigation.location)}</p>
-            <p>${completed ? "✓ CASE SOLVED" : unlocked ? "INVESTIGATION AVAILABLE" : "🔒 LOCKED"}</p>
-            <button class="btn ${unlocked ? "primary" : "secondary"}"
-                ${unlocked ? "" : "disabled"}>
-                ${completed ? "REVISIT CASE" : unlocked ? "OPEN CASE" : "LOCKED"}
+            <span class="case-icon">${escapeHTML(caseInfo.icon)}</span>
+
+            <h3>${escapeHTML(caseInfo.title)}</h3>
+
+            <p>${escapeHTML(caseInfo.location)}</p>
+
+            <p>${escapeHTML(caseInfo.classification)}</p>
+
+            <p>
+                ${completed ? "✓ COMPLETED" : unlocked ? "AVAILABLE" : "LOCKED"}
+            </p>
+
+            <button
+                class="btn ${unlocked ? "primary" : "secondary"}"
+                ${unlocked ? "" : "disabled"}
+                data-case-id="${caseInfo.id}">
+                ${completed ? "REPLAY CASE" : unlocked ? "OPEN CASE" : "LOCKED"}
             </button>
         `;
 
         const button = card.querySelector("button");
 
         if (unlocked) {
-            button.addEventListener("click", () => {
-                startCase(index);
-            });
+            button.addEventListener("click", () => startCase(caseInfo.id));
         }
 
         container.appendChild(card);
     });
 }
 
-/* ===================== START CASE ===================== */
+/* =========================
+   START CASE
+========================= */
 
-function startCase(index) {
-    if (!playerProgress.unlockedCases.includes(index)) {
+function startCase(caseId) {
+    const caseInfo = caseData.find(item => item.id === caseId);
+
+    if (!caseInfo) return;
+
+    if (!playerProgress.unlockedCases.includes(caseId)) {
         return;
     }
 
     stopTimer();
 
-    const investigation = caseData[index];
+    gameState.currentCase = caseInfo;
 
-    gameState.currentCase = index;
     gameState.currentSuspect = 0;
     gameState.currentQuestion = 0;
-
     gameState.selectedSuspect = null;
-    gameState.selectedEvidence = [];
 
     gameState.score = 0;
     gameState.correctAnswers = 0;
     gameState.incorrectAnswers = 0;
     gameState.hintsUsed = 0;
 
-    gameState.answers = {};
-    gameState.suspectResults = {};
+    gameState.lives = CONFIG.STARTING_LIVES;
+
+    gameState.puzzleCompleted = false;
+    gameState.interviewCompleted = false;
+    gameState.accusationCompleted = false;
 
     gameState.caseStarted = true;
     gameState.caseCompleted = false;
 
-    gameState.difficulty =
-        $("difficultySelect")?.value ||
-        gameState.difficulty ||
-        "Medium";
+    gameState.answers = [];
+    gameState.suspectResults = {};
 
-    gameState.timeRemaining =
-        CONFIG.TIMER_BY_DIFFICULTY[gameState.difficulty];
+    gameState.answeredCurrentQuestion = false;
 
-    setText("briefingTitle", investigation.title);
-    setText("briefingStory", investigation.story);
-    setText("briefingClassification", investigation.classification);
-    setText("briefingLocation", investigation.location);
-
-    setText("briefingCaseNumber", `CASE FILE ${String(index + 1).padStart(3, "0")}`);
-
-    renderEvidence();
     updateHUD();
+
+    setText("briefingTitle", caseInfo.title);
+    setText("briefingIcon", caseInfo.icon);
+    setText("briefingSubtitle", caseInfo.classification);
+    setText("briefingClassification", caseInfo.classification);
+    setText("briefingLocation", caseInfo.location);
+    setText("briefingCaseNumber", `TD-${String(caseInfo.id).padStart(3, "0")}`);
+    setText("briefingStory", caseInfo.story);
+
+    const facts = $("briefingFacts");
+
+    if (facts) {
+        facts.innerHTML = caseInfo.evidence.map((item, index) => `
+            <div>
+                <strong>CLUE ${index + 1}:</strong>
+                ${escapeHTML(item)}
+            </div>
+        `).join("");
+    }
+
+    const evidenceList = $("evidenceList");
+    if (evidenceList) evidenceList.innerHTML = "";
 
     showScreen("briefingScreen");
 }
 
-/* ===================== EVIDENCE ===================== */
+function beginPuzzle() {
+    if (!gameState.currentCase) return;
 
-function renderEvidence() {
-    const investigation = caseData[gameState.currentCase];
+    gameState.selectedWords = [];
+    gameState.selectedWordIds = [];
+    gameState.puzzleCompleted = false;
 
-    const container =
-        $("evidenceList") ||
-        $("factsList") ||
-        $("evidenceGrid");
+    const sentence = gameState.currentCase.puzzle;
 
-    if (!container) return;
+    gameState.availableWords = sentence
+        .replace(/[.!?]/g, "")
+        .split(/\s+/)
+        .map((word, index) => ({
+            id: index,
+            text: word
+        }));
 
-    container.innerHTML = "";
+    gameState.availableWords.sort(() => Math.random() - 0.5);
 
-    investigation.evidence.forEach((item, index) => {
-        const card = document.createElement("button");
+    renderPuzzle();
+    showScreen("puzzleScreen");
+    startTimer("puzzle");
+}
 
-        card.className = "suspect-choice evidence-choice";
+/* =========================
+   SENTENCE PUZZLE
+========================= */
 
-        card.innerHTML = `
-            <strong>📁 ${escapeHTML(item.name)}</strong>
-            <p>${escapeHTML(item.description)}</p>
-            <small>${escapeHTML(item.clue)}</small>
-        `;
+function renderPuzzle() {
+    const caseInfo = gameState.currentCase;
 
-        card.addEventListener("click", () => {
-            card.classList.toggle("selected");
+    setText(
+        "puzzlePrompt",
+        `Case evidence: ${caseInfo.evidence[0]} Reconstruct the statement.`
+    );
 
-            if (gameState.selectedEvidence.includes(index)) {
-                gameState.selectedEvidence =
-                    gameState.selectedEvidence.filter(value => value !== index);
-            } else {
-                gameState.selectedEvidence.push(index);
-            }
+    setText("puzzleProgress", "EVIDENCE PUZZLE");
+
+    const answerArea = $("answerArea");
+    const wordTiles = $("wordTiles");
+
+    if (!answerArea || !wordTiles) return;
+
+    answerArea.innerHTML = "";
+    wordTiles.innerHTML = "";
+
+    gameState.selectedWords.forEach((word, index) => {
+        const button = document.createElement("button");
+        button.className = "word-tile selected";
+        button.textContent = word.text;
+
+        button.addEventListener("click", () => {
+            removeSelectedWord(index);
         });
 
-        container.appendChild(card);
+        answerArea.appendChild(button);
+    });
+
+    gameState.availableWords.forEach(word => {
+        if (gameState.selectedWordIds.includes(word.id)) return;
+
+        const button = document.createElement("button");
+        button.className = "word-tile";
+        button.textContent = word.text;
+
+        button.addEventListener("click", () => {
+            selectWord(word.id);
+        });
+
+        wordTiles.appendChild(button);
     });
 }
 
-/* ===================== BEGIN INTERROGATION ===================== */
+function selectWord(wordId) {
+    if (gameState.puzzleCompleted) return;
+
+    const word = gameState.availableWords.find(item => item.id === wordId);
+
+    if (!word || gameState.selectedWordIds.includes(wordId)) return;
+
+    gameState.selectedWords.push(word);
+    gameState.selectedWordIds.push(wordId);
+
+    renderPuzzle();
+}
+
+function removeSelectedWord(index) {
+    if (gameState.puzzleCompleted) return;
+
+    gameState.selectedWords.splice(index, 1);
+    gameState.selectedWordIds.splice(index, 1);
+
+    renderPuzzle();
+}
+
+function undoWord() {
+    if (gameState.selectedWords.length === 0) return;
+
+    gameState.selectedWords.pop();
+    gameState.selectedWordIds.pop();
+
+    renderPuzzle();
+}
+
+function clearWords() {
+    if (gameState.puzzleCompleted) return;
+
+    gameState.selectedWords = [];
+    gameState.selectedWordIds = [];
+
+    renderPuzzle();
+}
+
+function checkSentence() {
+    if (gameState.puzzleCompleted) return;
+
+    const submitted = gameState.selectedWords
+        .map(word => word.text)
+        .join(" ")
+        .toLowerCase();
+
+    const correct = gameState.currentCase.puzzle
+        .replace(/[.!?]/g, "")
+        .toLowerCase();
+
+    if (submitted === correct) {
+        gameState.puzzleCompleted = true;
+
+        stopTimer();
+
+        gameState.score += CONFIG.POINTS.puzzle;
+        gameState.correctAnswers++;
+
+        setText("puzzleFeedback", "Correct! Evidence statement reconstructed.");
+        $("puzzleFeedback").className = "feedback correct";
+
+        updateHUD();
+
+        gameState.timeoutHandle = setTimeout(() => {
+            if (gameState.caseStarted && !gameState.caseCompleted) {
+                beginInvestigation();
+            }
+        }, 1300);
+    } else {
+        gameState.incorrectAnswers++;
+        gameState.lives--;
+
+        gameState.score = Math.max(
+            0,
+            gameState.score + CONFIG.POINTS.incorrect
+        );
+
+        updateHUD();
+
+        setText("puzzleFeedback", "Incorrect arrangement. Check the word order.");
+        $("puzzleFeedback").className = "feedback incorrect";
+
+        if (gameState.lives <= 0) {
+            stopTimer();
+            failCase("You lost all your lives during evidence analysis.");
+        }
+    }
+}
+
+/* =========================
+   INTERVIEW STAGE
+========================= */
 
 function beginInvestigation() {
+    stopTimer();
+
     gameState.currentSuspect = 0;
     gameState.currentQuestion = 0;
+    gameState.interviewCompleted = false;
+    gameState.suspectResults = {};
 
     renderSuspectList();
     openSuspect(0);
 }
 
 function renderSuspectList() {
-    const investigation = caseData[gameState.currentCase];
-
-    const container =
-        $("suspectList") ||
-        $("suspectsContainer");
-
-    if (!container) return;
+    const container = $("suspectChoices");
+    if (!container || !gameState.currentCase) return;
 
     container.innerHTML = "";
 
-    investigation.suspects.forEach((suspect, index) => {
+    gameState.currentCase.suspects.forEach((suspect, index) => {
         const button = document.createElement("button");
-
         button.className = "suspect-choice";
+        button.textContent = suspect.name;
 
-        button.innerHTML = `
-            <strong>${suspect.icon} ${escapeHTML(suspect.name)}</strong>
-            <p>${escapeHTML(suspect.role)}</p>
-            <small>${escapeHTML(suspect.description)}</small>
-        `;
-
-        button.addEventListener("click", () => {
-            openSuspect(index);
-        });
+        button.addEventListener("click", () => openSuspect(index));
 
         container.appendChild(button);
     });
 }
 
-/* ===================== OPEN SUSPECT ===================== */
-
 function openSuspect(index) {
+    if (!gameState.currentCase) return;
+
     stopTimer();
 
     gameState.currentSuspect = index;
     gameState.currentQuestion = 0;
 
-    const suspect =
-        caseData[gameState.currentCase].suspects[index];
+    const suspect = gameState.currentCase.suspects[index];
 
     setText("suspectName", suspect.name);
-    setText("suspectRole", suspect.role);
     setText("suspectDescription", suspect.description);
-    setText("suspectAvatar", suspect.icon);
+    setText("suspectRole", suspect.role);
+    setText("suspectAvatar", suspect.name.charAt(0).toUpperCase());
 
-    gameState.suspectResults[index] = {
-        correct: 0,
-        incorrect: 0,
-        completed: false
-    };
+    const nextQuestionButton = $("nextQuestionButton");
+    const nextSuspectButton = $("nextSuspectButton");
+    const continueButton = $("continueAccusationButton");
+
+    if (nextQuestionButton) nextQuestionButton.hidden = true;
+    if (nextSuspectButton) nextSuspectButton.hidden = true;
+    if (continueButton) continueButton.hidden = true;
 
     showScreen("interviewScreen");
-
     renderQuestion();
 }
 
-/* ===================== QUESTION RENDERING ===================== */
-
 function renderQuestion() {
-    const suspect =
-        caseData[gameState.currentCase]
-            .suspects[gameState.currentSuspect];
+    const suspect = gameState.currentCase.suspects[
+        gameState.currentSuspect
+    ];
 
-    const question =
-        suspect.questions[gameState.currentQuestion];
+    const question = suspect.questions[gameState.currentQuestion];
 
-    if (!question) {
-        finishSuspectInterview();
-        return;
-    }
+    gameState.answeredCurrentQuestion = false;
+
+    setText(
+        "interviewProgress",
+        `SUSPECT ${gameState.currentSuspect + 1} / ${CONFIG.SUSPECTS_PER_CASE}`
+    );
 
     setText(
         "questionNumber",
-        `QUESTION ${gameState.currentQuestion + 1} / 5`
+        `QUESTION ${gameState.currentQuestion + 1} / ${CONFIG.QUESTIONS_PER_SUSPECT}`
     );
 
-    setText("interviewQuestion", question.question);
-    setText("questionStatement", question.statement);
-
-    setText("questionFeedback", "");
-
-    const feedback = $("questionFeedback");
-
-    if (feedback) {
-        feedback.className = "feedback";
-    }
+    setText("suspectStatement", question.statement);
+    setText("interviewFeedback", "");
 
     const truthButton = $("truthButton");
     const lieButton = $("lieButton");
@@ -1112,643 +1169,513 @@ function renderQuestion() {
     if (truthButton) truthButton.disabled = false;
     if (lieButton) lieButton.disabled = false;
 
-    gameState.timeRemaining =
-        CONFIG.TIMER_BY_DIFFICULTY[gameState.difficulty];
+    if ($("nextQuestionButton")) $("nextQuestionButton").hidden = true;
+    if ($("nextSuspectButton")) $("nextSuspectButton").hidden = true;
+    if ($("continueAccusationButton")) $("continueAccusationButton").hidden = true;
 
-    updateTimerDisplay();
-    startTimer();
+    startTimer("interview");
 }
 
-/* ===================== TIMER ===================== */
+function answerQuestion(answer) {
+    if (gameState.answeredCurrentQuestion) return;
 
-function startTimer() {
+    gameState.answeredCurrentQuestion = true;
     stopTimer();
 
-    gameState.timerInterval = setInterval(() => {
-        if (!gameState.caseStarted || gameState.caseCompleted) {
-            stopTimer();
-            return;
-        }
-
-        gameState.timeRemaining--;
-
-        updateTimerDisplay();
-
-        if (gameState.timeRemaining <= 0) {
-            stopTimer();
-            handleTimeout();
-        }
-    }, 1000);
-}
-
-function stopTimer() {
-    if (gameState.timerInterval !== null) {
-        clearInterval(gameState.timerInterval);
-        gameState.timerInterval = null;
-    }
-}
-
-function updateTimerDisplay() {
-    const time = Math.max(0, gameState.timeRemaining);
-
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-
-    const formatted =
-        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-
-    setText("timerDisplay", formatted);
-    setText("timeRemaining", formatted);
-
-    const timerFill = $("timerFill");
-
-    if (timerFill) {
-        const maximum =
-            CONFIG.TIMER_BY_DIFFICULTY[gameState.difficulty];
-
-        timerFill.style.width =
-            `${Math.max(0, (time / maximum) * 100)}%`;
-    }
-}
-
-function handleTimeout() {
-    const question =
-        caseData[gameState.currentCase]
-            .suspects[gameState.currentSuspect]
-            .questions[gameState.currentQuestion];
-
-    gameState.incorrectAnswers++;
-
-    gameState.suspectResults[gameState.currentSuspect].incorrect++;
-
-    gameState.score += CONFIG.POINTS.incorrect;
-
-    showFeedback(
-        `⏰ Time's up! The correct answer was ${question.truth ? "TRUE" : "LIE"}.`,
-        false
-    );
-
-    recordAnswer("timeout", question.truth);
-
-    window.setTimeout(() => {
-        nextQuestion();
-    }, 1400);
-}
-
-/* ===================== ANSWER QUESTIONS ===================== */
-
-function answerQuestion(playerAnswer) {
-    if (!gameState.caseStarted || gameState.caseCompleted) return;
-    if (gameState.timeRemaining <= 0) return;
-
-    const suspect =
-        caseData[gameState.currentCase]
-            .suspects[gameState.currentSuspect];
+    const suspect = gameState.currentCase.suspects[
+        gameState.currentSuspect
+    ];
 
     const question = suspect.questions[gameState.currentQuestion];
 
-    if (!question) return;
-
-    stopTimer();
-
-    const correct = playerAnswer === question.truth;
-
-    const truthButton = $("truthButton");
-    const lieButton = $("lieButton");
-
-    if (truthButton) truthButton.disabled = true;
-    if (lieButton) lieButton.disabled = true;
+    const correct = answer === question.answer;
 
     if (correct) {
-        gameState.correctAnswers++;
-        gameState.suspectResults[gameState.currentSuspect].correct++;
         gameState.score += CONFIG.POINTS.correct;
-
-        showFeedback(
-            `✓ Correct! ${question.explanation}`,
-            true
-        );
+        gameState.correctAnswers++;
     } else {
-        gameState.incorrectAnswers++;
-        gameState.suspectResults[gameState.currentSuspect].incorrect++;
-        gameState.score += CONFIG.POINTS.incorrect;
-
-        showFeedback(
-            `✗ Not quite! ${question.explanation}`,
-            false
+        gameState.score = Math.max(
+            0,
+            gameState.score + CONFIG.POINTS.incorrect
         );
+
+        gameState.incorrectAnswers++;
+        gameState.lives--;
     }
 
-    recordAnswer(playerAnswer, question.truth);
+    gameState.answers.push({
+        suspect: suspect.name,
+        question: gameState.currentQuestion + 1,
+        answer,
+        correct
+    });
 
-    window.setTimeout(() => {
-        nextQuestion();
-    }, 1800);
-}
-
-function recordAnswer(playerAnswer, actualAnswer) {
-    const suspectIndex = gameState.currentSuspect;
-    const questionIndex = gameState.currentQuestion;
-
-    if (!gameState.answers[suspectIndex]) {
-        gameState.answers[suspectIndex] = {};
+    if (!gameState.suspectResults[suspect.name]) {
+        gameState.suspectResults[suspect.name] = {
+            correct: 0,
+            incorrect: 0
+        };
     }
 
-    gameState.answers[suspectIndex][questionIndex] = {
-        playerAnswer,
-        actualAnswer,
-        correct: playerAnswer === actualAnswer
-    };
+    if (correct) {
+        gameState.suspectResults[suspect.name].correct++;
+    } else {
+        gameState.suspectResults[suspect.name].incorrect++;
+    }
+
+    const feedback = $("interviewFeedback");
+
+    if (feedback) {
+        feedback.textContent = correct
+            ? `Correct! ${question.explanation}`
+            : `Incorrect. ${question.explanation}`;
+
+        feedback.className = correct
+            ? "feedback correct"
+            : "feedback incorrect";
+    }
+
+    if ($("truthButton")) $("truthButton").disabled = true;
+    if ($("lieButton")) $("lieButton").disabled = true;
+
+    updateHUD();
+
+    if (gameState.lives <= 0) {
+        failCase("You lost all your lives during the interrogation.");
+        return;
+    }
+
+    if ($("nextQuestionButton")) {
+        $("nextQuestionButton").hidden = false;
+    }
 }
 
-function showFeedback(message, good) {
-    const feedback = $("questionFeedback");
+function advanceAfterQuestion() {
+    if (!gameState.answeredCurrentQuestion) return;
 
-    if (!feedback) return;
-
-    feedback.textContent = message;
-    feedback.className = good ? "feedback good" : "feedback bad";
-}
-
-function nextQuestion() {
     gameState.currentQuestion++;
 
-    if (gameState.currentQuestion >= CONFIG.QUESTIONS_PER_SUSPECT) {
-        finishSuspectInterview();
-    } else {
+    if (gameState.currentQuestion < CONFIG.QUESTIONS_PER_SUSPECT) {
         renderQuestion();
+        return;
     }
+
+    finishSuspectInterview();
 }
-
-/* ===================== HINT SYSTEM ===================== */
-
-function useHint() {
-    const suspect =
-        caseData[gameState.currentCase]
-            .suspects[gameState.currentSuspect];
-
-    const question = suspect.questions[gameState.currentQuestion];
-
-    if (!question) return;
-
-    if (gameState.timeRemaining <= 0) return;
-
-    gameState.hintsUsed++;
-    gameState.score += CONFIG.POINTS.hint;
-
-    stopTimer();
-
-    showFeedback(
-        `🔎 Detective hint: ${question.explanation}`,
-        true
-    );
-
-    const truthButton = $("truthButton");
-    const lieButton = $("lieButton");
-
-    if (truthButton) truthButton.disabled = true;
-    if (lieButton) lieButton.disabled = true;
-
-    window.setTimeout(() => {
-        if (truthButton) truthButton.disabled = false;
-        if (lieButton) lieButton.disabled = false;
-
-        renderQuestion();
-    }, 2500);
-}
-
-/* ===================== SUSPECT INTERVIEW COMPLETED ===================== */
 
 function finishSuspectInterview() {
     stopTimer();
 
-    const suspectIndex = gameState.currentSuspect;
+    if ($("truthButton")) $("truthButton").disabled = true;
+    if ($("lieButton")) $("lieButton").disabled = true;
+    if ($("nextQuestionButton")) $("nextQuestionButton").hidden = true;
 
-    gameState.suspectResults[suspectIndex].completed = true;
+    if (gameState.currentSuspect < CONFIG.SUSPECTS_PER_CASE - 1) {
+        if ($("nextSuspectButton")) {
+            $("nextSuspectButton").hidden = false;
+        }
+    } else {
+        gameState.interviewCompleted = true;
 
-    const container =
-        $("interviewCompleteMessage");
-
-    if (container) {
-        container.textContent =
-            "Interrogation complete. Select another suspect or continue to your final accusation.";
-    }
-
-    showScreen("interviewScreen");
-
-    const nextButton = $("continueAccusationButton");
-
-    if (nextButton) {
-        nextButton.hidden = false;
+        if ($("continueAccusationButton")) {
+            $("continueAccusationButton").hidden = false;
+        }
     }
 }
 
-/* ===================== ACCUSATION ===================== */
+function nextSuspect() {
+    if (gameState.currentSuspect >= CONFIG.SUSPECTS_PER_CASE - 1) return;
+
+    openSuspect(gameState.currentSuspect + 1);
+}
+
+/* =========================
+   HINT SYSTEM
+========================= */
+
+function useHint() {
+    if (gameState.answeredCurrentQuestion) return;
+
+    const suspect = gameState.currentCase.suspects[
+        gameState.currentSuspect
+    ];
+
+    const question = suspect.questions[gameState.currentQuestion];
+
+    gameState.hintsUsed++;
+    gameState.score = Math.max(
+        0,
+        gameState.score + CONFIG.POINTS.hint
+    );
+
+    updateHUD();
+
+    const feedback = $("interviewFeedback");
+
+    if (feedback) {
+        feedback.textContent =
+            `HINT: ${question.explanation}`;
+
+        feedback.className = "feedback info";
+    }
+}
+
+/* =========================
+   ACCUSATION STAGE
+========================= */
 
 function openAccusation() {
     stopTimer();
 
-    const investigation = caseData[gameState.currentCase];
-
-    const container =
-        $("accusationSuspects") ||
-        $("accusationOptions") ||
-        $("suspectChoices");
-
-    if (!container) {
-        console.error("Accusation options container not found.");
-        return;
-    }
-
-    container.innerHTML = "";
+    if (!gameState.interviewCompleted) return;
 
     gameState.selectedSuspect = null;
 
-    investigation.suspects.forEach((suspect, index) => {
+    const container = $("accusationChoices");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    gameState.currentCase.suspects.forEach((suspect, index) => {
         const button = document.createElement("button");
 
-        button.className = "suspect-choice";
+        button.className = "accusation-choice";
 
         button.innerHTML = `
-            <strong>${suspect.icon} ${escapeHTML(suspect.name)}</strong>
+            <span class="case-icon">◈</span>
+            <strong>${escapeHTML(suspect.name)}</strong>
             <p>${escapeHTML(suspect.role)}</p>
         `;
 
         button.addEventListener("click", () => {
-            gameState.selectedSuspect = index;
-
-            container.querySelectorAll(".suspect-choice")
-                .forEach(item => item.classList.remove("selected"));
+            document.querySelectorAll(".accusation-choice")
+                .forEach(choice => choice.classList.remove("selected"));
 
             button.classList.add("selected");
+            gameState.selectedSuspect = index;
+
+            if ($("accuseButton")) $("accuseButton").disabled = false;
+
+            setText(
+                "accusationFeedback",
+                `${suspect.name} selected. Confirm your accusation.`
+            );
+
+            $("accusationFeedback").className = "feedback info";
         });
 
         container.appendChild(button);
     });
 
+    if ($("accuseButton")) $("accuseButton").disabled = true;
+
+    setText("accusationFeedback", "");
     showScreen("accusationScreen");
 }
 
 function submitAccusation() {
-    if (gameState.selectedSuspect === null) {
-        alert("Detective, select a suspect before submitting your accusation.");
-        return;
-    }
+    if (gameState.selectedSuspect === null) return;
+    if (gameState.accusationCompleted) return;
 
-    const investigation = caseData[gameState.currentCase];
+    gameState.accusationCompleted = true;
 
     const correct =
-        gameState.selectedSuspect === investigation.culprit;
+        gameState.selectedSuspect === gameState.currentCase.culpritIndex;
 
     if (correct) {
         gameState.score += CONFIG.POINTS.accusation;
+        gameState.score += CONFIG.POINTS.completed;
 
+        gameState.correctAnswers++;
+
+        gameState.caseCompleted = true;
+        gameState.caseStarted = false;
+
+        playerProgress.points += gameState.score;
+        playerProgress.reputation += 10;
+
+        const caseId = gameState.currentCase.id;
+
+        if (!playerProgress.completedCases.includes(caseId)) {
+            playerProgress.completedCases.push(caseId);
+        }
+
+        playerProgress.bestScores[caseId] = Math.max(
+            playerProgress.bestScores[caseId] || 0,
+            gameState.score
+        );
+
+        if (!playerProgress.unlockedCases.includes(caseId + 1) &&
+            caseId < CONFIG.TOTAL_CASES) {
+            playerProgress.unlockedCases.push(caseId + 1);
+        }
+
+        playerProgress.completedInvestigations.push({
+            caseId,
+            score: gameState.score,
+            date: new Date().toISOString()
+        });
+
+        saveProgress();
         showFinalReport(true);
-    } else {
-        gameState.score += CONFIG.POINTS.incorrect;
 
+    } else {
+        gameState.incorrectAnswers++;
+        gameState.caseCompleted = true;
+        gameState.caseStarted = false;
+
+        setText(
+            "failedMessage",
+            "Your accusation was incorrect. Review the evidence and try the case again."
+        );
+
+        saveProgress();
         showFinalReport(false);
     }
 }
 
-/* ===================== INVESTIGATION REPORT ===================== */
+/* =========================
+   FINAL REPORT
+========================= */
 
-function showFinalReport(correct) {
+function showFinalReport(won) {
     stopTimer();
 
-    if (gameState.caseCompleted) return;
-
-    gameState.caseCompleted = true;
-    gameState.caseStarted = false;
-
-    const investigation = caseData[gameState.currentCase];
-
-    const culprit =
-        investigation.suspects[investigation.culprit];
-
-    const accused =
-        investigation.suspects[gameState.selectedSuspect];
-
-    let rating = "ROOKIE DETECTIVE";
-
-    const accuracy =
-        gameState.correctAnswers + gameState.incorrectAnswers > 0
-            ? Math.round(
-                gameState.correctAnswers /
-                (gameState.correctAnswers + gameState.incorrectAnswers) * 100
-            )
-            : 0;
-
-    if (accuracy >= 90 && correct) {
-        rating = "MASTER DETECTIVE";
-    } else if (accuracy >= 70 && correct) {
-        rating = "ELITE INVESTIGATOR";
-    } else if (correct) {
-        rating = "SKILLED INVESTIGATOR";
-    }
-
-    if (correct) {
-        gameState.score += CONFIG.POINTS.completed;
-
-        if (!playerProgress.completedCases.includes(gameState.currentCase)) {
-            playerProgress.completedCases.push(gameState.currentCase);
-            playerProgress.completedInvestigations++;
-        }
-
-        if (gameState.currentCase + 1 < CONFIG.TOTAL_CASES) {
-            if (!playerProgress.unlockedCases.includes(gameState.currentCase + 1)) {
-                playerProgress.unlockedCases.push(gameState.currentCase + 1);
-            }
-        }
-
-        playerProgress.reputation += 10;
-    }
-
-    const previousBest =
-        playerProgress.bestScores[gameState.currentCase] || 0;
-
-    playerProgress.bestScores[gameState.currentCase] =
-        Math.max(previousBest, gameState.score);
-
-    playerProgress.points += Math.max(0, gameState.score);
-
-    saveProgress();
-
-    const reportTitle = correct
-        ? "CASE SOLVED"
-        : "INVESTIGATION INCOMPLETE";
-
-    setText("reportTitle", reportTitle);
-    setText("reportRating", rating);
-
-    setText("reportCaseName", investigation.title);
-    setText("reportAccused", accused.name);
-    setText("reportCulprit", culprit.name);
-
-    setText("reportScore", gameState.score);
-    setText("reportAccuracy", `${accuracy}%`);
-    setText("reportCorrect", gameState.correctAnswers);
-    setText("reportIncorrect", gameState.incorrectAnswers);
-    setText("reportHints", gameState.hintsUsed);
+    const caseInfo = gameState.currentCase;
+    const culprit = caseInfo.suspects[caseInfo.culpritIndex];
 
     setText(
-        "reportResult",
-        correct
-            ? `Excellent work! ${culprit.name} was responsible.`
-            : `The actual culprit was ${culprit.name}. Review the evidence and try again.`
+        "reportTitle",
+        won ? "CASE SUCCESSFULLY SOLVED" : "INCORRECT ACCUSATION"
     );
+
+    setText(
+        "reportIcon",
+        won ? "🏆" : "⚠️"
+    );
+
+    setText(
+        "reportMessage",
+        won
+            ? `You identified ${culprit.name} as the culprit!`
+            : `The actual culprit was ${culprit.name}.`
+    );
+
+    setText("finalPoints", gameState.score);
+    setText("finalCorrect", gameState.correctAnswers);
+    setText("finalMistakes", gameState.incorrectAnswers);
+    setText("finalLives", gameState.lives);
 
     setText(
         "reportExplanation",
-        correct
-            ? "You connected the evidence, questioned the suspects and identified the correct culprit."
-            : "Your accusation did not match the investigation evidence."
+        `${caseInfo.explanation} ${culprit.name} was responsible for the incident.`
     );
 
-    const nextCaseButton = $("nextCaseButton");
+    const nextButton = $("nextCaseButton");
 
-    if (nextCaseButton) {
-        nextCaseButton.hidden =
-            !correct ||
-            gameState.currentCase + 1 >= CONFIG.TOTAL_CASES;
+    if (nextButton) {
+        nextButton.hidden =
+            !won || caseInfo.id >= CONFIG.TOTAL_CASES;
     }
-
-    updateHUD();
-    renderCases();
 
     showScreen("reportScreen");
 }
 
-/* ===================== RESTART CASE ===================== */
-
-function retryCase() {
-    const current = gameState.currentCase;
-    const difficulty = gameState.difficulty;
-
-    startCase(current);
-
-    gameState.difficulty = difficulty;
-
-    gameState.timeRemaining =
-        CONFIG.TIMER_BY_DIFFICULTY[difficulty];
-}
-
-function nextCase() {
-    const next = gameState.currentCase + 1;
-
-    if (next >= CONFIG.TOTAL_CASES) {
-        showScreen("homeScreen");
-        return;
-    }
-
-    if (!playerProgress.unlockedCases.includes(next)) {
-        return;
-    }
-
-    startCase(next);
-}
-
-/* ===================== NAVIGATION ===================== */
-
-function leaveActivity(destination) {
-    if (!gameState.caseStarted || gameState.caseCompleted) {
-        stopTimer();
-
-        if (destination === "home") {
-            showScreen("homeScreen");
-        } else {
-            renderCases();
-            showScreen("casesScreen");
-        }
-
-        return;
-    }
-
-    const confirmed = window.confirm(
-        "Leave this investigation? Your current unfinished attempt will not be counted as a completed case. Your previously completed cases will remain saved."
-    );
-
-    if (!confirmed) return;
+function failCase(message) {
+    if (gameState.caseCompleted) return;
 
     stopTimer();
 
     gameState.caseStarted = false;
+    gameState.caseCompleted = true;
 
-    gameState.currentQuestion = 0;
-    gameState.currentSuspect = 0;
+    setText("failedMessage", message);
 
-    gameState.selectedSuspect = null;
+    showScreen("failedScreen");
+}
 
-    gameState.answers = {};
-    gameState.suspectResults = {};
+/* =========================
+   RETRY AND NEXT CASE
+========================= */
 
-    if (destination === "home") {
+function retryCase() {
+    if (!gameState.currentCase) return;
+
+    startCase(gameState.currentCase.id);
+}
+
+function nextCase() {
+    if (!gameState.currentCase) return;
+
+    const nextId = gameState.currentCase.id + 1;
+
+    if (nextId > CONFIG.TOTAL_CASES) {
         showScreen("homeScreen");
+        return;
+    }
+
+    if (playerProgress.unlockedCases.includes(nextId)) {
+        startCase(nextId);
     } else {
-        renderCases();
+        renderCaseArchive();
         showScreen("casesScreen");
     }
 }
 
+/* =========================
+   NAVIGATION
+========================= */
+
 function goHome() {
-    leaveActivity("home");
+    stopTimer();
+    gameState.caseStarted = false;
+
+    updateHUD();
+    showScreen("homeScreen");
 }
 
-function goToArchive() {
-    leaveActivity("cases");
+function goToCases() {
+    stopTimer();
+    renderCaseArchive();
+    showScreen("casesScreen");
 }
 
-/* ===================== BUTTON EVENTS ===================== */
+function leaveActivity() {
+    stopTimer();
+    goToCases();
+}
 
-function bindClick(id, callback) {
-    const element = $(id);
+/* =========================
+   DIFFICULTY
+========================= */
 
-    if (element) {
-        element.addEventListener("click", callback);
-    } else {
-        console.warn(`Optional button not found: ${id}`);
+function setDifficulty(difficulty) {
+    if (!CONFIG.TIMER[difficulty]) return;
+
+    gameState.difficulty = difficulty;
+}
+
+/* =========================
+   EVENT BINDING
+========================= */
+
+function bindButton(id, callback) {
+    const button = $(id);
+
+    if (button) {
+        button.addEventListener("click", callback);
     }
 }
 
 function bindEvents() {
+    bindButton("playButton", goToCases);
 
-    // Main menu
-    bindClick("startButton", () => {
-        renderCases();
+    bindButton("continueButton", () => {
+        renderCaseArchive();
         showScreen("casesScreen");
     });
 
-    bindClick("startInvestigatingButton", () => {
-        renderCases();
-        showScreen("casesScreen");
-    });
+    bindButton("backHomeButton", goHome);
 
-    bindClick("caseArchiveButton", () => {
-        renderCases();
-        showScreen("casesScreen");
-    });
+    bindButton("backCasesButton", goToCases);
 
-    bindClick("homeButton", goHome);
-    bindClick("backHomeButton", goHome);
+    bindButton("enterPuzzleButton", beginPuzzle);
 
-    // Case archive
-    bindClick("casesHomeButton", goHome);
+    bindButton("undoWordButton", undoWord);
 
-    // Briefing
-    bindClick("beginInvestigationButton", beginInvestigation);
-    bindClick("briefingStartButton", beginInvestigation);
-    bindClick("briefingBackButton", goToArchive);
-    bindClick("briefingHomeButton", goHome);
+    bindButton("clearWordsButton", clearWords);
 
-    // Interrogation
-    bindClick("truthButton", () => answerQuestion(true));
-    bindClick("lieButton", () => answerQuestion(false));
+    bindButton("checkSentenceButton", checkSentence);
 
-    bindClick("hintButton", useHint);
+    bindButton("truthButton", () => answerQuestion("truth"));
 
-    bindClick("interviewExitButton", goToArchive);
-    bindClick("interviewHomeButton", goHome);
+    bindButton("lieButton", () => answerQuestion("lie"));
 
-    bindClick("continueAccusationButton", openAccusation);
+    bindButton("nextQuestionButton", advanceAfterQuestion);
 
-    bindClick("nextQuestionButton", nextQuestion);
+    bindButton("nextSuspectButton", nextSuspect);
 
-    bindClick("nextSuspectButton", () => {
-        const next =
-            (gameState.currentSuspect + 1) %
-            CONFIG.SUSPECTS_PER_CASE;
+    bindButton("continueAccusationButton", openAccusation);
 
-        openSuspect(next);
-    });
+    bindButton("accuseButton", submitAccusation);
 
-    // Accusation
-    bindClick("accuseButton", submitAccusation);
-    bindClick("submitAccusationButton", submitAccusation);
+    bindButton("retryButton", retryCase);
 
-    bindClick("accusationExitButton", goToArchive);
-    bindClick("accusationHomeButton", goHome);
+    bindButton("failedHomeButton", goHome);
 
-    // Report
-    bindClick("retryButton", retryCase);
-    bindClick("retryCaseButton", retryCase);
-    bindClick("nextCaseButton", nextCase);
+    bindButton("nextCaseButton", nextCase);
 
-    bindClick("reportHomeButton", goHome);
-
-    bindClick("reportArchiveButton", () => {
-        renderCases();
-        showScreen("casesScreen");
-    });
-
-    // Puzzle navigation compatibility
-    bindClick("puzzleExitButton", goToArchive);
-    bindClick("puzzleHomeButton", goHome);
-
-    // Difficulty
-    const difficultySelect = $("difficultySelect");
-
-    if (difficultySelect) {
-        difficultySelect.addEventListener("change", () => {
-            gameState.difficulty = difficultySelect.value;
-        });
-    }
+    bindButton("reportHomeButton", goHome);
 }
 
-/* ===================== VALIDATION ===================== */
+/* =========================
+   CASE DATABASE VALIDATION
+========================= */
 
 function validateCases() {
-    caseData.forEach((investigation, caseIndex) => {
-        if (investigation.suspects.length !== CONFIG.SUSPECTS_PER_CASE) {
-            console.error(`Case ${caseIndex + 1}: incorrect suspect count.`);
-        }
+    const errors = [];
 
-        investigation.suspects.forEach((suspect, suspectIndex) => {
-            if (suspect.questions.length !== CONFIG.QUESTIONS_PER_SUSPECT) {
-                console.error(
-                    `Case ${caseIndex + 1}, suspect ${suspectIndex + 1}: expected five questions.`
-                );
-            }
-        });
+    if (caseData.length !== CONFIG.TOTAL_CASES) {
+        errors.push(
+            `Expected ${CONFIG.TOTAL_CASES} cases but found ${caseData.length}.`
+        );
+    }
+
+    caseData.forEach(caseInfo => {
+        if (caseInfo.suspects.length !== CONFIG.SUSPECTS_PER_CASE) {
+            errors.push(`${caseInfo.title}: incorrect suspect count.`);
+        }
 
         if (
-            investigation.culprit < 0 ||
-            investigation.culprit >= investigation.suspects.length
+            !caseInfo.suspects[caseInfo.culpritIndex] ||
+            caseInfo.culpritIndex < 0
         ) {
-            console.error(`Case ${caseIndex + 1}: invalid culprit index.`);
+            errors.push(`${caseInfo.title}: invalid culprit index.`);
         }
+
+        caseInfo.suspects.forEach(suspect => {
+            if (suspect.questions.length !== CONFIG.QUESTIONS_PER_SUSPECT) {
+                errors.push(`${caseInfo.title}: ${suspect.name} has an incorrect question count.`);
+            }
+        });
     });
 
-    console.log("Tiny Detective case validation complete.");
-    console.log("Total cases:", caseData.length);
+    if (errors.length) {
+        console.error("CASE DATABASE VALIDATION ERRORS:", errors);
+        return false;
+    }
+
+    console.log(
+        `Tiny Detective: ${caseData.length} cases loaded successfully.`
+    );
+
+    return true;
 }
 
-/* ===================== INITIALISE GAME ===================== */
+/* =========================
+   INITIALISE GAME
+========================= */
 
 function initialiseGame() {
-    console.log("====================================");
-    console.log(" TINY DETECTIVE - SYSTEM ONLINE");
-    console.log(" Cyberpunk Investigation Engine");
-    console.log("====================================");
-
     validateCases();
 
     bindEvents();
 
     updateHUD();
 
-    renderCases();
+    renderCaseArchive();
 
     showScreen("homeScreen");
 
-    console.log("Saved progress loaded.");
-    console.log("Unlocked cases:", playerProgress.unlockedCases);
-    console.log("Completed cases:", playerProgress.completedCases);
+    console.log("--------------------------------");
+    console.log("TINY DETECTIVE INITIALISED");
+    console.log("Cyberpunk Detective Noir Edition");
+    console.log(`${caseData.length} cases available`);
+    console.log("--------------------------------");
 }
 
-/* ===================== STARTUP ===================== */
+/* =========================
+   START GAME
+========================= */
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initialiseGame);
-} else {
-    initialiseGame();
-}
+document.addEventListener("DOMContentLoaded", initialiseGame);
