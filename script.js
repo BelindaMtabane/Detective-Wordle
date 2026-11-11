@@ -1,725 +1,1185 @@
 
-const CASES = [
-  {
-    id: 1,
-    title: "The Missing Necklace",
-    difficulty: "Easy",
-    seconds: 45,
-    summary: "A valuable necklace disappears during a birthday party at Rosewood House.",
-    story: "At 7:30 pm, the guests at Rosewood House gathered for a birthday celebration. At 8:00 pm, the host placed her grandmother's ruby necklace inside a small jewellery box in the upstairs bedroom. By 8:20 pm, the box was empty. The bedroom window was closed, and the only people who went upstairs during that time were Maya Rose, Oliver James and Sophie Lane. Nobody admits taking the necklace. Their stories sound reasonable at first, but some details do not fit together.",
-    facts: [
-      "The necklace was placed in the upstairs bedroom at 8:00 pm.",
-      "The necklace was discovered missing at 8:20 pm.",
-      "The bedroom window was closed.",
-      "Maya, Oliver and Sophie all had access to the upstairs hallway."
-    ],
-    culprit: "maya",
-    explanation: "Maya claimed she stayed in the kitchen, but details in her answers place her upstairs near the bedroom. She also knew the jewellery box was open before anyone announced that the necklace was missing.",
-    suspects: [
-      {
-        id: "maya",
-        name: "Maya Rose",
-        role: "Birthday party guest",
-        avatar: "👩🏻",
-        questions: [
-          {
-            q: "Where were you between 8:00 and 8:20 pm?",
-            a: "I was in the kitchen the entire time, helping prepare the birthday cake.",
-            lie: true,
-            why: "A guest saw Maya leave the kitchen shortly after 8:05 pm."
-          },
-          {
-            q: "Did you go upstairs during the party?",
-            a: "No. I never went upstairs after arriving.",
-            lie: true,
-            why: "A muddy shoeprint matching Maya's shoes was found in the upstairs hallway."
-          },
-          {
-            q: "When did you last see the necklace?",
-            a: "I saw it in the jewellery box before dinner, around 7:15 pm.",
-            lie: false,
-            why: "This matches the host's earlier account."
-          },
-          {
-            q: "Did you know where the jewellery box was kept?",
-            a: "I knew it was usually kept in the upstairs bedroom.",
-            lie: false,
-            why: "Maya had visited the house before."
-          },
-          {
-            q: "Did you touch the jewellery box tonight?",
-            a: "Absolutely not. I did not even enter that bedroom.",
-            lie: true,
-            why: "A piece of Maya's scarf fibre was caught on the jewellery box."
-          }
-        ]
-      },
-      {
-        id: "oliver",
-        name: "Oliver James",
-        role: "The host's cousin",
-        avatar: "🧑🏻",
-        questions: [
-          {
-            q: "Where were you when the necklace disappeared?",
-            a: "I was outside on the back patio making a phone call.",
-            lie: false,
-            why: "A phone record supports a call made from the patio."
-          },
-          {
-            q: "Did you go upstairs at any point?",
-            a: "Yes, around 7:50 pm. I went to get my jacket before the necklace was put away.",
-            lie: false,
-            why: "His visit was before the necklace was placed in the box."
-          },
-          {
-            q: "Did you know the necklace was valuable?",
-            a: "I knew it was an old family necklace, but I did not know its value.",
-            lie: false,
-            why: "This is consistent with what he told the other guests."
-          },
-          {
-            q: "Did you see Maya during the evening?",
-            a: "I saw her near the kitchen doorway just after 8:10 pm.",
-            lie: false,
-            why: "This places Maya near the kitchen, but does not prove she stayed there."
-          },
-          {
-            q: "Did you open the bedroom jewellery box?",
-            a: "No. I did not go near the bedroom after 7:50 pm.",
-            lie: false,
-            why: "No evidence contradicts this statement."
-          }
-        ]
-      },
-      {
-        id: "sophie",
-        name: "Sophie Lane",
-        role: "The birthday host's friend",
-        avatar: "👩🏽",
-        questions: [
-          {
-            q: "When did you first notice the necklace was missing?",
-            a: "At about 8:20 pm, when the host checked the jewellery box.",
-            lie: false,
-            why: "This matches the host's timeline."
-          },
-          {
-            q: "Were you in the upstairs hallway?",
-            a: "Yes, briefly. I went to the bathroom at around 8:12 pm.",
-            lie: false,
-            why: "Sophie openly confirms being upstairs."
-          },
-          {
-            q: "Did you enter the bedroom?",
-            a: "No. I used the bathroom at the end of the hallway.",
-            lie: false,
-            why: "The bathroom is separate from the bedroom."
-          },
-          {
-            q: "Did Maya seem nervous?",
-            a: "She seemed distracted and kept asking when the cake would be served.",
-            lie: false,
-            why: "This is an observation, not proof of theft."
-          },
-          {
-            q: "Did you see anyone carrying the jewellery box?",
-            a: "No, I did not see anyone carrying it.",
-            lie: false,
-            why: "No evidence contradicts this statement."
-          }
-        ]
-      }
-    ]
-  },
+"use strict";
 
-  // These cases are listed now. Their full stories and suspects will be added later.
-  { id: 2, title: "The Vanishing Trophy", difficulty: "Easy", seconds: 45, summary: "A school competition trophy disappears before the award ceremony." },
-  { id: 3, title: "The Stolen Birthday Cake", difficulty: "Easy", seconds: 45, summary: "The centrepiece cake vanishes just before the guests arrive." },
-  { id: 4, title: "The Secret Invitation", difficulty: "Easy", seconds: 45, summary: "An anonymous invitation causes trouble at a family celebration." },
-  { id: 5, title: "The Mystery of Room 13", difficulty: "Medium", seconds: 30, summary: "A locked hotel room contains a mystery nobody can explain." },
-  { id: 6, title: "The Missing Painting", difficulty: "Medium", seconds: 30, summary: "A painting disappears during a private gallery event." },
-  { id: 7, title: "The Midnight Footsteps", difficulty: "Medium", seconds: 30, summary: "Someone walks through a house after everyone has gone to bed." },
-  { id: 8, title: "The Fake Alibi", difficulty: "Medium", seconds: 30, summary: "Three people give accounts that cannot all be true." },
-  { id: 9, title: "The Diamond Heist", difficulty: "Hard", seconds: 20, summary: "A carefully planned robbery leaves almost no obvious clues." },
-  { id: 10, title: "The Detective's Final Case", difficulty: "Hard", seconds: 20, summary: "The biggest mystery challenges everything the detective has learned." }
+// =====================================================
+// TINY DETECTIVE
+// Full game: Story -> Sentence Puzzles -> Interrogation
+// -> Accusation -> Detective Report -> Next Case
+// =====================================================
+
+const TOTAL_LIVES = 3;
+const PUZZLES_PER_CASE = 5;
+
+const CASES = [
+    {
+        id: 1,
+        title: "The Missing Necklace",
+        icon: "💎",
+        difficulty: "Easy",
+        subtitle: "A mysterious disappearance",
+        story: `At a glamorous family gathering, a beautiful diamond necklace disappears from the upstairs bedroom.
+
+The necklace belonged to Mrs Rose, who had placed it in a jewellery box before the guests arrived.
+
+Three guests were nearby when the necklace disappeared. Each has a different story about what happened.
+
+You must examine the evidence, arrange the clues into sentences, and question all three suspects.
+
+Can you discover who took the necklace?`,
+        facts: [
+            "The necklace was last seen in the upstairs bedroom at 8:00 PM.",
+            "Three guests were inside the house during the disappearance.",
+            "The bedroom window was found closed.",
+            "Nobody admitted to taking the necklace."
+        ],
+        puzzles: [
+            {
+                prompt: "Reconstruct the first evidence statement:",
+                words: ["The", "necklace", "was", "last", "seen", "at", "8:00", "PM."],
+                answer: "The necklace was last seen at 8:00 PM."
+            },
+            {
+                prompt: "Arrange the words to describe where the necklace was kept:",
+                words: ["The", "jewellery", "box", "was", "in", "the", "bedroom."],
+                answer: "The jewellery box was in the bedroom."
+            },
+            {
+                prompt: "Reconstruct the statement about the window:",
+                words: ["The", "bedroom", "window", "was", "found", "closed."],
+                answer: "The bedroom window was found closed."
+            },
+            {
+                prompt: "Build the sentence about the people in the house:",
+                words: ["Three", "guests", "were", "inside", "the", "house."],
+                answer: "Three guests were inside the house."
+            },
+            {
+                prompt: "Put this final evidence statement in order:",
+                words: ["Nobody", "admitted", "to", "taking", "the", "necklace."],
+                answer: "Nobody admitted to taking the necklace."
+            }
+        ],
+        suspects: [
+            {
+                name: "Maya Rose",
+                avatar: "👩",
+                description: "A family guest who was near the upstairs hallway.",
+                questions: [
+                    {
+                        statement: "I went upstairs at 8:10 PM.",
+                        answer: true,
+                        explanation: "Maya's timeline confirms that she went upstairs shortly after the necklace was last seen."
+                    },
+                    {
+                        statement: "I never entered the upstairs hallway.",
+                        answer: false,
+                        explanation: "Maya was seen near the upstairs hallway."
+                    },
+                    {
+                        statement: "I knew the necklace was kept in the bedroom.",
+                        answer: true,
+                        explanation: "Maya knew where the jewellery was kept."
+                    },
+                    {
+                        statement: "I stayed downstairs for the entire evening.",
+                        answer: false,
+                        explanation: "Maya admitted that she went upstairs."
+                    },
+                    {
+                        statement: "I did not tell anyone that I had moved the necklace.",
+                        answer: true,
+                        explanation: "Maya never reported moving the necklace."
+                    }
+                ]
+            },
+            {
+                name: "Oliver James",
+                avatar: "👨",
+                description: "A family friend who was helping with the party.",
+                questions: [
+                    {
+                        statement: "I was helping in the kitchen at 8:00 PM.",
+                        answer: true,
+                        explanation: "Oliver's account places him in the kitchen."
+                    },
+                    {
+                        statement: "I saw Maya near the upstairs stairs.",
+                        answer: true,
+                        explanation: "Oliver reported seeing Maya near the stairs."
+                    },
+                    {
+                        statement: "I took the necklace from the bedroom.",
+                        answer: false,
+                        explanation: "Oliver denied taking the necklace."
+                    },
+                    {
+                        statement: "The bedroom window was open.",
+                        answer: false,
+                        explanation: "The bedroom window was found closed."
+                    },
+                    {
+                        statement: "I did not go into the bedroom.",
+                        answer: true,
+                        explanation: "Oliver's statement places him away from the bedroom."
+                    }
+                ]
+            },
+            {
+                name: "Sophie Lane",
+                avatar: "👧",
+                description: "A guest who spent most of the evening downstairs.",
+                questions: [
+                    {
+                        statement: "I arrived before 8:00 PM.",
+                        answer: true,
+                        explanation: "Sophie arrived before the necklace disappeared."
+                    },
+                    {
+                        statement: "I went into the upstairs bedroom.",
+                        answer: false,
+                        explanation: "Sophie denied entering the bedroom."
+                    },
+                    {
+                        statement: "I noticed that the necklace was missing later in the evening.",
+                        answer: true,
+                        explanation: "Sophie noticed the disappearance after the initial timeline."
+                    },
+                    {
+                        statement: "I saw Oliver carrying the necklace.",
+                        answer: false,
+                        explanation: "There is no evidence that Oliver carried the necklace."
+                    },
+                    {
+                        statement: "I stayed downstairs for most of the party.",
+                        answer: true,
+                        explanation: "Sophie's account places her downstairs for most of the evening."
+                    }
+                ]
+            }
+        ],
+        culprit: "Maya Rose",
+        explanation: "Maya's timeline places her upstairs shortly after the necklace was last seen. Her statements also confirm that she knew where it was kept. Her account is the one that conflicts most strongly with the evidence."
+    },
+    {
+        id: 2,
+        title: "The Vanishing Trophy",
+        icon: "🏆",
+        difficulty: "Easy",
+        subtitle: "The school competition mystery",
+        story: "The school's golden sports trophy has disappeared just before the prize ceremony. Three students were helping prepare the hall. Someone knows more than they are saying.",
+        facts: [
+            "The trophy was last seen on the display table.",
+            "The hall was being prepared for the ceremony.",
+            "Three students had access to the hall.",
+            "The trophy was missing before the ceremony."
+        ],
+        puzzles: [],
+        suspects: [],
+        culprit: "",
+        explanation: "This case is planned for a future update."
+    },
+    {
+        id: 3,
+        title: "The Stolen Birthday Cake",
+        icon: "🎂",
+        difficulty: "Easy",
+        subtitle: "A very suspicious dessert",
+        story: "A birthday cake disappears from the kitchen before the birthday celebration. Three guests were seen near the kitchen.",
+        facts: [
+            "The cake was placed on the kitchen counter.",
+            "The party started at 6:00 PM.",
+            "Three guests were near the kitchen.",
+            "Nobody admitted taking the cake."
+        ],
+        puzzles: [],
+        suspects: [],
+        culprit: "",
+        explanation: "This case is planned for a future update."
+    },
+    {
+        id: 4,
+        title: "The Secret Invitation",
+        icon: "💌",
+        difficulty: "Easy",
+        subtitle: "A missing envelope",
+        story: "An important invitation disappears from a desk. Three people had access to the room, and each has a different explanation.",
+        facts: [
+            "The invitation was on the desk.",
+            "The room was unlocked.",
+            "Three people entered the room.",
+            "The envelope has not been found."
+        ],
+        puzzles: [],
+        suspects: [],
+        culprit: "",
+        explanation: "This case is planned for a future update."
+    },
+    {
+        id: 5,
+        title: "The Mystery of Room 13",
+        icon: "🚪",
+        difficulty: "Medium",
+        subtitle: "The room nobody entered",
+        story: "A strange noise is heard from Room 13, but everyone claims they were nowhere near it. Three guests may be hiding something.",
+        facts: [
+            "The noise was heard at midnight.",
+            "The room was locked.",
+            "Three guests were in the building.",
+            "A key was missing."
+        ],
+        puzzles: [],
+        suspects: [],
+        culprit: "",
+        explanation: "This case is planned for a future update."
+    },
+    {
+        id: 6,
+        title: "The Missing Painting",
+        icon: "🖼️",
+        difficulty: "Medium",
+        subtitle: "A blank space on the wall",
+        story: "A valuable painting disappears from an art gallery. The security guard remembers three people who visited the gallery.",
+        facts: [
+            "The painting was on the north wall.",
+            "The gallery closed at 9:00 PM.",
+            "Three visitors were questioned.",
+            "The security alarm was not activated."
+        ],
+        puzzles: [],
+        suspects: [],
+        culprit: "",
+        explanation: "This case is planned for a future update."
+    },
+    {
+        id: 7,
+        title: "The Midnight Footsteps",
+        icon: "👣",
+        difficulty: "Medium",
+        subtitle: "Someone was walking around",
+        story: "Footsteps are heard outside a locked office late at night. Three people claim they were asleep.",
+        facts: [
+            "The footsteps were heard at midnight.",
+            "The office door was locked.",
+            "Three people were staying in the building.",
+            "A muddy footprint was discovered."
+        ],
+        puzzles: [],
+        suspects: [],
+        culprit: "",
+        explanation: "This case is planned for a future update."
+    },
+    {
+        id: 8,
+        title: "The Fake Alibi",
+        icon: "🕰️",
+        difficulty: "Medium",
+        subtitle: "Time does not lie",
+        story: "An expensive watch disappears during a dinner party. Three guests provide timelines that do not quite match.",
+        facts: [
+            "The watch was seen at 7:30 PM.",
+            "The dining room clock was broken.",
+            "Three guests gave statements.",
+            "One timeline contains a contradiction."
+        ],
+        puzzles: [],
+        suspects: [],
+        culprit: "",
+        explanation: "This case is planned for a future update."
+    },
+    {
+        id: 9,
+        title: "The Diamond Heist",
+        icon: "💍",
+        difficulty: "Hard",
+        subtitle: "The impossible robbery",
+        story: "A priceless diamond disappears from a secure exhibition. The security system was active, yet the diamond is gone.",
+        facts: [
+            "The diamond was displayed in a locked case.",
+            "The alarm system was active.",
+            "Three people had authorised access.",
+            "No broken glass was found."
+        ],
+        puzzles: [],
+        suspects: [],
+        culprit: "",
+        explanation: "This case is planned for a future update."
+    },
+    {
+        id: 10,
+        title: "The Detective's Final Case",
+        icon: "🕵️",
+        difficulty: "Hard",
+        subtitle: "The biggest mystery yet",
+        story: "A final mystery challenges everything you have learned. Three suspects, conflicting statements, and a secret that changes the entire investigation.",
+        facts: [
+            "Three suspects have been questioned.",
+            "Several clues contradict each other.",
+            "The final evidence is hidden in the timeline.",
+            "Only careful detectives will solve the case."
+        ],
+        puzzles: [],
+        suspects: [],
+        culprit: "",
+        explanation: "This case is planned for a future update."
+    }
 ];
 
-const STORAGE_KEY = "tinyDetectiveProgress_v1";
+// =====================================================
+// GAME STATE
+// =====================================================
 
 const state = {
-  unlocked: 1,
-  completed: [],
-  points: 0,
-  selectedCase: 1,
-  suspectIndex: 0,
-  questionIndex: 0,
-  completedSuspects: [],
-  lives: 3,
-  correct: 0,
-  totalAnswered: 0,
-  timeoutCount: 0,
-  secondsLeft: 45,
-  timerId: null,
-  selectedAccusation: null
+    unlocked: 1,
+    completed: [],
+    points: 0,
+    selectedCase: 1,
+
+    lives: TOTAL_LIVES,
+    correct: 0,
+    mistakes: 0,
+    totalAnswered: 0,
+
+    puzzleIndex: 0,
+    puzzleTiles: [],
+    selectedTileIds: [],
+    puzzleLocked: false,
+    puzzlesCorrect: 0,
+
+    suspectIndex: 0,
+    questionIndex: 0,
+    selectedAccusation: null,
+
+    secondsLeft: 0,
+    timerId: null,
+    timerDuration: 0
 };
+
+// =====================================================
+// ELEMENT HELPERS
+// =====================================================
 
 const $ = id => document.getElementById(id);
 
 function currentCase() {
-  return CASES.find(c => c.id === state.selectedCase);
+    return CASES.find(item => item.id === state.selectedCase);
 }
 
 function currentSuspect() {
-  return currentCase().suspects[state.suspectIndex];
-}
-
-function totalQuestions() {
-  return currentCase().suspects.length * 5;
-}
-
-// Save the player's points and unlocked cases in this browser.
-function loadProgress() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    state.unlocked = Math.max(1, Math.min(10, saved.unlocked || 1));
-    state.completed = Array.isArray(saved.completed) ? saved.completed : [];
-    state.points = Number(saved.points) || 0;
-  } catch (error) {
-    console.warn("Could not load saved progress.", error);
-  }
-
-  updatePoints();
-}
-
-function saveProgress() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    unlocked: state.unlocked,
-    completed: state.completed,
-    points: state.points
-  }));
-
-  updatePoints();
-}
-
-function updatePoints() {
-  $("topPoints").textContent = state.points;
-  $("gamePoints").textContent = state.points;
+    return currentCase().suspects[state.suspectIndex];
 }
 
 function showScreen(name) {
-  stopTimer();
+    document.querySelectorAll(".screen").forEach(screen => {
+        screen.classList.remove("active");
+    });
 
-  document.querySelectorAll(".screen").forEach(screen => {
-    screen.classList.remove("active");
-  });
+    const target = $(name + "Screen");
 
-  $(name + "Screen").classList.add("active");
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
-}
-
-// Build the case archive and show which cases are unlocked.
-function renderCases() {
-  const grid = $("caseGrid");
-  grid.innerHTML = "";
-
-  CASES.forEach(c => {
-    const unlocked = c.id <= state.unlocked;
-    const completed = state.completed.includes(c.id);
-
-    const card = document.createElement("article");
-    card.className = "case-card " + (unlocked ? "available" : "locked");
-
-    card.innerHTML = `
-      <span class="case-number">CASE ${String(c.id).padStart(3, "0")}</span>
-      <h3>${escapeHTML(c.title)}</h3>
-      <p>${escapeHTML(c.summary)}</p>
-      <div class="tag-row">
-        <span class="tag">${c.difficulty.toUpperCase()}</span>
-        ${completed ? '<span class="tag tag-soft">COMPLETED ✓</span>' : ""}
-      </div>
-      <button class="btn ${unlocked ? "btn-primary" : "btn-quiet"}"
-        ${unlocked ? "" : "disabled"}>
-        ${completed ? "Play again ↻" : unlocked ? "Open case →" : "🔒 Locked"}
-      </button>
-    `;
-
-    if (unlocked) {
-      card.querySelector("button").addEventListener("click", () => {
-        openBriefing(c.id);
-      });
+    if (target) {
+        target.classList.add("active");
     }
 
-    grid.appendChild(card);
-  });
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// Show the story before starting the interrogation.
-function openBriefing(caseId) {
-  state.selectedCase = caseId;
-
-  const c = currentCase();
-
-  $("briefingTitle").textContent = c.title;
-  $("briefingDifficulty").textContent = c.difficulty.toUpperCase();
-
-  $("briefingStory").textContent = c.story ||
-    "This case file is being prepared. Complete the first investigation to unlock it.";
-
-  $("briefingFacts").innerHTML = (c.facts || [
-    "A new mystery is waiting to be investigated."
-  ]).map(f => `<li>${escapeHTML(f)}</li>`).join("");
-
-  $("briefingTimerInfo").textContent =
-    `You will have ${c.seconds} seconds per question.`;
-
-  $("enterRoomButton").disabled = !c.suspects;
-  $("enterRoomButton").textContent = c.suspects
-    ? "Enter interrogation room →"
-    : "Case content coming soon";
-
-  showScreen("briefing");
+function updateHeader() {
+    $("headerPoints").textContent = `⭐ ${state.points} Points`;
+    $("headerLives").textContent = `❤️ ${state.lives} Lives`;
 }
 
-// Reset all temporary information when starting or retrying a case.
-function resetCaseState() {
-  stopTimer();
-
-  state.suspectIndex = 0;
-  state.questionIndex = 0;
-  state.completedSuspects = [];
-  state.lives = 3;
-  state.correct = 0;
-  state.totalAnswered = 0;
-  state.timeoutCount = 0;
-  state.selectedAccusation = null;
-}
-
-function startInvestigation() {
-  if (!currentCase().suspects) return;
-
-  resetCaseState();
-
-  $("interviewCaseTitle").textContent = currentCase().title;
-  $("lives").textContent = state.lives;
-
-  renderSuspectList();
-  selectSuspect(0);
-  showScreen("interview");
-}
-
-// Draw the suspect buttons.
-function renderSuspectList() {
-  const list = $("suspectList");
-  list.innerHTML = "";
-
-  currentCase().suspects.forEach((suspect, index) => {
-    const done = state.completedSuspects.includes(suspect.id);
-
-    const button = document.createElement("button");
-    button.className = "suspect-choice" +
-      (index === state.suspectIndex ? " selected" : "");
-
-    button.disabled = done;
-
-    button.innerHTML = `
-      <span class="suspect-face">${suspect.avatar}</span>
-      <span>
-        <strong>${escapeHTML(suspect.name)}</strong>
-        <small>${done ? "Interview complete" : escapeHTML(suspect.role)}</small>
-      </span>
-      ${done ? '<span class="done-mark">✓</span>' : ""}
-    `;
-
-    button.addEventListener("click", () => selectSuspect(index));
-    list.appendChild(button);
-  });
-}
-
-// Allow the player to choose which suspect to question first.
-function selectSuspect(index) {
-  if (state.completedSuspects.includes(currentCase().suspects[index].id)) {
-    return;
-  }
-
-  stopTimer();
-  state.suspectIndex = index;
-  state.questionIndex = 0;
-
-  renderSuspectList();
-  renderQuestion();
-}
-
-// Show the current suspect's next question.
-function renderQuestion() {
-  const suspect = currentSuspect();
-  const question = suspect.questions[state.questionIndex];
-
-  if (!question) return;
-
-  $("suspectAvatar").textContent = suspect.avatar;
-  $("suspectName").textContent = suspect.name;
-  $("suspectRole").textContent = suspect.role;
-  $("suspectStatus").textContent = "UNDER QUESTIONING";
-
-  $("questionNumber").textContent =
-    `QUESTION ${state.questionIndex + 1} OF 5`;
-
-  $("questionText").textContent = question.q;
-  $("answerText").textContent = question.a;
-
-  $("questionFeedback").textContent = "";
-  $("questionFeedback").className = "question-feedback";
-
-  document.querySelectorAll(".decision-btn").forEach(button => {
-    button.disabled = false;
-  });
-
-  const completedCount =
-    state.completedSuspects.length * 5 + state.questionIndex;
-
-  $("questionProgress").textContent =
-    `Question ${completedCount + 1} of ${totalQuestions()}`;
-
-  const percentage = Math.round(
-    completedCount / totalQuestions() * 100
-  );
-
-  $("caseProgressText").textContent = `${percentage}% complete`;
-  $("caseProgressBar").style.width = percentage + "%";
-
-  $("attemptText").textContent = `Mistakes allowed: ${state.lives}`;
-
-  $("caseNotes").textContent =
-    `${state.totalAnswered} statements reviewed. ${state.correct} correctly identified.`;
-
-  startTimer();
-}
-
-// Start a fresh timer for every question.
-function startTimer() {
-  stopTimer();
-
-  state.secondsLeft = currentCase().seconds;
-  updateTimerDisplay();
-
-  state.timerId = setInterval(() => {
-    state.secondsLeft--;
-    updateTimerDisplay();
-
-    if (state.secondsLeft <= 0) {
-      handleTimeout();
-    }
-  }, 1000);
+function setFeedback(elementId, message, type) {
+    const element = $(elementId);
+    element.textContent = message;
+    element.className = "feedback " + (type || "");
 }
 
 function stopTimer() {
-  if (state.timerId) {
-    clearInterval(state.timerId);
-  }
-
-  state.timerId = null;
+    if (state.timerId) {
+        clearInterval(state.timerId);
+        state.timerId = null;
+    }
 }
 
-// Change the timer colour as time runs out.
-function updateTimerDisplay() {
-  const total = currentCase().seconds;
-
-  $("timerText").textContent =
-    `00:${String(Math.max(0, state.secondsLeft)).padStart(2, "0")}`;
-
-  $("timerBar").style.width =
-    `${Math.max(0, state.secondsLeft / total * 100)}%`;
-
-  const panel = document.querySelector(".timer-panel");
-
-  panel.classList.toggle(
-    "warning",
-    state.secondsLeft <= 10 && state.secondsLeft > 5
-  );
-
-  panel.classList.toggle("danger", state.secondsLeft <= 5);
+function resetTimerDisplay(barId, timerId, duration) {
+    $(barId).style.width = "100%";
+    $(timerId).textContent = `⏱ ${duration}s`;
 }
 
-// A timeout costs points. Every third timeout also costs a life.
-function handleTimeout() {
-  stopTimer();
+function startTimer(duration, timerId, barId, onExpire) {
+    stopTimer();
 
-  state.timeoutCount++;
+    state.timerDuration = duration;
+    state.secondsLeft = duration;
 
-  const penalty = state.timeoutCount === 1 ? 10 : 20;
-  state.points = Math.max(0, state.points - penalty);
+    resetTimerDisplay(barId, timerId, duration);
 
-  if (state.timeoutCount >= 3) {
-    state.lives--;
-    state.timeoutCount = 0;
-  }
+    state.timerId = setInterval(() => {
+        state.secondsLeft--;
 
-  state.totalAnswered++;
+        $(timerId).textContent = `⏱ ${state.secondsLeft}s`;
 
-  saveProgress();
+        const percentage = Math.max(
+            0,
+            (state.secondsLeft / state.timerDuration) * 100
+        );
 
-  $("lives").textContent = state.lives;
+        $(barId).style.width = percentage + "%";
 
-  if (state.lives <= 0) {
-    showScreen("failed");
-    return;
-  }
-
-  $("questionFeedback").textContent =
-    `⏰ Time is up! ${penalty} points deducted.`;
-
-  $("questionFeedback").className = "question-feedback bad";
-
-  document.querySelectorAll(".decision-btn").forEach(button => {
-    button.disabled = true;
-  });
-
-  setTimeout(advanceQuestion, 1100);
+        if (state.secondsLeft <= 0) {
+            stopTimer();
+            onExpire();
+        }
+    }, 1000);
 }
 
-// Check whether the player correctly spotted a lie.
-function submitDecision(decision) {
-  if (!state.timerId) return;
+function getTimeForDifficulty() {
+    const difficulty = currentCase().difficulty;
 
-  stopTimer();
+    if (difficulty === "Easy") return 45;
+    if (difficulty === "Medium") return 30;
 
-  const question = currentSuspect().questions[state.questionIndex];
-  const correctDecision = question.lie ? "lie" : "truth";
-  const isCorrect = decision === correctDecision;
-
-  state.totalAnswered++;
-
-  if (isCorrect) {
-    state.correct++;
-    state.points += 15;
-
-    $("questionFeedback").textContent =
-      "✓ Good observation! Your judgement matches the evidence.";
-
-    $("questionFeedback").className = "question-feedback good";
-  } else {
-    state.points = Math.max(0, state.points - 5);
-    state.lives--;
-
-    $("questionFeedback").textContent =
-      `✗ Not quite. ${question.why}`;
-
-    $("questionFeedback").className = "question-feedback bad";
-  }
-
-  saveProgress();
-
-  $("gamePoints").textContent = state.points;
-  $("lives").textContent = state.lives;
-  $("attemptText").textContent = `Mistakes allowed: ${state.lives}`;
-
-  document.querySelectorAll(".decision-btn").forEach(button => {
-    button.disabled = true;
-  });
-
-  if (state.lives <= 0) {
-    setTimeout(() => showScreen("failed"), 1700);
-  } else {
-    setTimeout(advanceQuestion, 1700);
-  }
+    return 20;
 }
 
-// Move through the five questions and then to the next suspect.
-function advanceQuestion() {
-  if (state.lives <= 0) {
-    showScreen("failed");
-    return;
-  }
+// =====================================================
+// SAVE AND LOAD
+// =====================================================
 
-  state.questionIndex++;
+function saveProgress() {
+    const data = {
+        unlocked: state.unlocked,
+        completed: state.completed,
+        points: state.points
+    };
 
-  if (state.questionIndex >= 5) {
-    const finishedId = currentSuspect().id;
+    localStorage.setItem("tinyDetectiveSave", JSON.stringify(data));
+}
 
-    if (!state.completedSuspects.includes(finishedId)) {
-      state.completedSuspects.push(finishedId);
+function loadProgress() {
+    try {
+        const saved = localStorage.getItem("tinyDetectiveSave");
+
+        if (!saved) return;
+
+        const data = JSON.parse(saved);
+
+        state.unlocked = Math.min(
+            CASES.length,
+            Math.max(1, Number(data.unlocked) || 1)
+        );
+
+        state.completed = Array.isArray(data.completed)
+            ? data.completed.filter(id =>
+                Number.isInteger(id) &&
+                id >= 1 &&
+                id <= CASES.length
+            )
+            : [];
+
+        state.points = Number(data.points) || 0;
+    } catch (error) {
+        console.warn("Could not load saved progress:", error);
     }
 
-    if (state.completedSuspects.length === 3) {
-      stopTimer();
-
-      $("caseProgressBar").style.width = "100%";
-      $("caseProgressText").textContent = "100% complete";
-
-      showAccusation();
-      return;
-    }
-
-    const nextIndex = currentCase().suspects.findIndex(suspect =>
-      !state.completedSuspects.includes(suspect.id)
-    );
-
-    state.suspectIndex = nextIndex;
-    state.questionIndex = 0;
-
-    renderSuspectList();
-  }
-
-  renderQuestion();
+    updateHeader();
 }
 
-// Present all three suspects for the final accusation.
-function showAccusation() {
-  stopTimer();
+// =====================================================
+// CASE ARCHIVE
+// =====================================================
 
-  const wrap = $("accusationSuspects");
-  wrap.innerHTML = "";
+function renderCases() {
+    const grid = $("caseGrid");
+    grid.innerHTML = "";
 
-  state.selectedAccusation = null;
-  $("submitAccusation").disabled = true;
+    CASES.forEach(item => {
+        const unlocked = item.id <= state.unlocked;
+        const completed = state.completed.includes(item.id);
 
-  currentCase().suspects.forEach(suspect => {
-    const card = document.createElement("article");
-    card.className = "accuse-card";
+        const card = document.createElement("div");
+        card.className = "case-card" + (!unlocked ? " locked" : "");
 
-    card.innerHTML = `
-      <div class="accuse-avatar">${suspect.avatar}</div>
-      <h3>${escapeHTML(suspect.name)}</h3>
-      <p>${escapeHTML(suspect.role)}</p>
-      <button class="btn btn-quiet">Accuse this person</button>
-    `;
+        const buttonText = completed
+            ? "Play Again ↻"
+            : unlocked
+                ? "Open Case →"
+                : "🔒 Locked";
 
-    card.querySelector("button").addEventListener("click", () => {
-      state.selectedAccusation = suspect.id;
+        card.innerHTML = `
+            <div class="case-icon">${item.icon}</div>
+            <h3>Case ${item.id}: ${item.title}</h3>
+            <p>${item.difficulty} · ${item.subtitle}</p>
+            <p>${completed ? "✓ Completed" : unlocked ? "Available" : "Complete previous case first"}</p>
+            <button class="btn ${unlocked ? "primary" : "secondary"}"
+                ${unlocked ? "" : "disabled"}>
+                ${buttonText}
+            </button>
+        `;
 
-      document.querySelectorAll(".accuse-card").forEach(item => {
-        item.classList.remove("selected");
-      });
+        if (unlocked) {
+            card.querySelector("button").addEventListener("click", () => {
+                openBriefing(item.id);
+            });
+        }
 
-      card.classList.add("selected");
-      $("submitAccusation").disabled = false;
+        grid.appendChild(card);
+    });
+}
+
+function openBriefing(caseId) {
+    state.selectedCase = caseId;
+
+    const item = currentCase();
+
+    if (!item) return;
+
+    $("briefingTitle").textContent = `Case ${item.id}: ${item.title}`;
+    $("briefingSubtitle").textContent = item.subtitle;
+    $("briefingIcon").textContent = item.icon;
+    $("briefingStory").textContent = item.story;
+
+    $("briefingFacts").innerHTML = "";
+
+    item.facts.forEach(fact => {
+        const li = document.createElement("li");
+        li.textContent = fact;
+        $("briefingFacts").appendChild(li);
     });
 
-    wrap.appendChild(card);
-  });
-
-  showScreen("accusation");
+    showScreen("briefing");
 }
 
-// Check the accusation and unlock the next case if correct.
-function submitAccusation() {
-  if (!state.selectedAccusation) return;
+// =====================================================
+// RESET CASE
+// =====================================================
 
-  const c = currentCase();
-  const solved = state.selectedAccusation === c.culprit;
+function resetCaseState() {
+    stopTimer();
 
-  if (solved) {
-    state.points += 100;
+    state.lives = TOTAL_LIVES;
+    state.correct = 0;
+    state.mistakes = 0;
+    state.totalAnswered = 0;
 
-    if (!state.completed.includes(c.id)) {
-      state.completed.push(c.id);
+    state.puzzleIndex = 0;
+    state.puzzleTiles = [];
+    state.selectedTileIds = [];
+    state.puzzleLocked = false;
+    state.puzzlesCorrect = 0;
+
+    state.suspectIndex = 0;
+    state.questionIndex = 0;
+    state.selectedAccusation = null;
+
+    updateHeader();
+}
+
+// =====================================================
+// SENTENCE BUILDING STAGE
+// =====================================================
+
+function startPuzzleStage() {
+    const item = currentCase();
+
+    if (!item || !item.puzzles || item.puzzles.length === 0) {
+        alert("This case is not available yet. Case 1 is currently playable.");
+        return;
     }
 
-    state.unlocked = Math.max(
-      state.unlocked,
-      Math.min(10, c.id + 1)
+    resetCaseState();
+
+    showScreen("puzzle");
+    renderPuzzle();
+}
+
+function shuffleArray(array) {
+    const copy = [...array];
+
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+
+    return copy;
+}
+
+function renderPuzzle() {
+    const item = currentCase();
+
+    if (state.puzzleIndex >= item.puzzles.length) {
+        finishPuzzleStage();
+        return;
+    }
+
+    const puzzle = item.puzzles[state.puzzleIndex];
+
+    state.selectedTileIds = [];
+    state.puzzleLocked = false;
+
+    state.puzzleTiles = shuffleArray(
+        puzzle.words.map((word, index) => ({
+            id: index,
+            text: word
+        }))
     );
-  } else {
-    state.points = Math.max(0, state.points - 25);
-  }
 
-  saveProgress();
+    $("puzzleProgress").textContent =
+        `Puzzle ${state.puzzleIndex + 1} / ${item.puzzles.length}`;
 
-  $("reportIcon").textContent = solved ? "🏆" : "🕵️";
-  $("reportTitle").textContent =
-    solved ? "Case solved!" : "The mystery remains unsolved";
+    $("puzzleLives").textContent = `❤️ ${state.lives}`;
+    $("puzzlePrompt").textContent = puzzle.prompt;
 
-  $("reportMessage").textContent = solved
-    ? "Excellent detective work. You identified the culprit and connected the evidence."
-    : "Your accusation was not correct. Review the explanation and try the case again.";
+    setFeedback("puzzleFeedback", "", "");
 
-  $("finalScore").textContent = state.points;
-  $("finalCorrect").textContent =
-    `${state.correct}/${state.totalAnswered}`;
-  $("finalLives").textContent = state.lives;
+    renderWordTiles();
+    renderAnswerArea();
 
-  const culprit = c.suspects.find(suspect => suspect.id === c.culprit);
+    startTimer(
+        getTimeForDifficulty(),
+        "puzzleTimer",
+        "puzzleTimerBar",
+        handlePuzzleTimeout
+    );
 
-  $("culpritReveal").textContent = culprit.name;
-  $("culpritExplanation").textContent = c.explanation;
-
-  $("nextCaseButton").style.display =
-    solved && c.id < 10 ? "inline-block" : "none";
-
-  showScreen("report");
+    updateHeader();
 }
 
-function retryCase() {
-  startInvestigation();
+function renderWordTiles() {
+    const container = $("wordTiles");
+    container.innerHTML = "";
+
+    state.puzzleTiles.forEach(tile => {
+        const alreadySelected = state.selectedTileIds.includes(tile.id);
+
+        if (alreadySelected) return;
+
+        const button = document.createElement("button");
+        button.className = "word-tile";
+        button.textContent = tile.text;
+
+        button.disabled = state.puzzleLocked;
+
+        button.addEventListener("click", () => {
+            selectWord(tile.id);
+        });
+
+        container.appendChild(button);
+    });
 }
 
-function nextCase() {
-  const nextId = Math.min(10, state.selectedCase + 1);
+function renderAnswerArea() {
+    const area = $("answerArea");
+    area.innerHTML = "";
 
-  if (nextId <= state.unlocked) {
-    openBriefing(nextId);
-  } else {
+    if (state.selectedTileIds.length === 0) {
+        const placeholder = document.createElement("span");
+        placeholder.className = "answer-placeholder";
+        placeholder.textContent = "Your sentence will appear here...";
+        area.appendChild(placeholder);
+        return;
+    }
+
+    state.selectedTileIds.forEach(tileId => {
+        const tile = state.puzzleTiles.find(item => item.id === tileId);
+
+        const button = document.createElement("button");
+        button.className = "answer-tile";
+        button.textContent = tile.text;
+        button.disabled = state.puzzleLocked;
+
+        button.addEventListener("click", () => {
+            removeWord(tileId);
+        });
+
+        area.appendChild(button);
+    });
+}
+
+function selectWord(tileId) {
+    if (state.puzzleLocked) return;
+
+    if (state.selectedTileIds.includes(tileId)) return;
+
+    state.selectedTileIds.push(tileId);
+
+    renderWordTiles();
+    renderAnswerArea();
+}
+
+function removeWord(tileId) {
+    if (state.puzzleLocked) return;
+
+    state.selectedTileIds = state.selectedTileIds.filter(
+        id => id !== tileId
+    );
+
+    renderWordTiles();
+    renderAnswerArea();
+}
+
+function undoWord() {
+    if (state.puzzleLocked) return;
+
+    state.selectedTileIds.pop();
+
+    renderWordTiles();
+    renderAnswerArea();
+}
+
+function clearWords() {
+    if (state.puzzleLocked) return;
+
+    state.selectedTileIds = [];
+
+    renderWordTiles();
+    renderAnswerArea();
+}
+
+function normaliseSentence(sentence) {
+    return sentence
+        .toLowerCase()
+        .trim()
+        .replace(/[.!?]+$/g, "")
+        .replace(/\s+/g, "");
+}
+
+function checkSentence() {
+    if (state.puzzleLocked) return;
+
+    if (state.selectedTileIds.length === 0) {
+        setFeedback("puzzleFeedback", "Choose some word tiles first!", "bad");
+        return;
+    }
+
+    const puzzle = currentCase().puzzles[state.puzzleIndex];
+
+    const playerSentence = state.selectedTileIds
+        .map(id => state.puzzleTiles.find(tile => tile.id === id).text)
+        .join(" ");
+
+    if (
+        normaliseSentence(playerSentence) ===
+        normaliseSentence(puzzle.answer)
+    ) {
+        stopTimer();
+
+        state.puzzleLocked = true;
+        state.points += 10;
+        state.correct++;
+        state.puzzlesCorrect++;
+
+        updateHeader();
+
+        setFeedback(
+            "puzzleFeedback",
+            "✓ Brilliant! Correct sentence! +10 points",
+            "good"
+        );
+
+        $("puzzleLives").textContent = `❤️ ${state.lives}`;
+
+        setTimeout(() => {
+            state.puzzleIndex++;
+            renderPuzzle();
+        }, 1200);
+
+    } else {
+        state.points = Math.max(0, state.points - 5);
+        state.mistakes++;
+        state.lives--;
+
+        updateHeader();
+
+        $("puzzleLives").textContent = `❤️ ${state.lives}`;
+
+        setFeedback(
+            "puzzleFeedback",
+            "Not quite! Try rearranging the words. -5 points and -1 life.",
+            "bad"
+        );
+
+        if (state.lives <= 0) {
+            stopTimer();
+
+            setTimeout(() => {
+                showFailedScreen();
+            }, 1000);
+        } else {
+            state.selectedTileIds = [];
+            renderWordTiles();
+            renderAnswerArea();
+        }
+    }
+}
+
+function handlePuzzleTimeout() {
+    state.points = Math.max(0, state.points - 10);
+    state.mistakes++;
+    state.lives--;
+
+    updateHeader();
+
+    $("puzzleLives").textContent = `❤️ ${state.lives}`;
+
+    if (state.lives <= 0) {
+        showFailedScreen();
+        return;
+    }
+
+    setFeedback(
+        "puzzleFeedback",
+        "⏰ Time's up! One life lost. Moving to the next puzzle...",
+        "bad"
+    );
+
+    state.puzzleLocked = true;
+
+    setTimeout(() => {
+        state.puzzleIndex++;
+        renderPuzzle();
+    }, 1200);
+}
+
+function finishPuzzleStage() {
+    stopTimer();
+
+    setFeedback("puzzleFeedback", "", "");
+
+    startInvestigation();
+}
+
+// =====================================================
+// INTERROGATION STAGE
+// =====================================================
+
+function startInvestigation() {
+    state.suspectIndex = 0;
+    state.questionIndex = 0;
+
+    showScreen("interview");
+    renderQuestion();
+}
+
+function renderQuestion() {
+    const item = currentCase();
+
+    if (state.suspectIndex >= item.suspects.length) {
+        showAccusation();
+        return;
+    }
+
+    const suspect = currentSuspect();
+    const question = suspect.questions[state.questionIndex];
+
+    if (!question) {
+        state.suspectIndex++;
+        state.questionIndex = 0;
+        renderQuestion();
+        return;
+    }
+
+    $("suspectAvatar").textContent = suspect.avatar;
+    $("suspectName").textContent = suspect.name;
+    $("suspectDescription").textContent = suspect.description;
+
+    $("questionNumber").textContent =
+        `Question ${state.questionIndex + 1} of 5`;
+
+    $("interviewProgress").textContent =
+        `Suspect ${state.suspectIndex + 1} / ${item.suspects.length}`;
+
+    $("interviewLives").textContent = `❤️ ${state.lives}`;
+
+    $("suspectStatement").textContent = question.statement;
+
+    setFeedback("interviewFeedback", "", "");
+
+    $("truthButton").disabled = false;
+    $("lieButton").disabled = false;
+
+    startTimer(
+        getTimeForDifficulty(),
+        "interviewTimer",
+        "interviewTimerBar",
+        handleInterviewTimeout
+    );
+
+    updateHeader();
+}
+
+function submitDecision(playerAnswer) {
+    if ($("truthButton").disabled || $("lieButton").disabled) return;
+
+    stopTimer();
+
+    $("truthButton").disabled = true;
+    $("lieButton").disabled = true;
+
+    const question = currentSuspect().questions[state.questionIndex];
+
+    state.totalAnswered++;
+
+    if (playerAnswer === question.answer) {
+        state.points += 15;
+        state.correct++;
+
+        setFeedback(
+            "interviewFeedback",
+            "✓ Correct! " + question.explanation + " (+15 points)",
+            "good"
+        );
+    } else {
+        state.points = Math.max(0, state.points - 5);
+        state.mistakes++;
+        state.lives--;
+
+        setFeedback(
+            "interviewFeedback",
+            "✕ Incorrect! " + question.explanation + " (-5 points, -1 life)",
+            "bad"
+        );
+    }
+
+    updateHeader();
+
+    $("interviewLives").textContent = `❤️ ${state.lives}`;
+
+    if (state.lives <= 0) {
+        setTimeout(showFailedScreen, 1500);
+        return;
+    }
+
+    setTimeout(advanceQuestion, 2200);
+}
+
+function handleInterviewTimeout() {
+    state.points = Math.max(0, state.points - 10);
+    state.mistakes++;
+    state.lives--;
+
+    updateHeader();
+
+    $("truthButton").disabled = true;
+    $("lieButton").disabled = true;
+
+    $("interviewLives").textContent = `❤️ ${state.lives}`;
+
+    setFeedback(
+        "interviewFeedback",
+        "⏰ Time ran out! You lost one life.",
+        "bad"
+    );
+
+    if (state.lives <= 0) {
+        setTimeout(showFailedScreen, 1000);
+        return;
+    }
+
+    setTimeout(advanceQuestion, 1500);
+}
+
+function advanceQuestion() {
+    state.questionIndex++;
+
+    if (state.questionIndex >= 5) {
+        state.suspectIndex++;
+        state.questionIndex = 0;
+    }
+
+    renderQuestion();
+}
+
+// =====================================================
+// FINAL ACCUSATION
+// =====================================================
+
+function showAccusation() {
+    stopTimer();
+
+    const container = $("accusationChoices");
+    container.innerHTML = "";
+
+    state.selectedAccusation = null;
+
+    currentCase().suspects.forEach(suspect => {
+        const button = document.createElement("button");
+
+        button.className = "suspect-choice";
+        button.textContent = `${suspect.avatar} ${suspect.name}`;
+
+        button.addEventListener("click", () => {
+            document.querySelectorAll(".suspect-choice").forEach(choice => {
+                choice.classList.remove("selected");
+            });
+
+            button.classList.add("selected");
+            state.selectedAccusation = suspect.name;
+
+            setFeedback("accusationFeedback", "", "");
+        });
+
+        container.appendChild(button);
+    });
+
+    showScreen("accusation");
+}
+
+function submitAccusation() {
+    if (!state.selectedAccusation) {
+        setFeedback(
+            "accusationFeedback",
+            "Choose a suspect before confirming your accusation!",
+            "bad"
+        );
+        return;
+    }
+
+    const item = currentCase();
+
+    if (state.selectedAccusation === item.culprit) {
+        state.points += 100;
+
+        if (!state.completed.includes(item.id)) {
+            state.completed.push(item.id);
+        }
+
+        if (item.id < CASES.length) {
+            state.unlocked = Math.max(state.unlocked, item.id + 1);
+        }
+
+        saveProgress();
+
+        updateHeader();
+        showReport(true);
+
+    } else {
+        state.points = Math.max(0, state.points - 25);
+        state.mistakes++;
+
+        updateHeader();
+        showReport(false);
+    }
+}
+
+// =====================================================
+// DETECTIVE REPORT
+// =====================================================
+
+function showReport(won) {
+    stopTimer();
+
+    const item = currentCase();
+
+    $("reportIcon").textContent = won ? "🏆" : "🔍";
+    $("reportTitle").textContent = won
+        ? "Case Solved!"
+        : "Wrong Suspect!";
+
+    $("reportMessage").textContent = won
+        ? "Excellent work, Detective! You uncovered the truth."
+        : "Your accusation was incorrect. Review the evidence and try again.";
+
+    $("finalPoints").textContent = state.points;
+    $("finalCorrect").textContent = state.correct;
+    $("finalMistakes").textContent = state.mistakes;
+    $("finalLives").textContent = state.lives;
+
+    $("reportExplanation").textContent =
+        item.explanation + ` The culprit was ${item.culprit}.`;
+
+    if (won && item.id < CASES.length) {
+        $("nextCaseButton").style.display = "inline-block";
+        $("nextCaseButton").textContent = "Next Case →";
+    } else if (won) {
+        $("nextCaseButton").style.display = "none";
+    } else {
+        $("nextCaseButton").style.display = "inline-block";
+        $("nextCaseButton").textContent = "Try This Case Again ↻";
+    }
+
+    showScreen("report");
+}
+
+// =====================================================
+// FAILED INVESTIGATION
+// =====================================================
+
+function showFailedScreen() {
+    stopTimer();
+    updateHeader();
+    showScreen("failed");
+}
+
+// =====================================================
+// BUTTON EVENTS
+// =====================================================
+
+$("playButton").addEventListener("click", () => {
     renderCases();
     showScreen("cases");
-  }
-}
-
-// Connect all buttons.
-$("startButton").addEventListener("click", () => {
-  renderCases();
-  showScreen("cases");
 });
 
-$("homeLink").addEventListener("click", event => {
-  event.preventDefault();
-  showScreen("home");
+$("continueButton").addEventListener("click", () => {
+    renderCases();
+    showScreen("cases");
 });
 
-document.querySelectorAll(".back-home").forEach(button => {
-  button.addEventListener("click", () => showScreen("home"));
+$("backHomeButton").addEventListener("click", () => {
+    showScreen("home");
 });
 
-$("briefingBack").addEventListener("click", () => {
-  renderCases();
-  showScreen("cases");
+$("backCasesButton").addEventListener("click", () => {
+    renderCases();
+    showScreen("cases");
 });
 
-$("enterRoomButton").addEventListener("click", startInvestigation);
+$("enterPuzzleButton").addEventListener("click", startPuzzleStage);
 
-document.querySelectorAll(".decision-btn").forEach(button => {
-  button.addEventListener("click", () => {
-    submitDecision(button.dataset.answer);
-  });
+$("undoWordButton").addEventListener("click", undoWord);
+$("clearWordsButton").addEventListener("click", clearWords);
+$("checkSentenceButton").addEventListener("click", checkSentence);
+
+$("truthButton").addEventListener("click", () => {
+    submitDecision(true);
 });
 
-$("submitAccusation").addEventListener("click", submitAccusation);
-
-$("reportCasesButton").addEventListener("click", () => {
-  renderCases();
-  showScreen("cases");
+$("lieButton").addEventListener("click", () => {
+    submitDecision(false);
 });
 
-$("nextCaseButton").addEventListener("click", nextCase);
+$("accuseButton").addEventListener("click", submitAccusation);
 
-$("retryButton").addEventListener("click", retryCase);
+$("nextCaseButton").addEventListener("click", () => {
+    if (state.completed.includes(state.selectedCase)) {
+        const nextId = state.selectedCase + 1;
 
-$("failedCasesButton").addEventListener("click", () => {
-  renderCases();
-  showScreen("cases");
+        if (nextId <= CASES.length) {
+            openBriefing(nextId);
+            return;
+        }
+    }
+
+    openBriefing(state.selectedCase);
 });
 
-// Start the game.
+$("reportHomeButton").addEventListener("click", () => {
+    renderCases();
+    showScreen("home");
+});
+
+$("retryButton").addEventListener("click", () => {
+    startPuzzleStage();
+});
+
+$("failedHomeButton").addEventListener("click", () => {
+    renderCases();
+    showScreen("home");
+});
+
+// =====================================================
+// INITIALISE GAME
+// =====================================================
+
 loadProgress();
-renderCases();
+updateHeader();
 showScreen("home");
