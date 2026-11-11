@@ -1,763 +1,725 @@
 
-/* =========================================
-   TINY DETECTIVE
-   MAIN GAME ENGINE
-========================================= */
-
-// =========================================
-// 1. CASE DATA
-// =========================================
-
-const caseData = {
+const CASES = [
+  {
+    id: 1,
     title: "The Missing Necklace",
-
-    culprit: "maya",
-
-    suspects: [
-        {
-            id: "maya",
-            name: "Maya Rose",
-            role: "The Birthday Host",
-            description: "She organized the party and knew exactly where the necklace was kept."
-        },
-        {
-            id: "oliver",
-            name: "Oliver James",
-            role: "The Family Friend",
-            description: "He was seen walking near the bedroom during the party."
-        },
-        {
-            id: "sophie",
-            name: "Sophie Lane",
-            role: "The Cousin",
-            description: "She was one of the last guests to leave the house."
-        }
+    difficulty: "Easy",
+    seconds: 45,
+    summary: "A valuable necklace disappears during a birthday party at Rosewood House.",
+    story: "At 7:30 pm, the guests at Rosewood House gathered for a birthday celebration. At 8:00 pm, the host placed her grandmother's ruby necklace inside a small jewellery box in the upstairs bedroom. By 8:20 pm, the box was empty. The bedroom window was closed, and the only people who went upstairs during that time were Maya Rose, Oliver James and Sophie Lane. Nobody admits taking the necklace. Their stories sound reasonable at first, but some details do not fit together.",
+    facts: [
+      "The necklace was placed in the upstairs bedroom at 8:00 pm.",
+      "The necklace was discovered missing at 8:20 pm.",
+      "The bedroom window was closed.",
+      "Maya, Oliver and Sophie all had access to the upstairs hallway."
     ],
-
-    questions: [
-        {
-            title: "The Disappearance",
-            description: "Start by establishing when the necklace disappeared.",
-            sentence: "The necklace disappeared during the birthday party.",
-            words: ["The", "necklace", "disappeared", "during", "the", "birthday", "party."],
-            evidence: "The necklace disappeared during the birthday party.",
-            hint: "Start with the word 'The'."
-        },
-        {
-            title: "The Bedroom",
-            description: "A witness remembers where the necklace was kept.",
-            sentence: "The necklace was kept inside a bedroom drawer.",
-            words: ["The", "necklace", "was", "kept", "inside", "a", "bedroom", "drawer."],
-            evidence: "The necklace was kept inside a bedroom drawer.",
-            hint: "The sentence begins with 'The necklace'."
-        },
-        {
-            title: "The Suspicious Guest",
-            description: "Someone was seen entering the bedroom.",
-            sentence: "Maya entered the bedroom before the guests arrived.",
-            words: ["Maya", "entered", "the", "bedroom", "before", "the", "guests", "arrived."],
-            evidence: "Maya entered the bedroom before the guests arrived.",
-            hint: "The person in this sentence is Maya."
-        },
-        {
-            title: "The Missing Key",
-            description: "A spare bedroom key was discovered near the kitchen.",
-            sentence: "Maya carried the spare bedroom key.",
-            words: ["Maya", "carried", "the", "spare", "bedroom", "key."],
-            evidence: "Maya carried the spare bedroom key.",
-            hint: "Start with Maya."
-        },
-        {
-            title: "The Final Clue",
-            description: "The final witness reveals something important.",
-            sentence: "Maya hid the necklace inside her handbag.",
-            words: ["Maya", "hid", "the", "necklace", "inside", "her", "handbag."],
-            evidence: "Maya hid the necklace inside her handbag.",
-            hint: "The sentence starts with Maya and ends with handbag."
-        }
+    culprit: "maya",
+    explanation: "Maya claimed she stayed in the kitchen, but details in her answers place her upstairs near the bedroom. She also knew the jewellery box was open before anyone announced that the necklace was missing.",
+    suspects: [
+      {
+        id: "maya",
+        name: "Maya Rose",
+        role: "Birthday party guest",
+        avatar: "👩🏻",
+        questions: [
+          {
+            q: "Where were you between 8:00 and 8:20 pm?",
+            a: "I was in the kitchen the entire time, helping prepare the birthday cake.",
+            lie: true,
+            why: "A guest saw Maya leave the kitchen shortly after 8:05 pm."
+          },
+          {
+            q: "Did you go upstairs during the party?",
+            a: "No. I never went upstairs after arriving.",
+            lie: true,
+            why: "A muddy shoeprint matching Maya's shoes was found in the upstairs hallway."
+          },
+          {
+            q: "When did you last see the necklace?",
+            a: "I saw it in the jewellery box before dinner, around 7:15 pm.",
+            lie: false,
+            why: "This matches the host's earlier account."
+          },
+          {
+            q: "Did you know where the jewellery box was kept?",
+            a: "I knew it was usually kept in the upstairs bedroom.",
+            lie: false,
+            why: "Maya had visited the house before."
+          },
+          {
+            q: "Did you touch the jewellery box tonight?",
+            a: "Absolutely not. I did not even enter that bedroom.",
+            lie: true,
+            why: "A piece of Maya's scarf fibre was caught on the jewellery box."
+          }
+        ]
+      },
+      {
+        id: "oliver",
+        name: "Oliver James",
+        role: "The host's cousin",
+        avatar: "🧑🏻",
+        questions: [
+          {
+            q: "Where were you when the necklace disappeared?",
+            a: "I was outside on the back patio making a phone call.",
+            lie: false,
+            why: "A phone record supports a call made from the patio."
+          },
+          {
+            q: "Did you go upstairs at any point?",
+            a: "Yes, around 7:50 pm. I went to get my jacket before the necklace was put away.",
+            lie: false,
+            why: "His visit was before the necklace was placed in the box."
+          },
+          {
+            q: "Did you know the necklace was valuable?",
+            a: "I knew it was an old family necklace, but I did not know its value.",
+            lie: false,
+            why: "This is consistent with what he told the other guests."
+          },
+          {
+            q: "Did you see Maya during the evening?",
+            a: "I saw her near the kitchen doorway just after 8:10 pm.",
+            lie: false,
+            why: "This places Maya near the kitchen, but does not prove she stayed there."
+          },
+          {
+            q: "Did you open the bedroom jewellery box?",
+            a: "No. I did not go near the bedroom after 7:50 pm.",
+            lie: false,
+            why: "No evidence contradicts this statement."
+          }
+        ]
+      },
+      {
+        id: "sophie",
+        name: "Sophie Lane",
+        role: "The birthday host's friend",
+        avatar: "👩🏽",
+        questions: [
+          {
+            q: "When did you first notice the necklace was missing?",
+            a: "At about 8:20 pm, when the host checked the jewellery box.",
+            lie: false,
+            why: "This matches the host's timeline."
+          },
+          {
+            q: "Were you in the upstairs hallway?",
+            a: "Yes, briefly. I went to the bathroom at around 8:12 pm.",
+            lie: false,
+            why: "Sophie openly confirms being upstairs."
+          },
+          {
+            q: "Did you enter the bedroom?",
+            a: "No. I used the bathroom at the end of the hallway.",
+            lie: false,
+            why: "The bathroom is separate from the bedroom."
+          },
+          {
+            q: "Did Maya seem nervous?",
+            a: "She seemed distracted and kept asking when the cake would be served.",
+            lie: false,
+            why: "This is an observation, not proof of theft."
+          },
+          {
+            q: "Did you see anyone carrying the jewellery box?",
+            a: "No, I did not see anyone carrying it.",
+            lie: false,
+            why: "No evidence contradicts this statement."
+          }
+        ]
+      }
     ]
+  },
+
+  // These cases are listed now. Their full stories and suspects will be added later.
+  { id: 2, title: "The Vanishing Trophy", difficulty: "Easy", seconds: 45, summary: "A school competition trophy disappears before the award ceremony." },
+  { id: 3, title: "The Stolen Birthday Cake", difficulty: "Easy", seconds: 45, summary: "The centrepiece cake vanishes just before the guests arrive." },
+  { id: 4, title: "The Secret Invitation", difficulty: "Easy", seconds: 45, summary: "An anonymous invitation causes trouble at a family celebration." },
+  { id: 5, title: "The Mystery of Room 13", difficulty: "Medium", seconds: 30, summary: "A locked hotel room contains a mystery nobody can explain." },
+  { id: 6, title: "The Missing Painting", difficulty: "Medium", seconds: 30, summary: "A painting disappears during a private gallery event." },
+  { id: 7, title: "The Midnight Footsteps", difficulty: "Medium", seconds: 30, summary: "Someone walks through a house after everyone has gone to bed." },
+  { id: 8, title: "The Fake Alibi", difficulty: "Medium", seconds: 30, summary: "Three people give accounts that cannot all be true." },
+  { id: 9, title: "The Diamond Heist", difficulty: "Hard", seconds: 20, summary: "A carefully planned robbery leaves almost no obvious clues." },
+  { id: 10, title: "The Detective's Final Case", difficulty: "Hard", seconds: 20, summary: "The biggest mystery challenges everything the detective has learned." }
+];
+
+const STORAGE_KEY = "tinyDetectiveProgress_v1";
+
+const state = {
+  unlocked: 1,
+  completed: [],
+  points: 0,
+  selectedCase: 1,
+  suspectIndex: 0,
+  questionIndex: 0,
+  completedSuspects: [],
+  lives: 3,
+  correct: 0,
+  totalAnswered: 0,
+  timeoutCount: 0,
+  secondsLeft: 45,
+  timerId: null,
+  selectedAccusation: null
 };
 
+const $ = id => document.getElementById(id);
 
-// =========================================
-// 2. GAME STATE
-// =========================================
-
-let currentQuestion = 0;
-let selectedWords = [];
-let shuffledWords = [];
-let attemptsLeft = 3;
-
-let score = 0;
-let correctAnswers = 0;
-let totalAttempts = 0;
-let evidenceCollected = [];
-
-let selectedSuspect = null;
-let hintUsed = false;
-let caseFinished = false;
-
-
-// =========================================
-// 3. SCREEN NAVIGATION
-// =========================================
-
-function showScreen(screenId) {
-
-    document.querySelectorAll(".screen").forEach(screen => {
-        screen.classList.remove("active");
-    });
-
-    const target = document.getElementById(screenId);
-
-    if (target) {
-        target.classList.add("active");
-        window.scrollTo(0, 0);
-    }
+function currentCase() {
+  return CASES.find(c => c.id === state.selectedCase);
 }
 
-
-// =========================================
-// 4. STARTING A CASE
-// =========================================
-
-function startCase() {
-    showScreen("case-briefing");
+function currentSuspect() {
+  return currentCase().suspects[state.suspectIndex];
 }
 
-
-function beginInvestigation() {
-
-    currentQuestion = 0;
-    score = 0;
-    correctAnswers = 0;
-    totalAttempts = 0;
-
-    attemptsLeft = 3;
-
-    evidenceCollected = [];
-    selectedWords = [];
-    selectedSuspect = null;
-
-    hintUsed = false;
-    caseFinished = false;
-
-    showScreen("gameplay");
-
-    loadQuestion();
+function totalQuestions() {
+  return currentCase().suspects.length * 5;
 }
 
+// Save the player's points and unlocked cases in this browser.
+function loadProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    state.unlocked = Math.max(1, Math.min(10, saved.unlocked || 1));
+    state.completed = Array.isArray(saved.completed) ? saved.completed : [];
+    state.points = Number(saved.points) || 0;
+  } catch (error) {
+    console.warn("Could not load saved progress.", error);
+  }
 
-// =========================================
-// 5. SHUFFLE WORDS
-// =========================================
-
-function shuffleArray(array) {
-
-    const result = [...array];
-
-    for (let i = result.length - 1; i > 0; i--) {
-
-        const j = Math.floor(Math.random() * (i + 1));
-
-        [result[i], result[j]] = [result[j], result[i]];
-    }
-
-    return result;
+  updatePoints();
 }
 
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    unlocked: state.unlocked,
+    completed: state.completed,
+    points: state.points
+  }));
 
-// =========================================
-// 6. LOAD QUESTION
-// =========================================
+  updatePoints();
+}
 
-function loadQuestion() {
+function updatePoints() {
+  $("topPoints").textContent = state.points;
+  $("gamePoints").textContent = state.points;
+}
 
-    const question = caseData.questions[currentQuestion];
+function showScreen(name) {
+  stopTimer();
 
-    if (!question) {
-        showAccusation();
-        return;
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.remove("active");
+  });
+
+  $(name + "Screen").classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+// Build the case archive and show which cases are unlocked.
+function renderCases() {
+  const grid = $("caseGrid");
+  grid.innerHTML = "";
+
+  CASES.forEach(c => {
+    const unlocked = c.id <= state.unlocked;
+    const completed = state.completed.includes(c.id);
+
+    const card = document.createElement("article");
+    card.className = "case-card " + (unlocked ? "available" : "locked");
+
+    card.innerHTML = `
+      <span class="case-number">CASE ${String(c.id).padStart(3, "0")}</span>
+      <h3>${escapeHTML(c.title)}</h3>
+      <p>${escapeHTML(c.summary)}</p>
+      <div class="tag-row">
+        <span class="tag">${c.difficulty.toUpperCase()}</span>
+        ${completed ? '<span class="tag tag-soft">COMPLETED ✓</span>' : ""}
+      </div>
+      <button class="btn ${unlocked ? "btn-primary" : "btn-quiet"}"
+        ${unlocked ? "" : "disabled"}>
+        ${completed ? "Play again ↻" : unlocked ? "Open case →" : "🔒 Locked"}
+      </button>
+    `;
+
+    if (unlocked) {
+      card.querySelector("button").addEventListener("click", () => {
+        openBriefing(c.id);
+      });
     }
 
-    selectedWords = [];
-    attemptsLeft = 3;
-    hintUsed = false;
+    grid.appendChild(card);
+  });
+}
 
-    shuffledWords = shuffleArray(
-        question.words.map((word, index) => ({
-            id: index,
-            word: word,
-            used: false
-        }))
+// Show the story before starting the interrogation.
+function openBriefing(caseId) {
+  state.selectedCase = caseId;
+
+  const c = currentCase();
+
+  $("briefingTitle").textContent = c.title;
+  $("briefingDifficulty").textContent = c.difficulty.toUpperCase();
+
+  $("briefingStory").textContent = c.story ||
+    "This case file is being prepared. Complete the first investigation to unlock it.";
+
+  $("briefingFacts").innerHTML = (c.facts || [
+    "A new mystery is waiting to be investigated."
+  ]).map(f => `<li>${escapeHTML(f)}</li>`).join("");
+
+  $("briefingTimerInfo").textContent =
+    `You will have ${c.seconds} seconds per question.`;
+
+  $("enterRoomButton").disabled = !c.suspects;
+  $("enterRoomButton").textContent = c.suspects
+    ? "Enter interrogation room →"
+    : "Case content coming soon";
+
+  showScreen("briefing");
+}
+
+// Reset all temporary information when starting or retrying a case.
+function resetCaseState() {
+  stopTimer();
+
+  state.suspectIndex = 0;
+  state.questionIndex = 0;
+  state.completedSuspects = [];
+  state.lives = 3;
+  state.correct = 0;
+  state.totalAnswered = 0;
+  state.timeoutCount = 0;
+  state.selectedAccusation = null;
+}
+
+function startInvestigation() {
+  if (!currentCase().suspects) return;
+
+  resetCaseState();
+
+  $("interviewCaseTitle").textContent = currentCase().title;
+  $("lives").textContent = state.lives;
+
+  renderSuspectList();
+  selectSuspect(0);
+  showScreen("interview");
+}
+
+// Draw the suspect buttons.
+function renderSuspectList() {
+  const list = $("suspectList");
+  list.innerHTML = "";
+
+  currentCase().suspects.forEach((suspect, index) => {
+    const done = state.completedSuspects.includes(suspect.id);
+
+    const button = document.createElement("button");
+    button.className = "suspect-choice" +
+      (index === state.suspectIndex ? " selected" : "");
+
+    button.disabled = done;
+
+    button.innerHTML = `
+      <span class="suspect-face">${suspect.avatar}</span>
+      <span>
+        <strong>${escapeHTML(suspect.name)}</strong>
+        <small>${done ? "Interview complete" : escapeHTML(suspect.role)}</small>
+      </span>
+      ${done ? '<span class="done-mark">✓</span>' : ""}
+    `;
+
+    button.addEventListener("click", () => selectSuspect(index));
+    list.appendChild(button);
+  });
+}
+
+// Allow the player to choose which suspect to question first.
+function selectSuspect(index) {
+  if (state.completedSuspects.includes(currentCase().suspects[index].id)) {
+    return;
+  }
+
+  stopTimer();
+  state.suspectIndex = index;
+  state.questionIndex = 0;
+
+  renderSuspectList();
+  renderQuestion();
+}
+
+// Show the current suspect's next question.
+function renderQuestion() {
+  const suspect = currentSuspect();
+  const question = suspect.questions[state.questionIndex];
+
+  if (!question) return;
+
+  $("suspectAvatar").textContent = suspect.avatar;
+  $("suspectName").textContent = suspect.name;
+  $("suspectRole").textContent = suspect.role;
+  $("suspectStatus").textContent = "UNDER QUESTIONING";
+
+  $("questionNumber").textContent =
+    `QUESTION ${state.questionIndex + 1} OF 5`;
+
+  $("questionText").textContent = question.q;
+  $("answerText").textContent = question.a;
+
+  $("questionFeedback").textContent = "";
+  $("questionFeedback").className = "question-feedback";
+
+  document.querySelectorAll(".decision-btn").forEach(button => {
+    button.disabled = false;
+  });
+
+  const completedCount =
+    state.completedSuspects.length * 5 + state.questionIndex;
+
+  $("questionProgress").textContent =
+    `Question ${completedCount + 1} of ${totalQuestions()}`;
+
+  const percentage = Math.round(
+    completedCount / totalQuestions() * 100
+  );
+
+  $("caseProgressText").textContent = `${percentage}% complete`;
+  $("caseProgressBar").style.width = percentage + "%";
+
+  $("attemptText").textContent = `Mistakes allowed: ${state.lives}`;
+
+  $("caseNotes").textContent =
+    `${state.totalAnswered} statements reviewed. ${state.correct} correctly identified.`;
+
+  startTimer();
+}
+
+// Start a fresh timer for every question.
+function startTimer() {
+  stopTimer();
+
+  state.secondsLeft = currentCase().seconds;
+  updateTimerDisplay();
+
+  state.timerId = setInterval(() => {
+    state.secondsLeft--;
+    updateTimerDisplay();
+
+    if (state.secondsLeft <= 0) {
+      handleTimeout();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (state.timerId) {
+    clearInterval(state.timerId);
+  }
+
+  state.timerId = null;
+}
+
+// Change the timer colour as time runs out.
+function updateTimerDisplay() {
+  const total = currentCase().seconds;
+
+  $("timerText").textContent =
+    `00:${String(Math.max(0, state.secondsLeft)).padStart(2, "0")}`;
+
+  $("timerBar").style.width =
+    `${Math.max(0, state.secondsLeft / total * 100)}%`;
+
+  const panel = document.querySelector(".timer-panel");
+
+  panel.classList.toggle(
+    "warning",
+    state.secondsLeft <= 10 && state.secondsLeft > 5
+  );
+
+  panel.classList.toggle("danger", state.secondsLeft <= 5);
+}
+
+// A timeout costs points. Every third timeout also costs a life.
+function handleTimeout() {
+  stopTimer();
+
+  state.timeoutCount++;
+
+  const penalty = state.timeoutCount === 1 ? 10 : 20;
+  state.points = Math.max(0, state.points - penalty);
+
+  if (state.timeoutCount >= 3) {
+    state.lives--;
+    state.timeoutCount = 0;
+  }
+
+  state.totalAnswered++;
+
+  saveProgress();
+
+  $("lives").textContent = state.lives;
+
+  if (state.lives <= 0) {
+    showScreen("failed");
+    return;
+  }
+
+  $("questionFeedback").textContent =
+    `⏰ Time is up! ${penalty} points deducted.`;
+
+  $("questionFeedback").className = "question-feedback bad";
+
+  document.querySelectorAll(".decision-btn").forEach(button => {
+    button.disabled = true;
+  });
+
+  setTimeout(advanceQuestion, 1100);
+}
+
+// Check whether the player correctly spotted a lie.
+function submitDecision(decision) {
+  if (!state.timerId) return;
+
+  stopTimer();
+
+  const question = currentSuspect().questions[state.questionIndex];
+  const correctDecision = question.lie ? "lie" : "truth";
+  const isCorrect = decision === correctDecision;
+
+  state.totalAnswered++;
+
+  if (isCorrect) {
+    state.correct++;
+    state.points += 15;
+
+    $("questionFeedback").textContent =
+      "✓ Good observation! Your judgement matches the evidence.";
+
+    $("questionFeedback").className = "question-feedback good";
+  } else {
+    state.points = Math.max(0, state.points - 5);
+    state.lives--;
+
+    $("questionFeedback").textContent =
+      `✗ Not quite. ${question.why}`;
+
+    $("questionFeedback").className = "question-feedback bad";
+  }
+
+  saveProgress();
+
+  $("gamePoints").textContent = state.points;
+  $("lives").textContent = state.lives;
+  $("attemptText").textContent = `Mistakes allowed: ${state.lives}`;
+
+  document.querySelectorAll(".decision-btn").forEach(button => {
+    button.disabled = true;
+  });
+
+  if (state.lives <= 0) {
+    setTimeout(() => showScreen("failed"), 1700);
+  } else {
+    setTimeout(advanceQuestion, 1700);
+  }
+}
+
+// Move through the five questions and then to the next suspect.
+function advanceQuestion() {
+  if (state.lives <= 0) {
+    showScreen("failed");
+    return;
+  }
+
+  state.questionIndex++;
+
+  if (state.questionIndex >= 5) {
+    const finishedId = currentSuspect().id;
+
+    if (!state.completedSuspects.includes(finishedId)) {
+      state.completedSuspects.push(finishedId);
+    }
+
+    if (state.completedSuspects.length === 3) {
+      stopTimer();
+
+      $("caseProgressBar").style.width = "100%";
+      $("caseProgressText").textContent = "100% complete";
+
+      showAccusation();
+      return;
+    }
+
+    const nextIndex = currentCase().suspects.findIndex(suspect =>
+      !state.completedSuspects.includes(suspect.id)
     );
 
-    document.getElementById("question-title").textContent =
-        question.title;
+    state.suspectIndex = nextIndex;
+    state.questionIndex = 0;
 
-    document.getElementById("question-description").textContent =
-        question.description;
+    renderSuspectList();
+  }
 
-    document.getElementById("question-progress").textContent =
-        `CLUE ${currentQuestion + 1} / ${caseData.questions.length}`;
-
-    document.getElementById("progress-bar").style.width =
-        `${(currentQuestion / caseData.questions.length) * 100}%`;
-
-    document.getElementById("feedback").textContent = "";
-
-    document.getElementById("feedback").className = "feedback";
-
-    renderWords();
-    updateAnswerSlots();
-    updateAttempts();
-    updateScore();
-
-    document.getElementById("next-question-btn").hidden = true;
-    document.getElementById("check-answer-btn").disabled = false;
+  renderQuestion();
 }
 
-
-// =========================================
-// 7. DISPLAY WORD BUTTONS
-// =========================================
-
-function renderWords() {
-
-    const bank = document.getElementById("word-bank");
-
-    bank.innerHTML = "";
-
-    shuffledWords.forEach(item => {
-
-        const button = document.createElement("button");
-
-        button.className = "word-tile";
-        button.textContent = item.word;
-        button.disabled = item.used;
-
-        button.onclick = () => selectWord(item.id);
-
-        bank.appendChild(button);
-    });
-}
-
-
-// =========================================
-// 8. SELECT WORD
-// =========================================
-
-function selectWord(wordId) {
-
-    if (attemptsLeft <= 0) return;
-
-    const item = shuffledWords.find(word => word.id === wordId);
-
-    if (!item || item.used) return;
-
-    item.used = true;
-
-    selectedWords.push(item);
-
-    renderWords();
-    updateAnswerSlots();
-}
-
-
-// =========================================
-// 9. UPDATE ANSWER AREA
-// =========================================
-
-function updateAnswerSlots() {
-
-    const area = document.getElementById("answer-slots");
-
-    area.innerHTML = "";
-
-    if (selectedWords.length === 0) {
-
-        area.textContent = "Select words below to build your sentence.";
-
-        return;
-    }
-
-    selectedWords.forEach((item, index) => {
-
-        const tile = document.createElement("span");
-
-        tile.className = "selected-word";
-        tile.textContent = item.word;
-
-        const removeButton = document.createElement("button");
-
-        removeButton.textContent = "×";
-        removeButton.title = "Remove word";
-
-        removeButton.onclick = () => removeWord(index);
-
-        tile.appendChild(removeButton);
-
-        area.appendChild(tile);
-    });
-}
-
-
-// =========================================
-// 10. REMOVE SELECTED WORD
-// =========================================
-
-function removeWord(index) {
-
-    if (attemptsLeft <= 0) return;
-
-    const removed = selectedWords.splice(index, 1)[0];
-
-    const original = shuffledWords.find(
-        item => item.id === removed.id
-    );
-
-    if (original) {
-        original.used = false;
-    }
-
-    renderWords();
-    updateAnswerSlots();
-}
-
-
-// =========================================
-// 11. RESET WORDS
-// =========================================
-
-function resetWords() {
-
-    if (attemptsLeft <= 0) return;
-
-    selectedWords = [];
-
-    shuffledWords.forEach(item => {
-        item.used = false;
-    });
-
-    renderWords();
-    updateAnswerSlots();
-
-    document.getElementById("feedback").textContent = "";
-}
-
-
-// =========================================
-// 12. CHECK ANSWER
-// =========================================
-
-function checkAnswer() {
-
-    if (attemptsLeft <= 0) return;
-
-    const question = caseData.questions[currentQuestion];
-
-    if (selectedWords.length !== question.words.length) {
-
-        showFeedback(
-            "Select all the words before checking your sentence.",
-            "error"
-        );
-
-        return;
-    }
-
-    totalAttempts++;
-
-    const playerAnswer = selectedWords
-        .map(item => item.word)
-        .join(" ");
-
-    const correctAnswer = question.sentence;
-
-    if (playerAnswer === correctAnswer) {
-
-        correctAnswers++;
-
-        const pointsEarned = hintUsed ? 80 : 100;
-
-        score += pointsEarned;
-
-        if (!evidenceCollected.includes(question.evidence)) {
-
-            evidenceCollected.push(question.evidence);
-        }
-
-        showFeedback(
-            `Excellent detective work! +${pointsEarned} points. Evidence collected!`,
-            "success"
-        );
-
-        document.getElementById("check-answer-btn").disabled = true;
-
-        document.getElementById("next-question-btn").hidden = false;
-
-        updateEvidence();
-        updateScore();
-        updateProgress();
-
-    } else {
-
-        attemptsLeft--;
-
-        updateAttempts();
-
-        if (attemptsLeft > 0) {
-
-            showFeedback(
-                `Not quite! Try again. ${attemptsLeft} attempts remaining.`,
-                "error"
-            );
-
-        } else {
-
-            score = Math.max(0, score - 20);
-
-            showFeedback(
-                `No attempts left! Correct sentence: ${correctAnswer}`,
-                "error"
-            );
-
-            document.getElementById("check-answer-btn").disabled = true;
-            document.getElementById("next-question-btn").hidden = false;
-
-            updateScore();
-        }
-    }
-}
-
-
-// =========================================
-// 13. FEEDBACK
-// =========================================
-
-function showFeedback(message, type) {
-
-    const feedback = document.getElementById("feedback");
-
-    feedback.textContent = message;
-    feedback.className = `feedback ${type}`;
-}
-
-
-// =========================================
-// 14. HINT SYSTEM
-// =========================================
-
-function useHint() {
-
-    if (attemptsLeft <= 0 || hintUsed) return;
-
-    const question = caseData.questions[currentQuestion];
-
-    hintUsed = true;
-
-    score = Math.max(0, score - 20);
-
-    showFeedback(
-        `💡 Detective hint: ${question.hint} (20 points deducted)`,
-        "success"
-    );
-
-    updateScore();
-}
-
-
-// =========================================
-// 15. ATTEMPTS DISPLAY
-// =========================================
-
-function updateAttempts() {
-
-    const hearts = "❤️ ".repeat(attemptsLeft);
-    const emptyHearts = "🖤 ".repeat(3 - attemptsLeft);
-
-    document.getElementById("attempt-display").textContent =
-        hearts + emptyHearts;
-}
-
-
-// =========================================
-// 16. EVIDENCE BOARD
-// =========================================
-
-function updateEvidence() {
-
-    const list = document.getElementById("evidence-list");
-
-    list.innerHTML = "";
-
-    if (evidenceCollected.length === 0) {
-
-        list.innerHTML = '<p class="empty-evidence">No evidence collected yet.</p>';
-
-        return;
-    }
-
-    evidenceCollected.forEach((evidence, index) => {
-
-        const item = document.createElement("div");
-
-        item.className = "evidence-item";
-
-        item.textContent = `🔎 CLUE ${index + 1}: ${evidence}`;
-
-        list.appendChild(item);
-    });
-}
-
-
-// =========================================
-// 17. SCORE AND PROGRESS
-// =========================================
-
-function updateScore() {
-
-    document.getElementById("score-display").textContent =
-        `⭐ ${score} POINTS`;
-}
-
-
-function updateProgress() {
-
-    const progress =
-        ((currentQuestion + 1) / caseData.questions.length) * 100;
-
-    document.getElementById("progress-bar").style.width =
-        `${progress}%`;
-}
-
-
-// =========================================
-// 18. NEXT QUESTION
-// =========================================
-
-function nextQuestion() {
-
-    currentQuestion++;
-
-    if (currentQuestion >= caseData.questions.length) {
-
-        showAccusation();
-
-        return;
-    }
-
-    loadQuestion();
-}
-
-
-// =========================================
-// 19. ACCUSATION SCREEN
-// =========================================
-
+// Present all three suspects for the final accusation.
 function showAccusation() {
+  stopTimer();
 
-    showScreen("accusation");
+  const wrap = $("accusationSuspects");
+  wrap.innerHTML = "";
 
-    selectedSuspect = null;
+  state.selectedAccusation = null;
+  $("submitAccusation").disabled = true;
 
-    const grid = document.getElementById("suspect-grid");
+  currentCase().suspects.forEach(suspect => {
+    const card = document.createElement("article");
+    card.className = "accuse-card";
 
-    grid.innerHTML = "";
+    card.innerHTML = `
+      <div class="accuse-avatar">${suspect.avatar}</div>
+      <h3>${escapeHTML(suspect.name)}</h3>
+      <p>${escapeHTML(suspect.role)}</p>
+      <button class="btn btn-quiet">Accuse this person</button>
+    `;
 
-    document.getElementById("accuse-button").disabled = true;
+    card.querySelector("button").addEventListener("click", () => {
+      state.selectedAccusation = suspect.id;
 
-    document.getElementById("accusation-feedback").textContent =
-        "Study the suspects and choose carefully!";
+      document.querySelectorAll(".accuse-card").forEach(item => {
+        item.classList.remove("selected");
+      });
 
-    caseData.suspects.forEach(suspect => {
-
-        const card = document.createElement("div");
-
-        card.className = "suspect-card";
-
-        card.innerHTML = `
-            <div class="image-placeholder suspect-image">
-                <span>ADD PORTRAIT</span>
-                <small>${suspect.name}</small>
-            </div>
-
-            <h3>${suspect.name}</h3>
-            <p><strong>${suspect.role}</strong></p>
-            <p>${suspect.description}</p>
-        `;
-
-        card.onclick = () => selectSuspect(suspect.id, card);
-
-        grid.appendChild(card);
-    });
-}
-
-
-// =========================================
-// 20. SELECT SUSPECT
-// =========================================
-
-function selectSuspect(suspectId, selectedCard) {
-
-    selectedSuspect = suspectId;
-
-    document.querySelectorAll(".suspect-card").forEach(card => {
-        card.classList.remove("selected");
+      card.classList.add("selected");
+      $("submitAccusation").disabled = false;
     });
 
-    selectedCard.classList.add("selected");
+    wrap.appendChild(card);
+  });
 
-    document.getElementById("accuse-button").disabled = false;
-
-    document.getElementById("accusation-feedback").textContent =
-        "Are you sure? Confirm your accusation.";
+  showScreen("accusation");
 }
 
+// Check the accusation and unlock the next case if correct.
+function submitAccusation() {
+  if (!state.selectedAccusation) return;
 
-// =========================================
-// 21. MAKE ACCUSATION
-// =========================================
+  const c = currentCase();
+  const solved = state.selectedAccusation === c.culprit;
 
-function makeAccusation() {
+  if (solved) {
+    state.points += 100;
 
-    if (!selectedSuspect || caseFinished) return;
-
-    caseFinished = true;
-
-    const isCorrect = selectedSuspect === caseData.culprit;
-
-    if (isCorrect) {
-
-        score += 200;
-
-    } else {
-
-        score = Math.max(0, score - 50);
+    if (!state.completed.includes(c.id)) {
+      state.completed.push(c.id);
     }
 
-    showFinalReport(isCorrect);
-}
-
-
-// =========================================
-// 22. FINAL DETECTIVE REPORT
-// =========================================
-
-function showFinalReport(isCorrect) {
-
-    showScreen("final-report");
-
-    const culprit = caseData.suspects.find(
-        suspect => suspect.id === caseData.culprit
+    state.unlocked = Math.max(
+      state.unlocked,
+      Math.min(10, c.id + 1)
     );
+  } else {
+    state.points = Math.max(0, state.points - 25);
+  }
 
-    const rank = getDetectiveRank(score);
+  saveProgress();
 
-    document.getElementById("report-icon").textContent =
-        isCorrect ? "🏆" : "🕵️";
+  $("reportIcon").textContent = solved ? "🏆" : "🕵️";
+  $("reportTitle").textContent =
+    solved ? "Case solved!" : "The mystery remains unsolved";
 
-    document.getElementById("report-title").textContent =
-        isCorrect ? "CASE CLOSED!" : "CASE SOLVED... EVENTUALLY!";
+  $("reportMessage").textContent = solved
+    ? "Excellent detective work. You identified the culprit and connected the evidence."
+    : "Your accusation was not correct. Review the explanation and try the case again.";
 
-    document.getElementById("report-description").textContent =
-        isCorrect
-            ? "Brilliant detective work! You identified the correct culprit and solved the mystery."
-            : "Your accusation was incorrect, but the investigation revealed the truth. Better luck next time!";
+  $("finalScore").textContent = state.points;
+  $("finalCorrect").textContent =
+    `${state.correct}/${state.totalAnswered}`;
+  $("finalLives").textContent = state.lives;
 
-    document.getElementById("real-culprit").textContent =
-        culprit.name;
+  const culprit = c.suspects.find(suspect => suspect.id === c.culprit);
 
-    document.getElementById("final-score").textContent =
-        score;
+  $("culpritReveal").textContent = culprit.name;
+  $("culpritExplanation").textContent = c.explanation;
 
-    const accuracy = totalAttempts > 0
-        ? Math.round((correctAnswers / totalAttempts) * 100)
-        : 0;
+  $("nextCaseButton").style.display =
+    solved && c.id < 10 ? "inline-block" : "none";
 
-    document.getElementById("final-accuracy").textContent =
-        `${accuracy}%`;
-
-    document.getElementById("final-evidence").textContent =
-        `${evidenceCollected.length}/${caseData.questions.length}`;
-
-    document.getElementById("final-rank").textContent = rank;
-
-    updateProgress();
+  showScreen("report");
 }
 
-
-// =========================================
-// 23. DETECTIVE RANK
-// =========================================
-
-function getDetectiveRank(points) {
-
-    if (points >= 650) return "Master Detective 🏆";
-
-    if (points >= 450) return "Expert Detective ⭐";
-
-    if (points >= 250) return "Junior Detective 🔎";
-
-    return "Rookie Detective 🕵️";
+function retryCase() {
+  startInvestigation();
 }
 
+function nextCase() {
+  const nextId = Math.min(10, state.selectedCase + 1);
 
-// =========================================
-// 24. RESTART CASE
-// =========================================
-
-function restartCase() {
-
-    beginInvestigation();
+  if (nextId <= state.unlocked) {
+    openBriefing(nextId);
+  } else {
+    renderCases();
+    showScreen("cases");
+  }
 }
 
-
-// =========================================
-// 25. EXIT CONFIRMATION
-// =========================================
-
-function confirmExit() {
-
-    const exit = confirm(
-        "Are you sure you want to leave this investigation? Your current progress will be lost."
-    );
-
-    if (exit) {
-
-        showScreen("case-files");
-    }
-}
-
-
-// =========================================
-// 26. INITIALIZE GAME
-// =========================================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    // Add the next-question button to the puzzle controls.
-    const actions = document.querySelector(".puzzle-actions");
-
-    const nextButton = document.createElement("button");
-
-    nextButton.id = "next-question-btn";
-    nextButton.className = "btn btn-primary";
-    nextButton.textContent = "NEXT CLUE →";
-    nextButton.hidden = true;
-    nextButton.onclick = nextQuestion;
-
-    actions.appendChild(nextButton);
-
-    // Connect the answer button.
-    const checkButton = document.querySelector(
-        ".puzzle-actions .btn-primary"
-    );
-
-    checkButton.id = "check-answer-btn";
-
-    // Show the main menu first.
-    showScreen("main-menu");
-
-    updateScore();
+// Connect all buttons.
+$("startButton").addEventListener("click", () => {
+  renderCases();
+  showScreen("cases");
 });
+
+$("homeLink").addEventListener("click", event => {
+  event.preventDefault();
+  showScreen("home");
+});
+
+document.querySelectorAll(".back-home").forEach(button => {
+  button.addEventListener("click", () => showScreen("home"));
+});
+
+$("briefingBack").addEventListener("click", () => {
+  renderCases();
+  showScreen("cases");
+});
+
+$("enterRoomButton").addEventListener("click", startInvestigation);
+
+document.querySelectorAll(".decision-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    submitDecision(button.dataset.answer);
+  });
+});
+
+$("submitAccusation").addEventListener("click", submitAccusation);
+
+$("reportCasesButton").addEventListener("click", () => {
+  renderCases();
+  showScreen("cases");
+});
+
+$("nextCaseButton").addEventListener("click", nextCase);
+
+$("retryButton").addEventListener("click", retryCase);
+
+$("failedCasesButton").addEventListener("click", () => {
+  renderCases();
+  showScreen("cases");
+});
+
+// Start the game.
+loadProgress();
+renderCases();
+showScreen("home");
