@@ -1,41 +1,44 @@
 
 /* =========================================================
    TINY DETECTIVE
-   CYBERPUNK DETECTIVE NOIR EDITION
-   Complete interface styling
+   COMIC CYBERPUNK EDITION
+   Visual redesign — gameplay structure preserved
 ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&family=Bangers&display=swap');
 
 /* =========================
    ROOT VARIABLES
 ========================= */
 
 :root {
-    --background: #070a14;
-    --background-light: #10172b;
-    --panel: #111a2e;
-    --panel-light: #18243c;
+    --background: #09091a;
+    --background-light: #15152c;
+    --panel: #191932;
+    --panel-light: #222244;
 
     --cyan: #00f5ff;
-    --cyan-soft: #68faff;
+    --cyan-soft: #83ffff;
     --purple: #a855f7;
     --pink: #ff3cac;
-    --gold: #ffd166;
+    --gold: #ffe066;
 
-    --text: #eaf6ff;
-    --muted: #8da4bb;
+    --text: #ffffff;
+    --muted: #b8b8d4;
 
     --success: #36e6a0;
     --danger: #ff5577;
     --warning: #ffbf47;
 
-    --border: rgba(0, 245, 255, 0.25);
+    --border: rgba(0, 245, 255, 0.5);
 
-    --glow-cyan: 0 0 15px rgba(0, 245, 255, 0.35);
-    --glow-purple: 0 0 15px rgba(168, 85, 247, 0.35);
+    --glow-cyan: 0 0 14px rgba(0, 245, 255, 0.4);
+    --glow-purple: 0 0 14px rgba(168, 85, 247, 0.4);
+    --glow-pink: 0 0 14px rgba(255, 60, 172, 0.4);
 
     --radius: 14px;
+    --comic-border: 3px solid #080817;
+    --comic-shadow: 5px 5px 0 #080817;
 }
 
 /* =========================
@@ -55,14 +58,31 @@ html {
 body {
     min-height: 100vh;
     background:
-        radial-gradient(circle at 15% 20%, rgba(0, 245, 255, 0.08), transparent 30%),
-        radial-gradient(circle at 85% 80%, rgba(168, 85, 247, 0.09), transparent 30%),
+        radial-gradient(circle at 10% 15%, rgba(0,245,255,0.12), transparent 28%),
+        radial-gradient(circle at 90% 30%, rgba(255,60,172,0.12), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(168,85,247,0.12), transparent 35%),
         var(--background);
 
     color: var(--text);
     font-family: 'Rajdhani', sans-serif;
-    font-size: 17px;
+    font-size: 18px;
     overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+
+    background-image: radial-gradient(
+        rgba(255,255,255,0.09) 1px,
+        transparent 1px
+    );
+
+    background-size: 5px 5px;
+    opacity: 0.25;
 }
 
 button {
@@ -76,7 +96,7 @@ button:disabled {
 }
 
 button:focus-visible {
-    outline: 2px solid var(--cyan);
+    outline: 3px solid var(--gold);
     outline-offset: 4px;
 }
 
@@ -103,14 +123,19 @@ button:focus-visible {
     width: 100%;
     min-height: 78px;
     padding: 14px 5%;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
 
-    background: rgba(8, 13, 27, 0.95);
-    border-bottom: 1px solid var(--border);
-    box-shadow: 0 4px 25px rgba(0, 245, 255, 0.08);
+    background: rgba(12, 12, 30, 0.96);
+
+    border-bottom: 3px solid var(--pink);
+
+    box-shadow:
+        0 5px 0 rgba(0,0,0,0.4),
+        0 0 20px rgba(255,60,172,0.15);
 }
 
 .logo {
@@ -120,23 +145,25 @@ button:focus-visible {
 }
 
 .logo-icon {
-    color: var(--cyan);
-    font-size: 35px;
-    text-shadow: var(--glow-cyan);
+    color: var(--gold);
+    font-size: 38px;
+    text-shadow: var(--glow-pink);
 }
 
 .logo h1 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 18px;
+    font-family: 'Bangers', cursive;
+    font-size: 30px;
     letter-spacing: 2px;
     color: var(--cyan);
+    text-shadow: 3px 3px 0 var(--purple);
 }
 
 .logo small {
     display: block;
     margin-top: 4px;
-    color: var(--muted);
-    font-size: 10px;
+    color: var(--pink);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
     letter-spacing: 2px;
 }
 
@@ -204,19 +231,53 @@ button:focus-visible {
 .hero {
     min-height: 390px;
     padding: 55px 30px;
+
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
 
-    border: 1px solid var(--border);
-    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+
+    border: 3px solid var(--cyan);
+    border-radius: 18px;
 
     background:
-        linear-gradient(90deg, rgba(7, 10, 20, 0.97), rgba(7, 10, 20, 0.65)),
-        radial-gradient(circle at 80% 50%, rgba(0, 245, 255, 0.15), transparent 40%);
+        linear-gradient(
+            90deg,
+            rgba(9,9,26,0.97),
+            rgba(9,9,26,0.75)
+        ),
+        radial-gradient(
+            circle at 80% 50%,
+            rgba(0,245,255,0.3),
+            transparent 45%
+        );
 
-    box-shadow: var(--glow-cyan);
+    box-shadow:
+        6px 6px 0 #050510,
+        var(--glow-cyan);
+}
+
+/* Decorative comic-book burst */
+
+.hero::after {
+    content: "";
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    right: -70px;
+    top: -70px;
+
+    border-radius: 50%;
+
+    background: repeating-conic-gradient(
+        rgba(255,60,172,0.15) 0deg 8deg,
+        transparent 8deg 16deg
+    );
+
+    pointer-events: none;
 }
 
 .eyebrow {
@@ -225,19 +286,26 @@ button:focus-visible {
     font-size: 11px;
     letter-spacing: 3px;
     margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
 }
 
 .hero h2 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: clamp(38px, 7vw, 72px);
-    line-height: 1.15;
-    letter-spacing: 2px;
+    font-family: 'Bangers', cursive;
+    font-size: clamp(48px, 8vw, 82px);
+    line-height: 1.1;
+    letter-spacing: 3px;
     margin-bottom: 20px;
+    text-shadow: 4px 4px 0 var(--purple);
+    position: relative;
+    z-index: 1;
 }
 
 .hero h2 span {
     color: var(--cyan);
-    text-shadow: var(--glow-cyan);
+    text-shadow:
+        3px 3px 0 var(--pink),
+        var(--glow-cyan);
 }
 
 .hero p {
@@ -246,12 +314,16 @@ button:focus-visible {
     font-size: 20px;
     line-height: 1.5;
     margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
 }
 
 .hero-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+    position: relative;
+    z-index: 1;
 }
 
 /* =========================
@@ -259,14 +331,16 @@ button:focus-visible {
 ========================= */
 
 .btn {
-    border: 1px solid transparent;
+    border: 2px solid #080817;
     border-radius: 8px;
     padding: 12px 22px;
 
     font-family: 'Orbitron', sans-serif;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: 1px;
+
+    box-shadow: 4px 4px 0 #080817;
 
     transition:
         transform 0.2s ease,
@@ -275,32 +349,32 @@ button:focus-visible {
 }
 
 .btn:hover:not(:disabled) {
-    transform: translateY(-2px);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #080817;
 }
 
 .btn:active:not(:disabled) {
-    transform: translateY(0);
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #080817;
 }
 
 .primary {
-    color: #06121b;
+    color: #080817;
     background: var(--cyan);
-    box-shadow: var(--glow-cyan);
 }
 
 .primary:hover:not(:disabled) {
     background: var(--cyan-soft);
-    box-shadow: 0 0 25px rgba(0, 245, 255, 0.55);
+    box-shadow: 0 0 20px rgba(0,245,255,0.5);
 }
 
 .secondary {
-    color: var(--cyan);
-    background: transparent;
-    border-color: var(--cyan);
+    color: white;
+    background: var(--purple);
 }
 
 .secondary:hover:not(:disabled) {
-    background: rgba(0, 245, 255, 0.1);
+    background: var(--pink);
 }
 
 .truth-button {
@@ -324,17 +398,24 @@ button:focus-visible {
 
 .home-stats {
     margin-top: 25px;
+
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 14px;
 }
 
 .paper-card {
-    background: linear-gradient(145deg, var(--panel), var(--background-light));
-    border: 1px solid var(--border);
+    background: linear-gradient(
+        145deg,
+        var(--panel),
+        var(--background-light)
+    );
+
+    border: var(--comic-border);
     border-radius: var(--radius);
     padding: 22px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+
+    box-shadow: var(--comic-shadow);
 }
 
 .home-stats .paper-card {
@@ -351,9 +432,10 @@ button:focus-visible {
 }
 
 .home-stats strong {
-    color: var(--cyan);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 24px;
+    color: var(--gold);
+    font-family: 'Bangers', cursive;
+    font-size: 30px;
+    letter-spacing: 1px;
 }
 
 /* =========================
@@ -366,10 +448,11 @@ button:focus-visible {
 
 .section-heading h2 {
     color: var(--cyan);
-    font-family: 'Orbitron', sans-serif;
-    font-size: clamp(23px, 4vw, 35px);
+    font-family: 'Bangers', cursive;
+    font-size: clamp(30px, 5vw, 45px);
     letter-spacing: 2px;
     margin-bottom: 10px;
+    text-shadow: 2px 2px 0 var(--purple);
 }
 
 .section-heading p {
@@ -391,21 +474,26 @@ button:focus-visible {
 .case-card {
     padding: 22px;
     background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+
+    border: 2px solid var(--purple);
+    border-radius: 12px;
+
+    box-shadow: 4px 4px 0 #080817;
+
     transition: 0.2s ease;
 }
 
 .case-card:hover:not(.locked) {
     border-color: var(--cyan);
-    box-shadow: var(--glow-cyan);
-    transform: translateY(-3px);
+    box-shadow: 5px 5px 0 #080817, var(--glow-cyan);
+    transform: translate(-2px, -2px);
 }
 
 .case-card h3 {
-    color: var(--cyan);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 15px;
+    color: var(--gold);
+    font-family: 'Bangers', cursive;
+    font-size: 25px;
+    letter-spacing: 1px;
     margin-bottom: 10px;
 }
 
@@ -426,8 +514,8 @@ button:focus-visible {
 
 .case-icon {
     display: inline-block;
-    color: var(--purple);
-    font-size: 32px;
+    color: var(--pink);
+    font-size: 36px;
     margin-bottom: 10px;
 }
 
@@ -444,7 +532,7 @@ button:focus-visible {
     align-items: center;
     gap: 18px;
     padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px dashed var(--purple);
 }
 
 .briefing-header .case-icon {
@@ -479,8 +567,8 @@ button:focus-visible {
 .evidence-section h3,
 .report-explanation h3 {
     color: var(--pink);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 13px;
+    font-family: 'Bangers', cursive;
+    font-size: 23px;
     letter-spacing: 1px;
     margin-bottom: 12px;
 }
@@ -500,8 +588,8 @@ button:focus-visible {
 .facts-list > *,
 .evidence-list > * {
     padding: 12px 15px;
-    background: rgba(0, 245, 255, 0.05);
-    border-left: 3px solid var(--cyan);
+    background: rgba(0,245,255,0.07);
+    border-left: 4px solid var(--cyan);
     border-radius: 5px;
     color: var(--text);
 }
@@ -529,8 +617,9 @@ button:focus-visible {
 
 .timer-track {
     width: 100%;
-    height: 8px;
+    height: 12px;
     overflow: hidden;
+    border: 2px solid #080817;
     border-radius: 10px;
     background: #202b43;
     margin-bottom: 22px;
@@ -539,7 +628,12 @@ button:focus-visible {
 .timer-fill {
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, var(--success), var(--cyan));
+    background: linear-gradient(
+        90deg,
+        var(--success),
+        var(--cyan),
+        var(--purple)
+    );
     border-radius: inherit;
     transition: width 0.4s linear;
 }
@@ -554,9 +648,10 @@ button:focus-visible {
 
 .puzzle-card h3 {
     color: var(--cyan);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 17px;
-    line-height: 1.5;
+    font-family: 'Bangers', cursive;
+    font-size: 29px;
+    letter-spacing: 1px;
+    line-height: 1.4;
     margin-bottom: 20px;
 }
 
@@ -569,9 +664,9 @@ button:focus-visible {
     padding: 15px;
     margin-bottom: 25px;
 
-    border: 1px dashed var(--cyan);
+    border: 2px dashed var(--cyan);
     border-radius: 10px;
-    background: rgba(0, 245, 255, 0.04);
+    background: rgba(0,245,255,0.07);
 }
 
 .word-tiles {
@@ -583,17 +678,18 @@ button:focus-visible {
 
 .word-tile {
     padding: 10px 15px;
-    border: 1px solid var(--purple);
+    border: 2px solid var(--purple);
     border-radius: 7px;
     color: var(--text);
-    background: rgba(168, 85, 247, 0.12);
+    background: rgba(168,85,247,0.2);
     font-weight: 700;
     font-size: 16px;
     transition: 0.2s ease;
+    box-shadow: 3px 3px 0 #080817;
 }
 
 .word-tile:hover:not(:disabled) {
-    background: rgba(168, 85, 247, 0.3);
+    background: rgba(168,85,247,0.4);
     box-shadow: var(--glow-purple);
 }
 
@@ -621,7 +717,7 @@ button:focus-visible {
     align-items: center;
     gap: 18px;
     padding-bottom: 22px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px dashed var(--purple);
 }
 
 .suspect-avatar {
@@ -631,20 +727,20 @@ button:focus-visible {
     display: grid;
     place-items: center;
 
-    border: 2px solid var(--purple);
+    border: 3px solid var(--pink);
     border-radius: 50%;
-    background: rgba(168, 85, 247, 0.12);
+    background: rgba(168,85,247,0.2);
 
     color: var(--cyan);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 25px;
+    font-family: 'Bangers', cursive;
+    font-size: 30px;
     box-shadow: var(--glow-purple);
 }
 
 .suspect-profile h3 {
     color: var(--cyan);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 17px;
+    font-family: 'Bangers', cursive;
+    font-size: 28px;
     margin-bottom: 5px;
 }
 
@@ -670,12 +766,14 @@ button:focus-visible {
     display: flex;
     align-items: center;
 
-    background: rgba(0, 245, 255, 0.05);
-    border-left: 3px solid var(--cyan);
-    border-radius: 8px;
+    background: rgba(0,245,255,0.07);
+    border: 2px solid var(--cyan);
+    border-radius: 12px;
 
     font-size: 20px;
     line-height: 1.5;
+
+    box-shadow: 4px 4px 0 #080817;
 }
 
 .decision-buttons {
@@ -734,7 +832,7 @@ button:focus-visible {
 
 .accusation-choice {
     padding: 20px 12px;
-    border: 1px solid var(--border);
+    border: 2px solid var(--purple);
     border-radius: 10px;
     background: var(--background-light);
     color: var(--text);
@@ -749,8 +847,8 @@ button:focus-visible {
 
 .accusation-choice.selected {
     border-color: var(--pink);
-    background: rgba(255, 60, 172, 0.1);
-    box-shadow: 0 0 15px rgba(255, 60, 172, 0.25);
+    background: rgba(255,60,172,0.15);
+    box-shadow: var(--glow-pink);
 }
 
 .accusation-choice strong {
@@ -777,11 +875,12 @@ button:focus-visible {
     font-size: 55px;
     color: var(--gold);
     margin-bottom: 15px;
-    text-shadow: 0 0 15px rgba(255, 209, 102, 0.3);
+    text-shadow: var(--glow-cyan);
 }
 
 .report-card h3 {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Bangers', cursive;
+    font-size: 32px;
     color: var(--cyan);
     margin-bottom: 22px;
 }
@@ -795,8 +894,8 @@ button:focus-visible {
 
 .score-item {
     padding: 18px 10px;
-    background: rgba(0, 245, 255, 0.05);
-    border: 1px solid var(--border);
+    background: rgba(0,245,255,0.07);
+    border: 2px solid var(--purple);
     border-radius: 8px;
 }
 
@@ -819,8 +918,8 @@ button:focus-visible {
     margin: 25px 0;
     padding: 20px;
     text-align: left;
-    background: rgba(168, 85, 247, 0.06);
-    border-left: 3px solid var(--purple);
+    background: rgba(168,85,247,0.1);
+    border-left: 4px solid var(--pink);
     border-radius: 8px;
 }
 
@@ -849,7 +948,8 @@ button:focus-visible {
 
 #failedScreen h3 {
     color: var(--danger);
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Bangers', cursive;
+    font-size: 35px;
     margin-bottom: 15px;
 }
 
@@ -873,7 +973,7 @@ button:focus-visible {
     gap: 15px;
     padding: 20px 5%;
 
-    border-top: 1px solid var(--border);
+    border-top: 2px solid var(--pink);
     color: var(--muted);
 
     font-family: 'Orbitron', sans-serif;
@@ -894,14 +994,14 @@ button:focus-visible {
 .nav-action {
     padding: 9px 14px;
     color: var(--cyan);
-    border: 1px solid var(--border);
+    border: 2px solid var(--purple);
     background: transparent;
     border-radius: 7px;
 }
 
 .nav-action:hover {
     border-color: var(--cyan);
-    background: rgba(0, 245, 255, 0.08);
+    background: rgba(0,245,255,0.08);
 }
 
 /* =========================
@@ -910,7 +1010,7 @@ button:focus-visible {
 
 .evidence-choice {
     padding: 15px;
-    border: 1px solid var(--border);
+    border: 2px solid var(--purple);
     border-radius: 8px;
     background: var(--panel);
     color: var(--text);
@@ -928,7 +1028,7 @@ button:focus-visible {
 
 .suspect-choice {
     padding: 18px;
-    border: 1px solid var(--border);
+    border: 2px solid var(--purple);
     border-radius: 9px;
     background: var(--panel);
     color: var(--text);
@@ -938,8 +1038,8 @@ button:focus-visible {
 
 .suspect-choice:hover,
 .suspect-choice.selected {
-    border-color: var(--purple);
-    box-shadow: var(--glow-purple);
+    border-color: var(--pink);
+    box-shadow: var(--glow-pink);
 }
 
 #accusationSuspects,
@@ -951,16 +1051,77 @@ button:focus-visible {
 }
 
 /* =========================
+   PERMANENT MENU BUTTON
+   Only styles the button if it exists.
+========================= */
+
+.menu-button {
+    border-color: var(--purple);
+    color: var(--cyan);
+    white-space: nowrap;
+}
+
+.menu-button:hover {
+    background: rgba(168,85,247,0.2);
+    box-shadow: var(--glow-purple);
+}
+
+/* =========================
+   IMAGE PLACEHOLDER SUPPORT
+   Optional classes for future artwork.
+========================= */
+
+.character-image,
+.case-image,
+.evidence-image,
+.home-background-image {
+    max-width: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.character-image {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 3px solid var(--pink);
+    border-radius: 12px;
+    box-shadow: var(--glow-purple);
+}
+
+.case-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 3px solid var(--cyan);
+    border-radius: 10px;
+}
+
+.evidence-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 2px solid var(--purple);
+    border-radius: 8px;
+}
+
+.home-background-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+/* =========================
    RESPONSIVE DESIGN
 ========================= */
 
 @media (max-width: 750px) {
+
     .topbar {
         padding: 12px 4%;
     }
 
     .logo h1 {
-        font-size: 14px;
+        font-size: 23px;
     }
 
     .logo small {
@@ -1011,7 +1172,12 @@ button:focus-visible {
     }
 }
 
+/* =========================
+   SMALL MOBILE SCREENS
+========================= */
+
 @media (max-width: 480px) {
+
     body {
         font-size: 15px;
     }
@@ -1031,7 +1197,7 @@ button:focus-visible {
     }
 
     .hero h2 {
-        font-size: 36px;
+        font-size: 42px;
     }
 
     .hero-actions {
@@ -1064,5 +1230,36 @@ button:focus-visible {
     .briefing-details {
         flex-direction: column;
         gap: 8px;
+    }
+
+    .suspect-profile {
+        align-items: flex-start;
+    }
+
+    .statement-box {
+        font-size: 17px;
+    }
+
+    .score-item strong {
+        font-size: 19px;
+    }
+
+    .btn {
+        max-width: 100%;
+    }
+}
+
+/* =========================
+   ACCESSIBILITY
+========================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
     }
 }
