@@ -1263,3 +1263,80 @@ button:focus-visible {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* =========================================================
+   TINY DETECTIVE — PERMANENT ARTWORK SLOTS
+========================================================= */
+
+/* Shared image container */
+
+.art-slot {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    background: #191932;
+    border: 2px solid #a855f7;
+    border-radius: 12px;
+    box-shadow: 4px 4px 0 #080817;
+}
+
+/* Images always fill their containers */
+
+.art-slot img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Portraits */
+
+.art-portrait {
+    aspect-ratio: 3 / 4;
+}
+
+/* Character profile */
+
+.art-character {
+    aspect-ratio: 1 / 1;
+}
+
+/* Background scenes */
+
+.art-scene {
+    aspect-ratio: 16 / 9;
+}
+
+/* Case covers */
+
+.art-case {
+    aspect-ratio: 4 / 3;
+}
+
+/* Evidence */
+
+.art-evidence {
+    aspect-ratio: 1 / 1;
+}
+
+/* Optional character portrait framing */
+
+.art-portrait img {
+    object-position: center top;
+}
+
+/* Optional scene overlay */
+
+.art-scene::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        0deg,
+        rgba(9,9,26,0.35),
+        transparent 55%
+    );
+}
