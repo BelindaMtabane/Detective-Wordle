@@ -2,316 +2,286 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiny Detective</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiny Detective</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" id="homeLink">
+        <span class="brand-mark">🔎</span>
+        <span>TINY <b>DETECTIVE</b></span>
+      </a>
+      <div class="topbar-right">
+        <span class="rank-pill">⭐ Junior Detective</span>
+        <span class="points-pill">🪙 <b id="topPoints">0</b></span>
+      </div>
+    </header>
 
-<div id="app">
-
-    <!-- MAIN MENU -->
-    <section id="main-menu" class="screen active">
-        <nav class="top-nav">
-            <div class="logo">🔎 TINY DETECTIVE</div>
-            <div class="nav-right">
-                <span class="reputation">⭐ Rookie Detective</span>
+    <main>
+      <!-- MAIN MENU -->
+      <section id="homeScreen" class="screen active">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <span class="eyebrow">YOUR NEXT MYSTERY STARTS HERE</span>
+            <h1>Somebody is lying.<br><span>Can you find out who?</span></h1>
+            <p>Read the case, question the suspects, spot the contradictions and solve the mystery. Every detail matters.</p>
+            <button class="btn btn-primary btn-large" id="startButton">
+              Start investigating →
+            </button>
+            <div class="hero-stats">
+              <div><b>10</b><small>Mystery cases</small></div>
+              <div><b>3</b><small>Suspects per case</small></div>
+              <div><b>15</b><small>Questions per case</small></div>
             </div>
-        </nav>
+          </div>
 
-        <div class="hero">
-            <div class="hero-text">
-                <span class="eyebrow">THE MYSTERY BEGINS HERE</span>
-                <h1>Small clues.<br><span>Big mysteries.</span></h1>
-                <p>Think carefully, investigate the evidence and discover who's hiding the truth.</p>
+          <div class="hero-art">
+            <div class="case-stamp">CASE<br>NO. 001</div>
+            <div class="magnifier">🔍</div>
+            <div class="paper paper-back"></div>
+            <div class="paper paper-front">
+              <span class="paper-label">CONFIDENTIAL</span>
+              <div class="paper-line long"></div>
+              <div class="paper-line"></div>
+              <div class="paper-line medium"></div>
+              <div class="paper-clue">WHO TOOK<br>THE NECKLACE?</div>
+              <div class="paper-line long"></div>
+            </div>
+          </div>
+        </div>
 
-                <button class="btn btn-primary btn-large" onclick="showScreen('case-files')">
-                    START INVESTIGATING →
+        <div class="home-note">
+          <span>💡</span>
+          <div>
+            <b>Detective tip</b>
+            <small>A tiny contradiction can reveal a very big secret.</small>
+          </div>
+        </div>
+      </section>
+
+      <!-- CASE ARCHIVE -->
+      <section id="casesScreen" class="screen">
+        <div class="section-heading">
+          <span class="eyebrow">THE CASE ARCHIVE</span>
+          <h2>Choose your investigation</h2>
+          <p>Complete a case to unlock the next mystery.</p>
+        </div>
+        <div id="caseGrid" class="case-grid"></div>
+        <button class="btn btn-quiet back-home">← Main menu</button>
+      </section>
+
+      <!-- STORY BRIEFING -->
+      <section id="briefingScreen" class="screen">
+        <div class="section-heading">
+          <span class="eyebrow">CASE BRIEFING</span>
+          <h2 id="briefingTitle"></h2>
+          <div class="tag-row">
+            <span id="briefingDifficulty" class="tag"></span>
+            <span class="tag tag-soft">CASE FILE</span>
+          </div>
+        </div>
+
+        <div class="briefing-layout">
+          <article class="story-card">
+            <div class="story-card-top">
+              <span>📁 INCIDENT REPORT</span>
+              <span>CONFIDENTIAL</span>
+            </div>
+            <h3>What happened?</h3>
+            <p id="briefingStory"></p>
+            <div class="fact-box">
+              <b>What you know so far</b>
+              <ul id="briefingFacts"></ul>
+            </div>
+          </article>
+
+          <aside class="briefing-side">
+            <div class="side-card">
+              <span class="side-icon">👥</span>
+              <h3>3 people to question</h3>
+              <p>Each person has five questions waiting for you.</p>
+            </div>
+            <div class="side-card">
+              <span class="side-icon">⏱️</span>
+              <h3>Watch the clock</h3>
+              <p id="briefingTimerInfo"></p>
+            </div>
+            <div class="side-card">
+              <span class="side-icon">❤️</span>
+              <h3>3 detective lives</h3>
+              <p>Incorrect decisions and timeouts can cost lives.</p>
+            </div>
+          </aside>
+        </div>
+
+        <div class="button-row">
+          <button class="btn btn-quiet" id="briefingBack">← Cases</button>
+          <button class="btn btn-primary" id="enterRoomButton">
+            Enter interrogation room →
+          </button>
+        </div>
+      </section>
+
+      <!-- INTERROGATION -->
+      <section id="interviewScreen" class="screen">
+        <div class="investigation-header">
+          <div>
+            <span class="eyebrow">ACTIVE INVESTIGATION</span>
+            <h2 id="interviewCaseTitle"></h2>
+          </div>
+          <div class="investigation-metrics">
+            <span>🪙 <b id="gamePoints">0</b></span>
+            <span>❤️ <b id="lives">3</b></span>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span id="questionProgress"></span>
+            <span id="caseProgressText">0% complete</span>
+          </div>
+          <div class="progress-track">
+            <div id="caseProgressBar" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <div class="interview-layout">
+          <aside class="suspect-panel">
+            <div class="panel-heading">
+              <span>PEOPLE OF INTEREST</span>
+              <small>Choose who to question</small>
+            </div>
+            <div id="suspectList" class="suspect-list"></div>
+            <div class="evidence-mini">
+              <b>🗂 Your case notes</b>
+              <p id="caseNotes">No statements recorded yet.</p>
+            </div>
+          </aside>
+
+          <article class="interrogation-card">
+            <div class="room-banner">
+              <span>INTERROGATION ROOM</span>
+              <span class="room-light"></span>
+            </div>
+
+            <div class="suspect-heading">
+              <div id="suspectAvatar" class="suspect-avatar"></div>
+              <div>
+                <h3 id="suspectName"></h3>
+                <p id="suspectRole"></p>
+              </div>
+              <span id="suspectStatus" class="status-tag"></span>
+            </div>
+
+            <div class="timer-panel">
+              <div>
+                <small>TIME TO THINK</small>
+                <strong id="timerText">00:45</strong>
+              </div>
+              <div class="timer-track">
+                <div id="timerBar" class="timer-fill"></div>
+              </div>
+            </div>
+
+            <div class="question-area">
+              <span id="questionNumber" class="question-number"></span>
+              <h3 id="questionText"></h3>
+
+              <div class="answer-quote">
+                <span>“</span>
+                <p id="answerText"></p>
+              </div>
+
+              <p class="decision-prompt">Do you believe this statement?</p>
+
+              <div class="decision-buttons">
+                <button class="decision-btn truth-btn" data-answer="truth">
+                  ✓ They are telling the truth
                 </button>
-                <button class="btn btn-outline" onclick="showScreen('how-to-play')">
-                    HOW TO PLAY
+                <button class="decision-btn lie-btn" data-answer="lie">
+                  ⚠ I think they are lying
                 </button>
+              </div>
+
+              <p id="questionFeedback" class="question-feedback"></p>
             </div>
 
-            <!-- IMAGE PLACEHOLDER: Main menu detective artwork -->
-            <div class="image-placeholder hero-image">
-                <span>ADD MAIN MENU IMAGE HERE</span>
-                <small>Detective character / Mystery office</small>
+            <div class="interview-footer">
+              <span id="attemptText">Mistakes allowed: 3</span>
+              <span>Be observant, Detective.</span>
             </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- FINAL ACCUSATION -->
+      <section id="accusationScreen" class="screen">
+        <div class="section-heading">
+          <span class="eyebrow">THE FINAL DECISION</span>
+          <h2>Who do you accuse?</h2>
+          <p>You have questioned everyone. Review your notes and decide.</p>
         </div>
 
-        <div class="menu-bottom">
-            <div>🗂️ Your case files await.</div>
-            <div>TINY DETECTIVE © 2026</div>
+        <div id="accusationSuspects" class="accusation-grid"></div>
+
+        <div class="accusation-footer">
+          <p>⚖️ Make sure your accusation matches the evidence.</p>
+          <button class="btn btn-primary" id="submitAccusation" disabled>
+            Confirm accusation →
+          </button>
         </div>
-    </section>
+      </section>
 
+      <!-- FINAL REPORT -->
+      <section id="reportScreen" class="screen">
+        <div class="report-card">
+          <div class="report-icon" id="reportIcon">🏆</div>
+          <span class="eyebrow">INVESTIGATION COMPLETE</span>
+          <h2 id="reportTitle"></h2>
+          <p id="reportMessage"></p>
 
-    <!-- CASE FILES -->
-    <section id="case-files" class="screen">
-        <header class="page-header">
-            <button class="back-btn" onclick="showScreen('main-menu')">← Back</button>
-            <h2>YOUR CASE FILES</h2>
-            <p>Choose a mystery to investigate.</p>
-        </header>
+          <div class="report-stats">
+            <div><b id="finalScore">0</b><small>Points</small></div>
+            <div><b id="finalCorrect">0/15</b><small>Statements identified</small></div>
+            <div><b id="finalLives">3</b><small>Lives remaining</small></div>
+          </div>
 
-        <div class="case-grid">
-            <article class="case-card">
-                <!-- IMAGE PLACEHOLDER: Case 1 artwork -->
-                <div class="image-placeholder case-image">
-                    <span>CASE IMAGE 01</span>
-                </div>
-                <div class="case-info">
-                    <span class="case-tag">CASE 001 · BEGINNER</span>
-                    <h3>The Missing Necklace</h3>
-                    <p>A valuable necklace has vanished during a birthday party. Someone knows more than they're saying.</p>
-                    <button class="btn btn-primary" onclick="startCase()">OPEN CASE →</button>
-                </div>
-            </article>
+          <div class="reveal-box">
+            <small>THE CULPRIT WAS</small>
+            <h3 id="culpritReveal"></h3>
+            <p id="culpritExplanation"></p>
+          </div>
 
-            <article class="case-card locked">
-                <div class="image-placeholder case-image">
-                    <span>ADD CASE IMAGE 02</span>
-                </div>
-                <div class="case-info">
-                    <span class="case-tag">CASE 002 · COMING SOON</span>
-                    <h3>The Secret Invitation</h3>
-                    <p>A mysterious invitation has caused trouble at a school event.</p>
-                    <button class="btn btn-disabled" disabled>LOCKED 🔒</button>
-                </div>
-            </article>
-
-            <article class="case-card locked">
-                <div class="image-placeholder case-image">
-                    <span>ADD CASE IMAGE 03</span>
-                </div>
-                <div class="case-info">
-                    <span class="case-tag">CASE 003 · COMING SOON</span>
-                    <h3>The Vanishing Trophy</h3>
-                    <p>The school's most important trophy has disappeared.</p>
-                    <button class="btn btn-disabled" disabled>LOCKED 🔒</button>
-                </div>
-            </article>
+          <div class="button-row centered">
+            <button class="btn btn-quiet" id="reportCasesButton">Case files</button>
+            <button class="btn btn-primary" id="nextCaseButton">Next case →</button>
+          </div>
         </div>
-    </section>
+      </section>
 
-
-    <!-- HOW TO PLAY -->
-    <section id="how-to-play" class="screen">
-        <header class="page-header">
-            <button class="back-btn" onclick="showScreen('main-menu')">← Back</button>
-            <h2>HOW TO PLAY</h2>
-            <p>Every detective needs a sharp mind!</p>
-        </header>
-
-        <div class="instructions-grid">
-            <div class="instruction-card">
-                <div class="instruction-icon">📁</div>
-                <h3>1. Open a case</h3>
-                <p>Read the mystery and understand what happened.</p>
-            </div>
-            <div class="instruction-card">
-                <div class="instruction-icon">🔍</div>
-                <h3>2. Find evidence</h3>
-                <p>Investigate clues and solve word puzzles.</p>
-            </div>
-            <div class="instruction-card">
-                <div class="instruction-icon">🧩</div>
-                <h3>3. Build sentences</h3>
-                <p>Tap shuffled words to put the evidence into the correct order.</p>
-            </div>
-            <div class="instruction-card">
-                <div class="instruction-icon">🕵️</div>
-                <h3>4. Find the culprit</h3>
-                <p>Study the suspects and decide who is responsible.</p>
-            </div>
-            <div class="instruction-card">
-                <div class="instruction-icon">🏆</div>
-                <h3>5. Earn your stars</h3>
-                <p>Complete the case and receive your detective report.</p>
-            </div>
+      <!-- FAILED INVESTIGATION -->
+      <section id="failedScreen" class="screen">
+        <div class="report-card">
+          <div class="report-icon">🕵️</div>
+          <span class="eyebrow">INVESTIGATION PAUSED</span>
+          <h2>You've run out of detective lives.</h2>
+          <p>Review the case and try again with a fresh investigation.</p>
+          <button class="btn btn-primary" id="retryButton">Retry this case</button>
+          <button class="btn btn-quiet" id="failedCasesButton">Case files</button>
         </div>
-    </section>
+      </section>
+    </main>
 
+    <footer>
+      <span>🔎 TINY DETECTIVE</span>
+      <span>Think carefully. Trust the evidence.</span>
+    </footer>
+  </div>
 
-    <!-- CASE BRIEFING -->
-    <section id="case-briefing" class="screen">
-        <header class="game-header">
-            <button class="back-btn" onclick="showScreen('case-files')">← Cases</button>
-            <span>🔎 TINY DETECTIVE</span>
-            <span>CASE 001</span>
-        </header>
-
-        <div class="briefing-container">
-            <div class="image-placeholder briefing-image">
-                <span>ADD MYSTERY SCENE IMAGE HERE</span>
-                <small>Birthday party / Missing necklace</small>
-            </div>
-
-            <div class="briefing-content">
-                <span class="case-tag">YOUR FIRST INVESTIGATION</span>
-                <h1>The Missing Necklace</h1>
-                <p class="story-text">
-                    It was supposed to be a wonderful birthday celebration.
-                    Guests were laughing, music was playing, and everyone was having fun.
-
-                    But something terrible happened.
-
-                    A valuable diamond necklace disappeared from the host's bedroom.
-                    Three guests had access to the house, and nobody is admitting anything.
-
-                    The police need your help!
-                </p>
-
-                <div class="briefing-facts">
-                    <div><strong>📍 Location</strong><span>Rosewood Mansion</span></div>
-                    <div><strong>💎 Missing item</strong><span>Diamond necklace</span></div>
-                    <div><strong>👥 Suspects</strong><span>3 people</span></div>
-                    <div><strong>🎯 Objective</strong><span>Find the culprit</span></div>
-                </div>
-
-                <button class="btn btn-primary btn-large" onclick="beginInvestigation()">
-                    BEGIN INVESTIGATION →
-                </button>
-            </div>
-        </div>
-    </section>
-
-
-    <!-- GAMEPLAY -->
-    <section id="gameplay" class="screen">
-        <header class="game-header">
-            <button class="back-btn" onclick="confirmExit()">✕ Exit</button>
-            <span>🔎 CASE 001: THE MISSING NECKLACE</span>
-            <span id="score-display">⭐ 0 POINTS</span>
-        </header>
-
-        <div class="progress-area">
-            <div class="progress-label">
-                <span>INVESTIGATION PROGRESS</span>
-                <span id="question-progress">CLUE 1 / 5</span>
-            </div>
-            <div class="progress-track">
-                <div id="progress-bar"></div>
-            </div>
-        </div>
-
-        <div class="game-layout">
-            <aside class="evidence-sidebar">
-                <h3>📂 EVIDENCE BOARD</h3>
-                <p class="muted">Clues you've discovered</p>
-                <div id="evidence-list">
-                    <p class="empty-evidence">No evidence collected yet.</p>
-                </div>
-
-                <!-- IMAGE PLACEHOLDER: Small evidence board image -->
-                <div class="image-placeholder evidence-image">
-                    <span>EVIDENCE IMAGE</span>
-                </div>
-            </aside>
-
-            <main class="puzzle-panel">
-                <div class="puzzle-heading">
-                    <span class="case-tag">INVESTIGATION QUESTION</span>
-                    <span id="attempt-display">❤️ ❤️ ❤️</span>
-                </div>
-
-                <h2 id="question-title">What happened?</h2>
-                <p id="question-description"></p>
-
-                <div class="sentence-area">
-                    <span class="small-label">YOUR SENTENCE</span>
-                    <div id="answer-slots" class="answer-slots">
-                        Select words below to build your sentence.
-                    </div>
-                </div>
-
-                <div class="word-area">
-                    <span class="small-label">SHUFFLED WORDS</span>
-                    <div id="word-bank" class="word-bank"></div>
-                </div>
-
-                <div id="feedback" class="feedback"></div>
-
-                <div class="puzzle-actions">
-                    <button class="btn btn-outline" onclick="resetWords()">↺ Reset</button>
-                    <button class="btn btn-outline" onclick="useHint()">💡 Hint</button>
-                    <button class="btn btn-primary" onclick="checkAnswer()">CHECK ANSWER →</button>
-                </div>
-            </main>
-        </div>
-    </section>
-
-
-    <!-- SUSPECT ACCUSATION -->
-    <section id="accusation" class="screen">
-        <header class="game-header">
-            <button class="back-btn" onclick="showScreen('gameplay')">← Evidence</button>
-            <span>FINAL INVESTIGATION</span>
-            <span>🔎 CASE 001</span>
-        </header>
-
-        <div class="accusation-container">
-            <span class="eyebrow">THE MOMENT OF TRUTH</span>
-            <h1>Who stole the necklace?</h1>
-            <p>You've investigated the evidence. Now it's time to identify the culprit.</p>
-
-            <div class="suspect-grid" id="suspect-grid"></div>
-
-            <div class="accusation-footer">
-                <p id="accusation-feedback">Choose carefully. Your reputation is on the line!</p>
-                <button id="accuse-button" class="btn btn-primary btn-large" onclick="makeAccusation()" disabled>
-                    CONFIRM ACCUSATION →
-                </button>
-            </div>
-        </div>
-    </section>
-
-
-    <!-- FINAL REPORT -->
-    <section id="final-report" class="screen">
-        <div class="report-container">
-            <div class="report-top">
-                <span>🔎 TINY DETECTIVE AGENCY</span>
-                <span>OFFICIAL CASE REPORT</span>
-            </div>
-
-            <div class="report-icon" id="report-icon">🏆</div>
-            <h1 id="report-title">CASE CLOSED!</h1>
-            <p id="report-description"></p>
-
-            <div class="report-culprit">
-                <span>THE REAL CULPRIT</span>
-                <h2 id="real-culprit">Unknown</h2>
-                <!-- IMAGE PLACEHOLDER: Culprit portrait -->
-                <div class="image-placeholder culprit-image">
-                    <span>ADD CULPRIT IMAGE HERE</span>
-                </div>
-            </div>
-
-            <div class="report-stats">
-                <div><strong id="final-score">0</strong><span>POINTS</span></div>
-                <div><strong id="final-accuracy">0%</strong><span>ACCURACY</span></div>
-                <div><strong id="final-evidence">0/5</strong><span>CLUES</span></div>
-            </div>
-
-            <div class="reputation-result">
-                <span>⭐ DETECTIVE RANK</span>
-                <h2 id="final-rank">Rookie Detective</h2>
-            </div>
-
-            <div class="report-actions">
-                <button class="btn btn-primary btn-large" onclick="restartCase()">PLAY AGAIN ↻</button>
-                <button class="btn btn-outline" onclick="showScreen('case-files')">BACK TO CASE FILES</button>
-                <button class="btn btn-outline" onclick="showScreen('main-menu')">MAIN MENU</button>
-            </div>
-        </div>
-    </section>
-
-</div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
+
