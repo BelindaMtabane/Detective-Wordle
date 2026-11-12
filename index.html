@@ -11,6 +11,237 @@
 
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
+
+    <!-- *** ADDED: Visual fixes for investigation background, detective profile and evidence. -->
+    <style>
+        /* INVESTIGATION DATABASE BACKGROUND */
+        #casesScreen.screen-investigation-art {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            min-height: 650px;
+            padding: 35px;
+            border-radius: 18px;
+            background: #080b18;
+        }
+
+        #casesScreen.screen-investigation-art::before {
+            content: "";
+            position: absolute;
+            z-index: -2;
+            inset: 0;
+            background-image: url("assets/images/investigation-room.jpg");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            transform: scale(1.02);
+        }
+
+        #casesScreen.screen-investigation-art::after {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            inset: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(5, 8, 22, 0.88),
+                rgba(5, 8, 22, 0.66),
+                rgba(5, 8, 22, 0.82)
+            );
+        }
+
+        #casesScreen .section-heading {
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            padding: 22px;
+            text-align: center;
+            border: 1px solid rgba(0, 240, 255, 0.35);
+            border-radius: 14px;
+            background: rgba(5, 8, 22, 0.82);
+            backdrop-filter: blur(8px);
+        }
+
+        #casesScreen .section-heading h2 {
+            color: #ffffff;
+            text-shadow: 0 0 14px rgba(0, 240, 255, 0.7);
+        }
+
+        #casesScreen .section-heading p,
+        #casesScreen .section-heading .eyebrow {
+            color: #c8faff;
+        }
+
+        #caseGrid {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+
+        #casesScreen > #backHomeButton {
+            position: relative;
+            z-index: 1;
+            margin-top: 25px;
+        }
+
+        /* *** ADDED: Detective profile layout. */
+        .detective-profile-panel {
+            display: grid;
+            grid-template-columns: minmax(150px, 230px) 1fr;
+            align-items: center;
+            gap: 25px;
+            width: 100%;
+            margin: 0 auto 25px;
+            padding: 20px;
+            border: 1px solid rgba(0, 240, 255, 0.45);
+            border-radius: 16px;
+            background: linear-gradient(
+                120deg,
+                rgba(11, 18, 40, 0.97),
+                rgba(23, 15, 48, 0.94)
+            );
+            box-shadow: 0 0 22px rgba(0, 220, 255, 0.12);
+        }
+
+        .detective-profile-image {
+            width: 100%;
+            height: 230px;
+            overflow: hidden;
+            border: 2px solid #00eaff;
+            border-radius: 12px;
+            background: #10172b;
+        }
+
+        .detective-profile-image img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center bottom;
+        }
+
+        .detective-profile-description h3 {
+            margin: 0 0 12px;
+            color: #00eaff;
+            font-size: 1.4rem;
+        }
+
+        .detective-profile-description p {
+            margin: 0 0 12px;
+            color: #e4e9ff;
+            line-height: 1.7;
+        }
+
+        .detective-profile-description .profile-label {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: #ff5cce;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        /* *** ADDED: Make the evidence area easy to see. */
+        .evidence-section {
+            display: block !important;
+            visibility: visible !important;
+            width: 100%;
+            margin: 25px 0;
+            padding: 22px;
+            border: 1px solid rgba(0, 234, 255, 0.45);
+            border-radius: 14px;
+            background: rgba(8, 13, 32, 0.96);
+            box-shadow: 0 0 18px rgba(0, 234, 255, 0.09);
+        }
+
+        .evidence-section h3 {
+            margin: 0 0 18px;
+            color: #00eaff;
+            font-size: 1.15rem;
+            letter-spacing: 2px;
+        }
+
+        .art-clue {
+            display: block;
+            width: min(100%, 360px);
+            height: 180px;
+            margin: 0 auto 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 92, 206, 0.5);
+            border-radius: 10px;
+            background: #15152b;
+        }
+
+        .art-clue img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .facts-list,
+        .evidence-list {
+            display: block !important;
+            visibility: visible !important;
+            width: 100%;
+            min-height: 20px;
+            margin-top: 15px;
+        }
+
+        .facts-list > *,
+        .evidence-list > * {
+            margin-bottom: 10px;
+        }
+
+        /* Keep evidence and briefing text readable. */
+        .briefing-card {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* *** ADDED: Gameplay profile spacing. */
+        #puzzleScreen,
+        #interviewScreen {
+            position: relative;
+        }
+
+        #puzzleScreen .detective-profile-panel,
+        #interviewScreen .detective-profile-panel {
+            max-width: 100%;
+        }
+
+        /* Improve gameplay headings above the detective panel. */
+        #puzzleScreen .section-heading,
+        #interviewScreen .section-heading {
+            margin-bottom: 22px;
+        }
+
+        /* MOBILE LAYOUT */
+        @media (max-width: 650px) {
+            #casesScreen.screen-investigation-art {
+                padding: 15px;
+            }
+
+            .detective-profile-panel {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .detective-profile-image {
+                width: min(100%, 220px);
+                height: 220px;
+                margin: 0 auto;
+            }
+
+            .evidence-section {
+                padding: 15px;
+            }
+
+            .art-clue {
+                height: 150px;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -39,7 +270,6 @@
             </div>
         </header>
 
-
         <main class="game-container">
 
             <!-- ==================================
@@ -49,7 +279,6 @@
             <section id="homeScreen" class="screen active">
 
                 <div class="hero screen-home-art">
-
                     <div class="hero-content">
 
                         <span class="eyebrow">
@@ -67,7 +296,6 @@
                         </p>
 
                         <div class="hero-actions">
-
                             <button id="playButton" class="btn primary">
                                 NEW INVESTIGATION
                             </button>
@@ -75,32 +303,22 @@
                             <button id="continueButton" class="btn secondary">
                                 CONTINUE
                             </button>
-
                         </div>
-
                     </div>
 
-                    <!-- DETECTIVE CHARACTER -->
                     <div class="hero-image">
-
                         <div class="art-slot art-detective">
-
                             <img
                                 src="assets/images/detective.png"
                                 alt="Tiny Detective character"
                                 loading="eager"
                             >
-
                         </div>
-
                     </div>
-
                 </div>
-
 
                 <!-- HOME STATISTICS -->
                 <div class="home-stats">
-
                     <div class="paper-card">
                         <span>CASES AVAILABLE</span>
                         <strong id="totalCases">10</strong>
@@ -120,11 +338,8 @@
                         <span>REPUTATION</span>
                         <strong id="playerReputation">0</strong>
                     </div>
-
                 </div>
-
             </section>
-
 
             <!-- ==================================
                  CASE ARCHIVE
@@ -133,7 +348,6 @@
             <section id="casesScreen" class="screen screen-investigation-art">
 
                 <div class="section-heading">
-
                     <span class="eyebrow">
                         INVESTIGATION DATABASE
                     </span>
@@ -143,7 +357,6 @@
                     <p>
                         Select an available investigation.
                     </p>
-
                 </div>
 
                 <div id="caseGrid" class="case-grid"></div>
@@ -151,9 +364,7 @@
                 <button id="backHomeButton" class="btn secondary">
                     BACK TO HOME
                 </button>
-
             </section>
-
 
             <!-- ==================================
                  CASE BRIEFING
@@ -162,20 +373,50 @@
             <section id="briefingScreen" class="screen">
 
                 <div class="section-heading">
-
                     <span class="eyebrow">
                         NEW ASSIGNMENT
                     </span>
 
                     <h2 id="briefingTitle">CASE TITLE</h2>
-
                 </div>
 
+                <!-- *** ADDED: Detective identity and player description. -->
+                <div class="detective-profile-panel">
+
+                    <div class="detective-profile-image">
+                        <img
+                            src="assets/images/detective.png"
+                            alt="The player detective"
+                            loading="lazy"
+                        >
+                    </div>
+
+                    <div class="detective-profile-description">
+                        <span class="profile-label">YOUR IDENTITY</span>
+
+                        <h3>THE CITY'S YOUNGEST DETECTIVE</h3>
+
+                        <p>
+                            You are a sharp and determined young detective
+                            working for the Neon City Investigation Unit.
+                            You have a talent for noticing details that
+                            everyone else overlooks.
+                        </p>
+
+                        <p>
+                            Your mission is to investigate mysterious cases,
+                            collect evidence, question suspects, solve
+                            challenging puzzles and uncover the truth.
+                            Every decision brings you closer to solving
+                            the mystery.
+                        </p>
+                    </div>
+
+                </div>
 
                 <div class="paper-card briefing-card">
 
                     <div class="briefing-header">
-
                         <span id="briefingIcon" class="case-icon">
                             ◈
                         </span>
@@ -187,12 +428,9 @@
 
                             <span id="briefingClassification"></span>
                         </div>
-
                     </div>
 
-
                     <div class="briefing-details">
-
                         <p>
                             <strong>LOCATION:</strong>
                             <span id="briefingLocation"></span>
@@ -202,33 +440,24 @@
                             <strong>CASE NUMBER:</strong>
                             <span id="briefingCaseNumber"></span>
                         </p>
-
                     </div>
-
 
                     <div class="briefing-story">
-
                         <h3>INCIDENT REPORT</h3>
-
                         <p id="briefingStory"></p>
-
                     </div>
 
-
-                    <!-- INITIAL EVIDENCE -->
+                    <!-- *** UPDATED: Evidence is now a prominent visible panel. -->
                     <div class="evidence-section">
 
-                        <h3>INITIAL EVIDENCE</h3>
+                        <h3>DETECTIVE EVIDENCE</h3>
 
-                        <!-- CLUE NOTE IMAGE -->
                         <div class="art-slot art-clue">
-
                             <img
                                 src="assets/images/clue-note.png"
                                 alt="Detective evidence note"
                                 loading="lazy"
                             >
-
                         </div>
 
                         <div id="briefingFacts" class="facts-list"></div>
@@ -236,7 +465,6 @@
                         <div id="evidenceList" class="evidence-list"></div>
 
                     </div>
-
 
                     <button id="enterPuzzleButton" class="btn primary">
                         BEGIN EVIDENCE ANALYSIS
@@ -247,9 +475,7 @@
                     </button>
 
                 </div>
-
             </section>
-
 
             <!-- ==================================
                  SENTENCE PUZZLE
@@ -258,7 +484,6 @@
             <section id="puzzleScreen" class="screen">
 
                 <div class="section-heading">
-
                     <span class="eyebrow">
                         EVIDENCE ANALYSIS
                     </span>
@@ -268,25 +493,49 @@
                     <p>
                         Arrange the words to reconstruct the evidence statement.
                     </p>
-
                 </div>
 
+                <!-- *** ADDED: Detective image on the left during gameplay. -->
+                <div class="detective-profile-panel">
+
+                    <div class="detective-profile-image">
+                        <img
+                            src="assets/images/detective.png"
+                            alt="Your detective character"
+                            loading="lazy"
+                        >
+                    </div>
+
+                    <div class="detective-profile-description">
+                        <span class="profile-label">YOUR MISSION</span>
+
+                        <h3>FOLLOW THE EVIDENCE</h3>
+
+                        <p>
+                            You are investigating a mysterious case in
+                            Neon City. Examine every detail carefully.
+                            Use the clues you have collected to reconstruct
+                            the evidence statement.
+                        </p>
+
+                        <p>
+                            Think critically, connect the facts and avoid
+                            jumping to conclusions. The truth is hidden
+                            in the details.
+                        </p>
+                    </div>
+
+                </div>
 
                 <div class="game-status">
-
                     <span id="puzzleProgress">PUZZLE 1</span>
-
                     <span id="puzzleTimer">TIME: 00:45</span>
-
                     <span id="puzzleLives">♥ ♥ ♥</span>
-
                 </div>
-
 
                 <div class="timer-track">
                     <div id="puzzleTimerBar" class="timer-fill"></div>
                 </div>
-
 
                 <div class="paper-card puzzle-card">
 
@@ -304,9 +553,7 @@
                         aria-live="polite">
                     </div>
 
-
                     <div class="puzzle-actions">
-
                         <button id="undoWordButton" class="btn secondary">
                             UNDO
                         </button>
@@ -318,12 +565,9 @@
                         <button id="checkSentenceButton" class="btn primary">
                             CHECK ANSWER
                         </button>
-
                     </div>
                 </div>
-
             </section>
-
 
             <!-- ==================================
                  SUSPECT INTERVIEWS
@@ -332,7 +576,6 @@
             <section id="interviewScreen" class="screen screen-interrogation-art">
 
                 <div class="section-heading">
-
                     <span class="eyebrow">
                         SUSPECT INTERROGATION
                     </span>
@@ -342,12 +585,40 @@
                     <p>
                         Listen carefully. Decide whether each statement is true or false.
                     </p>
+                </div>
+
+                <!-- *** ADDED: Detective profile remains visible during interviews. -->
+                <div class="detective-profile-panel">
+
+                    <div class="detective-profile-image">
+                        <img
+                            src="assets/images/detective.png"
+                            alt="Your detective character"
+                            loading="lazy"
+                        >
+                    </div>
+
+                    <div class="detective-profile-description">
+                        <span class="profile-label">INTERROGATION MODE</span>
+
+                        <h3>READ BETWEEN THE LINES</h3>
+
+                        <p>
+                            Your role is to question the suspects and
+                            identify contradictions in their stories.
+                            Pay attention to what they say and compare
+                            their statements with the evidence.
+                        </p>
+
+                        <p>
+                            A convincing story is not always a truthful one.
+                            Trust the evidence, detective.
+                        </p>
+                    </div>
 
                 </div>
 
-
                 <div class="game-status">
-
                     <span id="interviewProgress">
                         SUSPECT 1 / 3
                     </span>
@@ -359,28 +630,21 @@
                     <span id="interviewLives">
                         ♥ ♥ ♥
                     </span>
-
                 </div>
-
 
                 <div class="timer-track">
                     <div id="interviewTimerBar" class="timer-fill"></div>
                 </div>
 
-
                 <div class="paper-card interview-card">
 
                     <div class="suspect-profile">
-
-                        <!-- SUSPECT AVATAR
-                             Script can replace this content. -->
 
                         <div id="suspectAvatar" class="suspect-avatar">
                             ?
                         </div>
 
                         <div>
-
                             <h3 id="suspectName">
                                 SUSPECT NAME
                             </h3>
@@ -390,27 +654,19 @@
                             </p>
 
                             <span id="suspectRole"></span>
-
                         </div>
 
                     </div>
 
-
                     <div class="question-heading">
-
                         <span id="questionNumber">
                             QUESTION 1 / 5
                         </span>
-
                     </div>
-
 
                     <div class="statement-box">
-
                         <p id="suspectStatement"></p>
-
                     </div>
-
 
                     <div
                         id="interviewFeedback"
@@ -418,9 +674,7 @@
                         aria-live="polite">
                     </div>
 
-
                     <div class="decision-buttons">
-
                         <button id="truthButton" class="btn truth-button">
                             TRUE
                         </button>
@@ -428,9 +682,7 @@
                         <button id="lieButton" class="btn lie-button">
                             LIE
                         </button>
-
                     </div>
-
 
                     <button id="nextQuestionButton" class="btn primary" hidden>
                         NEXT QUESTION
@@ -445,9 +697,7 @@
                     </button>
 
                 </div>
-
             </section>
-
 
             <!-- ==================================
                  ACCUSATION
@@ -456,7 +706,6 @@
             <section id="accusationScreen" class="screen">
 
                 <div class="section-heading">
-
                     <span class="eyebrow">
                         FINAL INVESTIGATION STAGE
                     </span>
@@ -466,9 +715,7 @@
                     <p>
                         Review the evidence and select the person you believe committed the crime.
                     </p>
-
                 </div>
-
 
                 <div class="paper-card">
 
@@ -485,9 +732,7 @@
                     </button>
 
                 </div>
-
             </section>
-
 
             <!-- ==================================
                  INVESTIGATION REPORT
@@ -496,36 +741,28 @@
             <section id="reportScreen" class="screen">
 
                 <div class="section-heading">
-
                     <span class="eyebrow">
                         INVESTIGATION COMPLETE
                     </span>
 
                     <h2 id="reportTitle">CASE REPORT</h2>
-
                 </div>
-
 
                 <div class="paper-card report-card">
 
-                    <!-- SUCCESS IMAGE -->
                     <div class="art-slot art-success-report">
-
                         <img
                             src="assets/images/success-report.jpg"
                             alt="Successful investigation"
                             loading="lazy"
                         >
-
                     </div>
-
 
                     <div id="reportIcon" class="report-icon">
                         ◈
                     </div>
 
                     <h3 id="reportMessage"></h3>
-
 
                     <div class="score-grid">
 
@@ -551,18 +788,12 @@
 
                     </div>
 
-
                     <div class="report-explanation">
-
                         <h3>CASE EXPLANATION</h3>
-
                         <p id="reportExplanation"></p>
-
                     </div>
 
-
                     <div class="report-actions">
-
                         <button id="nextCaseButton" class="btn primary">
                             NEXT CASE
                         </button>
@@ -570,13 +801,10 @@
                         <button id="reportHomeButton" class="btn secondary">
                             MAIN MENU
                         </button>
-
                     </div>
 
                 </div>
-
             </section>
-
 
             <!-- ==================================
                  FAILED INVESTIGATION
@@ -585,7 +813,6 @@
             <section id="failedScreen" class="screen">
 
                 <div class="section-heading">
-
                     <span class="eyebrow">
                         INVESTIGATION TERMINATED
                     </span>
@@ -595,23 +822,17 @@
                     <p>
                         Your investigation has ended. Review the clues and try again.
                     </p>
-
                 </div>
-
 
                 <div class="paper-card report-card">
 
-                    <!-- FAILED IMAGE -->
                     <div class="art-slot art-failed-report">
-
                         <img
                             src="assets/images/failed-report.jpg"
                             alt="Unsolved investigation"
                             loading="lazy"
                         >
-
                     </div>
-
 
                     <h3>Don't give up, detective.</h3>
 
@@ -619,9 +840,7 @@
                         You can retry this investigation.
                     </p>
 
-
                     <div class="report-actions">
-
                         <button id="retryButton" class="btn primary">
                             RETRY CASE
                         </button>
@@ -629,23 +848,17 @@
                         <button id="failedHomeButton" class="btn secondary">
                             MAIN MENU
                         </button>
-
                     </div>
 
                 </div>
-
             </section>
 
         </main>
 
-
         <!-- FOOTER -->
         <footer class="footer">
-
             <span>TINY DETECTIVE</span>
-
             <span>NEON CITY INVESTIGATION UNIT</span>
-
         </footer>
 
     </div>
