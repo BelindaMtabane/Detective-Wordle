@@ -3,6 +3,7 @@
    TINY DETECTIVE
    COMIC CYBERPUNK EDITION
    Complete Style Sheet
+   LOCAL IMAGE SUPPORT
    ========================================== */
 
 /* 1. GOOGLE FONTS */
@@ -35,6 +36,9 @@
     --comic-shadow: 5px 5px 0 #050510;
     --glow-cyan: 0 0 18px rgba(0, 245, 255, 0.35);
     --glow-purple: 0 0 18px rgba(168, 85, 247, 0.35);
+
+    /* *** LOCAL IMAGE DIRECTORY */
+    --image-folder: "assets/images/";
 }
 
 
@@ -52,6 +56,7 @@ html {
 
 body {
     min-height: 100vh;
+
     background:
         radial-gradient(circle at 20% 20%, #21133f 0%, transparent 35%),
         radial-gradient(circle at 80% 80%, #102b42 0%, transparent 35%),
@@ -70,6 +75,7 @@ button {
 
 img {
     max-width: 100%;
+    height: auto;
 }
 
 
@@ -161,9 +167,7 @@ img {
 
 /* 6. GENERAL HEADINGS */
 
-h1,
-h2,
-h3 {
+h1, h2, h3 {
     font-family: 'Orbitron', sans-serif;
 }
 
@@ -330,6 +334,7 @@ h3 {
     padding: 20px;
     box-shadow: var(--comic-shadow);
     transition: 0.2s ease;
+    overflow: hidden;
 }
 
 .case-card:hover {
@@ -487,6 +492,7 @@ h3 {
     align-items: center;
     font-size: 35px;
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 .question-heading {
@@ -651,12 +657,12 @@ h3 {
 
 
 /* ==========================================
-   22. TINY DETECTIVE IMAGE SYSTEM
-   All images stored in assets/images/
+   22. TINY DETECTIVE LOCAL IMAGE SYSTEM
+   Images stored in assets/images/
+   Supports JPG, JPEG, PNG, WEBP, GIF
    ========================================== */
 
-
-/* General image container */
+/* *** GENERAL IMAGE CONTAINER */
 
 .art-slot {
     position: relative;
@@ -680,7 +686,34 @@ h3 {
 }
 
 
-/* Main menu background */
+/* *** REUSABLE IMAGE CLASSES */
+
+.art-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.art-image.contain {
+    object-fit: contain;
+}
+
+.art-image.portrait {
+    aspect-ratio: 3 / 4;
+}
+
+.art-image.landscape {
+    aspect-ratio: 16 / 9;
+}
+
+.art-image.square {
+    aspect-ratio: 1 / 1;
+}
+
+
+/* *** MAIN MENU BACKGROUND */
 
 .screen-home-art {
     background-image:
@@ -689,11 +722,11 @@ h3 {
             rgba(9, 9, 26, 0.88),
             rgba(9, 9, 26, 0.30)
         ),
-        url("assets/images/main-menu.jpg");
+        url("../images/main-menu.jpg");
 }
 
 
-/* Investigation room background */
+/* *** INVESTIGATION ROOM BACKGROUND */
 
 .screen-investigation-art {
     background-image:
@@ -701,11 +734,11 @@ h3 {
             rgba(9, 9, 26, 0.65),
             rgba(9, 9, 26, 0.75)
         ),
-        url("assets/images/investigation-room.jpg");
+        url("../images/investigation-room.jpg");
 }
 
 
-/* Interrogation room background */
+/* *** INTERROGATION ROOM BACKGROUND */
 
 .screen-interrogation-art {
     background-image:
@@ -713,11 +746,11 @@ h3 {
             rgba(9, 9, 26, 0.68),
             rgba(9, 9, 26, 0.78)
         ),
-        url("assets/images/interrogation-room.jpg");
+        url("../images/interrogation-room.jpg");
 }
 
 
-/* Background positioning */
+/* *** BACKGROUND POSITIONING */
 
 .screen-home-art,
 .screen-investigation-art,
@@ -729,7 +762,7 @@ h3 {
 }
 
 
-/* Detective portrait */
+/* *** DETECTIVE PORTRAIT */
 
 .art-detective {
     width: 100%;
@@ -748,7 +781,7 @@ h3 {
 }
 
 
-/* Clue note image */
+/* *** CLUE IMAGE */
 
 .art-clue {
     width: 100%;
@@ -763,7 +796,7 @@ h3 {
 }
 
 
-/* Successful report image */
+/* *** SUCCESS REPORT IMAGE */
 
 .art-success-report {
     width: 100%;
@@ -777,7 +810,7 @@ h3 {
 }
 
 
-/* Failed report image */
+/* *** FAILED REPORT IMAGE */
 
 .art-failed-report {
     width: 100%;
@@ -791,14 +824,100 @@ h3 {
 }
 
 
-/* Image hover effects */
+/* *** SUSPECT PORTRAITS */
 
-.art-slot img {
+.suspect-portrait {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--pink);
+    box-shadow: var(--glow-purple);
+}
+
+.suspect-card-image {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid var(--purple);
+}
+
+
+/* *** EVIDENCE IMAGES */
+
+.evidence-image {
+    width: 100%;
+    max-width: 180px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    padding: 8px;
+    background: var(--panel-light);
+    border: 2px solid var(--cyan);
+    border-radius: 10px;
+}
+
+
+/* *** CASE CARD IMAGES */
+
+.case-card-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+
+/* *** IMAGE OVERLAYS */
+
+.image-overlay {
+    position: relative;
+    overflow: hidden;
+}
+
+.image-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        to top,
+        rgba(9, 9, 26, 0.85),
+        transparent 70%
+    );
+
+    pointer-events: none;
+}
+
+
+/* *** IMAGE HOVER EFFECTS */
+
+.art-slot img,
+.art-image,
+.case-card-image,
+.suspect-card-image {
     transition: transform 0.35s ease;
 }
 
-.art-slot:hover img {
+.art-slot:hover img,
+.case-card:hover .case-card-image {
     transform: scale(1.035);
+}
+
+
+/* *** IMAGE FALLBACK */
+
+.art-slot img:not([src]),
+.art-slot img[src=""] {
+    display: none;
+}
+
+.art-slot:has(img:not([src])),
+.art-slot:has(img[src=""]) {
+    background:
+        linear-gradient(135deg, #191932, #30204d);
 }
 
 
@@ -904,3 +1023,4 @@ h3 {
         transition-duration: 0.01ms !important;
     }
 }
+
