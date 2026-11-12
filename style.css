@@ -37,7 +37,7 @@
     --glow-cyan: 0 0 18px rgba(0, 245, 255, 0.35);
     --glow-purple: 0 0 18px rgba(168, 85, 247, 0.35);
 
-    /* *** LOCAL IMAGE DIRECTORY */
+    /* LOCAL IMAGE DIRECTORY */
     --image-folder: "assets/images/";
 }
 
@@ -114,6 +114,13 @@ img {
     text-shadow: 3px 3px 0 var(--purple);
 }
 
+.logo small {
+    display: block;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+
 .topbar-right {
     display: flex;
     align-items: center;
@@ -182,6 +189,7 @@ h1, h2, h3 {
 }
 
 .eyebrow {
+    display: inline-block;
     color: var(--pink);
     font-family: 'Orbitron', sans-serif;
     font-size: 12px;
@@ -218,6 +226,25 @@ h1, h2, h3 {
     flex: 1;
     position: relative;
     z-index: 2;
+}
+
+.hero-content h2 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(48px, 7vw, 82px);
+    letter-spacing: 3px;
+    color: var(--cyan);
+    text-shadow: 4px 4px 0 var(--purple);
+    margin: 15px 0;
+}
+
+.hero-content h2 span {
+    color: var(--pink);
+}
+
+.hero-content p {
+    max-width: 550px;
+    line-height: 1.7;
+    color: var(--text);
 }
 
 .hero-actions {
@@ -270,6 +297,12 @@ h1, h2, h3 {
     border-color: var(--purple);
 }
 
+.btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .truth-button {
     background: rgba(66, 245, 161, 0.15);
     border-color: var(--green);
@@ -316,6 +349,7 @@ h1, h2, h3 {
 .section-heading p {
     color: var(--muted);
     margin-top: 8px;
+    line-height: 1.6;
 }
 
 
@@ -381,6 +415,11 @@ h1, h2, h3 {
     margin: 20px 0;
 }
 
+.briefing-story h3 {
+    color: var(--pink);
+    margin-bottom: 10px;
+}
+
 .facts-list,
 .evidence-list {
     padding-left: 22px;
@@ -402,6 +441,12 @@ h1, h2, h3 {
     gap: 15px;
     flex-wrap: wrap;
     margin-bottom: 20px;
+    padding: 12px 15px;
+    background: rgba(18, 18, 43, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
 }
 
 .timer-track {
@@ -411,6 +456,7 @@ h1, h2, h3 {
     border: 1px solid var(--purple);
     border-radius: 20px;
     overflow: hidden;
+    margin-bottom: 20px;
 }
 
 .timer-fill {
@@ -429,6 +475,11 @@ h1, h2, h3 {
     border-radius: 16px;
     padding: 25px;
     box-shadow: var(--comic-shadow);
+}
+
+.puzzle-card h3 {
+    color: var(--cyan);
+    line-height: 1.5;
 }
 
 .answer-area {
@@ -493,6 +544,12 @@ h1, h2, h3 {
     font-size: 35px;
     flex-shrink: 0;
     overflow: hidden;
+}
+
+.suspect-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .question-heading {
@@ -593,6 +650,11 @@ h1, h2, h3 {
     margin: 20px 0;
 }
 
+.report-explanation h3 {
+    color: var(--cyan);
+    margin-bottom: 10px;
+}
+
 .report-actions {
     display: flex;
     justify-content: center;
@@ -617,6 +679,10 @@ h1, h2, h3 {
     color: var(--muted);
     border-top: 1px solid var(--border);
     font-size: 13px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 
@@ -654,7 +720,6 @@ h1, h2, h3 {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 15px;
 }
-
 
 
 /* ==========================================
@@ -807,31 +872,344 @@ h1, h2, h3 {
 }
 
 
-/* RESPONSIVE IMAGES */
+/* ==========================================
+   23. DETECTIVE PROFILE
+   *** ADDED: Detective on left, biography on right.
+   ========================================== */
 
-@media (max-width: 750px) {
-    .art-detective {
-        max-width: 240px;
-    }
+.detective-profile-panel {
+    display: grid;
+    grid-template-columns: minmax(160px, 230px) minmax(0, 1fr);
+    align-items: center;
+    gap: 25px;
 
-    .art-success-report,
-    .art-failed-report {
-        max-width: 100%;
-    }
+    width: 100%;
+    margin: 0 auto 25px;
+    padding: 22px;
+
+    background: linear-gradient(
+        120deg,
+        rgba(11, 18, 40, 0.97),
+        rgba(23, 15, 48, 0.96)
+    );
+
+    border: 2px solid var(--cyan);
+    border-radius: 16px;
+
+    box-shadow:
+        var(--comic-shadow),
+        0 0 18px rgba(0, 245, 255, 0.12);
 }
 
-@media (max-width: 480px) {
-    .art-clue {
-        max-width: 160px;
-    }
+.detective-profile-image {
+    width: 100%;
+    height: 245px;
+    overflow: hidden;
 
-    .art-detective {
-        max-width: 190px;
-    }
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0, 245, 255, 0.18),
+            rgba(9, 9, 26, 0.95)
+        );
+
+    border: 2px solid var(--purple);
+    border-radius: 12px;
 }
+
+.detective-profile-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+}
+
+.detective-profile-description {
+    min-width: 0;
+    text-align: left;
+}
+
+.detective-profile-description .profile-label {
+    display: inline-block;
+    margin-bottom: 10px;
+
+    color: var(--pink);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.detective-profile-description h3 {
+    color: var(--cyan);
+    font-size: clamp(17px, 2.5vw, 24px);
+    margin-bottom: 14px;
+    line-height: 1.4;
+}
+
+.detective-profile-description p {
+    color: var(--text);
+    line-height: 1.75;
+    margin-bottom: 12px;
+}
+
+.detective-profile-description p:last-child {
+    margin-bottom: 0;
+}
+
 
 /* ==========================================
-   23. RESPONSIVE DESIGN
+   24. DETECTIVE EVIDENCE
+   *** ADDED: Make evidence visible and readable.
+   ========================================== */
+
+.evidence-section {
+    display: block !important;
+    visibility: visible !important;
+
+    width: 100%;
+    margin: 28px 0;
+    padding: 22px;
+
+    background: rgba(8, 13, 32, 0.97);
+
+    border: 2px solid var(--cyan);
+    border-radius: 14px;
+
+    box-shadow:
+        var(--comic-shadow),
+        0 0 18px rgba(0, 245, 255, 0.12);
+}
+
+.evidence-section h3 {
+    color: var(--cyan);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+    text-shadow: 0 0 10px rgba(0, 245, 255, 0.4);
+}
+
+.evidence-section .art-clue {
+    max-width: 320px;
+    height: 190px;
+    aspect-ratio: auto;
+    margin: 15px auto 22px;
+    background: #12122b;
+}
+
+.evidence-section .art-clue img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 8px;
+}
+
+/* *** ADDED: Evidence and fact lists should not disappear. */
+
+.facts-list,
+.evidence-list {
+    display: block !important;
+    visibility: visible !important;
+
+    width: 100%;
+    min-height: 10px;
+
+    padding: 0;
+    margin: 15px 0;
+
+    list-style-position: inside;
+    color: var(--text);
+    line-height: 1.8;
+}
+
+.facts-list li,
+.evidence-list li {
+    margin: 10px 0;
+    padding: 12px 15px;
+
+    background: rgba(36, 36, 68, 0.95);
+
+    border-left: 4px solid var(--pink);
+    border-radius: 7px;
+
+    color: var(--text);
+}
+
+/* *** ADDED: Support evidence generated as cards or divs by JavaScript. */
+
+.evidence-list > div,
+.facts-list > div {
+    margin: 10px 0;
+    padding: 13px 15px;
+
+    background: rgba(36, 36, 68, 0.95);
+
+    border-left: 4px solid var(--cyan);
+    border-radius: 8px;
+
+    color: var(--text);
+}
+
+.evidence-list strong,
+.facts-list strong {
+    color: var(--gold);
+}
+
+.evidence-list p,
+.facts-list p {
+    color: var(--text);
+    line-height: 1.6;
+}
+
+
+/* ==========================================
+   25. INVESTIGATION DATABASE
+   *** UPDATED: Full-size background and clearer title.
+   ========================================== */
+
+#casesScreen.screen-investigation-art {
+    position: relative;
+    isolation: isolate;
+
+    width: 100%;
+    min-height: 75vh;
+
+    padding: 40px 30px;
+
+    overflow: hidden;
+    border: 2px solid var(--purple);
+    border-radius: 18px;
+
+    background-color: var(--bg);
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(5, 8, 22, 0.78),
+            rgba(5, 8, 22, 0.60),
+            rgba(5, 8, 22, 0.78)
+        ),
+        url("assets/images/investigation-room.jpg");
+
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+
+    box-shadow: var(--comic-shadow);
+}
+
+/* *** ADDED: Background layer fills the entire archive screen. */
+
+#casesScreen.screen-investigation-art::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+
+    background-image: url("assets/images/investigation-room.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    opacity: 0.25;
+}
+
+/* *** UPDATED: Put the database title in its own foreground panel. */
+
+#casesScreen .section-heading {
+    position: relative;
+    z-index: 1;
+
+    width: min(100%, 760px);
+    margin: 0 auto 35px;
+    padding: 24px;
+
+    text-align: center;
+
+    background: rgba(5, 8, 22, 0.90);
+
+    border: 2px solid var(--cyan);
+    border-radius: 14px;
+
+    box-shadow:
+        0 0 20px rgba(0, 245, 255, 0.15),
+        5px 5px 0 #050510;
+}
+
+#casesScreen .section-heading .eyebrow {
+    color: var(--pink);
+}
+
+#casesScreen .section-heading h2 {
+    color: var(--cyan);
+    font-size: clamp(25px, 4vw, 38px);
+    text-shadow: 3px 3px 0 var(--purple);
+    margin-bottom: 10px;
+}
+
+#casesScreen .section-heading p {
+    color: #ffffff;
+}
+
+/* *** ADDED: Case cards sit above the background. */
+
+#casesScreen #caseGrid {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+}
+
+#casesScreen .case-card {
+    background: rgba(15, 15, 39, 0.96);
+    border: 2px solid rgba(168, 85, 247, 0.85);
+    backdrop-filter: blur(5px);
+}
+
+#casesScreen .case-card h3 {
+    color: var(--cyan);
+}
+
+#casesScreen .case-card p {
+    color: var(--text);
+}
+
+#casesScreen #backHomeButton {
+    position: relative;
+    z-index: 1;
+    margin-top: 30px;
+}
+
+
+/* ==========================================
+   26. GAMEPLAY PROFILE AND EVIDENCE SPACING
+   *** ADDED: Improve puzzle and interview screens.
+   ========================================== */
+
+#puzzleScreen .detective-profile-panel,
+#interviewScreen .detective-profile-panel {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+#puzzleScreen .section-heading,
+#interviewScreen .section-heading {
+    margin-bottom: 22px;
+}
+
+#puzzleScreen .puzzle-card,
+#interviewScreen .interview-card {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ==========================================
+   27. RESPONSIVE DESIGN
    ========================================== */
 
 @media (max-width: 750px) {
@@ -877,6 +1255,25 @@ h1, h2, h3 {
     .screen-interrogation-art {
         background-position: center;
     }
+
+    /* *** ADDED: Keep the detective portrait beside the description
+       while there is enough room. */
+
+    .detective-profile-panel {
+        grid-template-columns: minmax(130px, 190px) minmax(0, 1fr);
+        gap: 18px;
+        padding: 18px;
+    }
+
+    .detective-profile-image {
+        height: 210px;
+    }
+
+    #casesScreen.screen-investigation-art {
+        min-height: 70vh;
+        padding: 25px 18px;
+        background-position: center;
+    }
 }
 
 
@@ -914,11 +1311,45 @@ h1, h2, h3 {
     .btn {
         width: 100%;
     }
+
+    /* *** ADDED: Stack detective profile on very small screens. */
+
+    .detective-profile-panel {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .detective-profile-image {
+        width: min(100%, 220px);
+        height: 220px;
+        margin: 0 auto;
+    }
+
+    .detective-profile-description {
+        text-align: center;
+    }
+
+    .evidence-section {
+        padding: 15px;
+    }
+
+    .evidence-section .art-clue {
+        max-width: 100%;
+        height: 160px;
+    }
+
+    #casesScreen.screen-investigation-art {
+        padding: 18px 12px;
+    }
+
+    #casesScreen .section-heading {
+        padding: 18px 12px;
+    }
 }
 
 
 /* ==========================================
-   24. ACCESSIBILITY
+   28. ACCESSIBILITY
    ========================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -932,4 +1363,3 @@ h1, h2, h3 {
         transition-duration: 0.01ms !important;
     }
 }
-
