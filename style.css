@@ -656,24 +656,22 @@ h1, h2, h3 {
 }
 
 
+
 /* ==========================================
-   22. TINY DETECTIVE LOCAL IMAGE SYSTEM
-   Images stored in assets/images/
-   Supports JPG, JPEG, PNG, WEBP, GIF
+   22. TINY DETECTIVE IMAGE SYSTEM
+   Uses the 7 existing local images
    ========================================== */
 
-/* *** GENERAL IMAGE CONTAINER */
+/* GENERAL IMAGE CONTAINER */
 
 .art-slot {
     position: relative;
     display: block;
     width: 100%;
     overflow: hidden;
-
     background: #191932;
     border: 2px solid var(--purple);
     border-radius: 14px;
-
     box-shadow: var(--comic-shadow);
 }
 
@@ -686,102 +684,76 @@ h1, h2, h3 {
 }
 
 
-/* *** REUSABLE IMAGE CLASSES */
-
-.art-image {
-    display: block;
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    border-radius: 12px;
-}
-
-.art-image.contain {
-    object-fit: contain;
-}
-
-.art-image.portrait {
-    aspect-ratio: 3 / 4;
-}
-
-.art-image.landscape {
-    aspect-ratio: 16 / 9;
-}
-
-.art-image.square {
-    aspect-ratio: 1 / 1;
-}
-
-
-/* *** MAIN MENU BACKGROUND */
+/* MAIN MENU */
 
 .screen-home-art {
     background-image:
         linear-gradient(
             90deg,
-            rgba(9, 9, 26, 0.88),
-            rgba(9, 9, 26, 0.30)
+            rgba(9, 9, 26, 0.80),
+            rgba(9, 9, 26, 0.25)
         ),
-        url("../images/main-menu.jpg");
-}
+        url("assets/images/main-menu.jpg");
 
-
-/* *** INVESTIGATION ROOM BACKGROUND */
-
-.screen-investigation-art {
-    background-image:
-        linear-gradient(
-            rgba(9, 9, 26, 0.65),
-            rgba(9, 9, 26, 0.75)
-        ),
-        url("../images/investigation-room.jpg");
-}
-
-
-/* *** INTERROGATION ROOM BACKGROUND */
-
-.screen-interrogation-art {
-    background-image:
-        linear-gradient(
-            rgba(9, 9, 26, 0.68),
-            rgba(9, 9, 26, 0.78)
-        ),
-        url("../images/interrogation-room.jpg");
-}
-
-
-/* *** BACKGROUND POSITIONING */
-
-.screen-home-art,
-.screen-investigation-art,
-.screen-interrogation-art {
-    background-color: var(--bg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 }
 
 
-/* *** DETECTIVE PORTRAIT */
+/* INVESTIGATION ROOM */
+
+.screen-investigation-art {
+    background-image:
+        linear-gradient(
+            rgba(9, 9, 26, 0.55),
+            rgba(9, 9, 26, 0.75)
+        ),
+        url("assets/images/investigation-room.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+/* INTERROGATION ROOM */
+
+.screen-interrogation-art {
+    background-image:
+        linear-gradient(
+            rgba(9, 9, 26, 0.60),
+            rgba(9, 9, 26, 0.78)
+        ),
+        url("assets/images/interrogation-room.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+/* DETECTIVE CHARACTER */
 
 .art-detective {
     width: 100%;
     max-width: 340px;
     aspect-ratio: 3 / 4;
     margin: 0 auto;
-
     background: transparent;
     border: none;
     box-shadow: none;
 }
 
 .art-detective img {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     object-position: center bottom;
 }
 
 
-/* *** CLUE IMAGE */
+/* CLUE NOTE */
 
 .art-clue {
     width: 100%;
@@ -796,7 +768,7 @@ h1, h2, h3 {
 }
 
 
-/* *** SUCCESS REPORT IMAGE */
+/* SUCCESS REPORT */
 
 .art-success-report {
     width: 100%;
@@ -810,7 +782,7 @@ h1, h2, h3 {
 }
 
 
-/* *** FAILED REPORT IMAGE */
+/* FAILED REPORT */
 
 .art-failed-report {
     width: 100%;
@@ -824,102 +796,39 @@ h1, h2, h3 {
 }
 
 
-/* *** SUSPECT PORTRAITS */
+/* IMAGE HOVER EFFECTS */
 
-.suspect-portrait {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--pink);
-    box-shadow: var(--glow-purple);
-}
-
-.suspect-card-image {
-    width: 100%;
-    aspect-ratio: 3 / 4;
-    object-fit: cover;
-    border-radius: 10px;
-    border: 2px solid var(--purple);
-}
-
-
-/* *** EVIDENCE IMAGES */
-
-.evidence-image {
-    width: 100%;
-    max-width: 180px;
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
-    padding: 8px;
-    background: var(--panel-light);
-    border: 2px solid var(--cyan);
-    border-radius: 10px;
-}
-
-
-/* *** CASE CARD IMAGES */
-
-.case-card-image {
-    display: block;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 15px;
-}
-
-
-/* *** IMAGE OVERLAYS */
-
-.image-overlay {
-    position: relative;
-    overflow: hidden;
-}
-
-.image-overlay::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-
-    background: linear-gradient(
-        to top,
-        rgba(9, 9, 26, 0.85),
-        transparent 70%
-    );
-
-    pointer-events: none;
-}
-
-
-/* *** IMAGE HOVER EFFECTS */
-
-.art-slot img,
-.art-image,
-.case-card-image,
-.suspect-card-image {
+.art-slot img {
     transition: transform 0.35s ease;
 }
 
-.art-slot:hover img,
-.case-card:hover .case-card-image {
+.art-slot:hover img {
     transform: scale(1.035);
 }
 
 
-/* *** IMAGE FALLBACK */
+/* RESPONSIVE IMAGES */
 
-.art-slot img:not([src]),
-.art-slot img[src=""] {
-    display: none;
+@media (max-width: 750px) {
+    .art-detective {
+        max-width: 240px;
+    }
+
+    .art-success-report,
+    .art-failed-report {
+        max-width: 100%;
+    }
 }
 
-.art-slot:has(img:not([src])),
-.art-slot:has(img[src=""]) {
-    background:
-        linear-gradient(135deg, #191932, #30204d);
-}
+@media (max-width: 480px) {
+    .art-clue {
+        max-width: 160px;
+    }
 
+    .art-detective {
+        max-width: 190px;
+    }
+}
 
 /* ==========================================
    23. RESPONSIVE DESIGN
